@@ -36,6 +36,11 @@ class CubexTest extends PHPUnit_Framework_TestCase
   {
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $cubex   = new \Cubex\Cubex();
+
+    $resp = $cubex->handle($request);
+    $this->assertContains('Uncaught Exception', (string)$resp);
+    $this->assertContains('You must use a \Cubex\Http\Request', (string)$resp);
+
     $this->setExpectedException(
       '\InvalidArgumentException',
       'You must use a \Cubex\Http\Request'

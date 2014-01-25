@@ -72,9 +72,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
     $request = \Cubex\Http\Request::createFromGlobals();
 
     $request->headers->set('HOST', 'www.cubex.local');
-    $this->assertTrue($request->matchDomain("cubex"));
-    $this->assertTrue($request->matchDomain("cubex", "local"));
+    $this->assertTrue($request->matchDomain("cubex", null, null));
+    $this->assertTrue($request->matchDomain("cubex", "local", null));
     $this->assertTrue($request->matchDomain("cubex", "local", "www"));
+    $this->assertFalse($request->matchDomain("packaged", null, null));
+    $this->assertFalse($request->matchDomain("cubex", "dev", null));
+    $this->assertFalse($request->matchDomain("cubex", "local", "wibble"));
   }
 
   public function testDefinedTlds()

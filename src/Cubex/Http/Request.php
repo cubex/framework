@@ -58,8 +58,6 @@ class Request extends \Symfony\Component\HttpFoundation\Request
 
     switch(count($parts))
     {
-      case 0:
-        return $this;
       case 1:
         $this->_domain = $parts[0];
         break;
@@ -69,8 +67,10 @@ class Request extends \Symfony\Component\HttpFoundation\Request
           if(empty($this->_tld))
           {
             $this->_tld = $part;
+            continue;
           }
-          else if(empty($this->_domain))
+
+          if(empty($this->_domain))
           {
             if($i < 2
               && (strlen($part) == 2
@@ -85,8 +85,10 @@ class Request extends \Symfony\Component\HttpFoundation\Request
             {
               $this->_domain = $part;
             }
+            continue;
           }
-          else if(empty($this->_subdomain))
+
+          if(empty($this->_subdomain))
           {
             $this->_subdomain = $part;
           }
