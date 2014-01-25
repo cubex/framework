@@ -16,6 +16,3 @@ $request  = \Cubex\Http\Request::createFromGlobals();
 $response = $app->handle($request);
 $response->send();
 $app->terminate($request, $response);
-
-echo "\n<br/>";
-echo number_format((microtime(true) - PHP_START) * 1000, 3);

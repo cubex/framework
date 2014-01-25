@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 use \Cubex\Http\Request as CubexRequest;
+use \Cubex\Http\Response as CubexResponse;
 
 /**
  * Cubex Container, to be passed around for dependency injection etc
@@ -99,7 +100,7 @@ class Cubex extends Container
       //Fix anything that hasnt been set by the projects bootstrap
       $this->prepareCubex();
 
-      return new Response("Hello Cubex");
+      return new CubexResponse("Hello Cubex");
     }
     catch(\Exception $e)
     {

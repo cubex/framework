@@ -37,6 +37,11 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     }
   }
 
+  /**
+   * Returns a list of user defined TLDs, used for calculating domain parts
+   *
+   * @return array
+   */
   public function getDefinedTlds()
   {
     return array_keys($this->_definedTlds);
@@ -107,6 +112,8 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   }
 
   /**
+   * Sub Domain e.g. www.
+   *
    * @return string|null
    */
   public function subDomain()
@@ -120,6 +127,8 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   }
 
   /**
+   * Main domain, excluding sub domains and tlds
+   *
    * @return string
    */
   public function domain()
@@ -133,6 +142,8 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   }
 
   /**
+   * Top Level Domain
+   *
    * @return string
    */
   public function tld()
@@ -146,6 +157,8 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   }
 
   /**
+   * Port number the user is requesting on
+   *
    * @return int
    */
   public function port()
