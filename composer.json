@@ -26,9 +26,7 @@
   "autoload":          {
     "psr-0": {
       "Cubex\\": "src/"
-    }
-  },
-  "autoload-dev":      {
+    },
     "psr-4": {
       "testProject\\": "testProject/src/"
     }

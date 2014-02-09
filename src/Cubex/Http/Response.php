@@ -139,7 +139,10 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   {
     if($force === true || ($force === null && extension_loaded("zlib")))
     {
-      ini_set('zlib.output_compression', 'On');
+      if(!headers_sent())
+      {
+        ini_set('zlib.output_compression', 'On');
+      }
       return true;
     }
     return false;

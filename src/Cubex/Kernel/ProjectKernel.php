@@ -17,7 +17,8 @@ abstract class ProjectKernel extends CubexKernel
    *
    * @param Request $request A Request instance
    * @param integer $type The type of the request
-   *                          (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
+   *                          (one of HttpKernelInterface::MASTER_REQUEST
+   *                          or HttpKernelInterface::SUB_REQUEST)
    * @param Boolean $catch Whether to catch exceptions or not
    *
    * @return Response A Response instance
@@ -32,7 +33,7 @@ abstract class ProjectKernel extends CubexKernel
   {
     $this->getCubex()->instance("project", $this);
 
-    // TODO: Route to correct application based on request parts of project logic
+    //TODO: Route to correct application based on request parts of project logic
 
     //Imitialise the project
 

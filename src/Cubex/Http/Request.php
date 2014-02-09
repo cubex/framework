@@ -56,48 +56,47 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   {
     $parts = array_reverse(explode('.', strtolower($this->getHost())));
 
-    switch(count($parts))
+    if(count($parts) == 1)
     {
-      case 1:
-        $this->_domain = $parts[0];
-        break;
-      default:
-        foreach($parts as $i => $part)
+      $this->_domain = $parts[0];
+    }
+    else
+    {
+      foreach($parts as $i => $part)
+      {
+        if(empty($this->_tld))
         {
-          if(empty($this->_tld))
-          {
-            $this->_tld = $part;
-            continue;
-          }
+          $this->_tld = $part;
+          continue;
+        }
 
-          if(empty($this->_domain))
-          {
-            if($i < 2
-              && (strlen($part) == 2
-                || isset($this->_definedTlds[$part . '.' . $this->_tld])
-                || isset($this->_knownTlds[$part])
-              )
+        if(empty($this->_domain))
+        {
+          if($i < 2
+            && (strlen($part) == 2
+              || isset($this->_definedTlds[$part . '.' . $this->_tld])
+              || isset($this->_knownTlds[$part])
             )
-            {
-              $this->_tld = $part . '.' . $this->_tld;
-            }
-            else
-            {
-              $this->_domain = $part;
-            }
-            continue;
-          }
-
-          if(empty($this->_subdomain))
+          )
           {
-            $this->_subdomain = $part;
+            $this->_tld = $part . '.' . $this->_tld;
           }
           else
           {
-            $this->_subdomain = $part . '.' . $this->_subdomain;
+            $this->_domain = $part;
           }
+          continue;
         }
-        break;
+
+        if(empty($this->_subdomain))
+        {
+          $this->_subdomain = $part;
+        }
+        else
+        {
+          $this->_subdomain = $part . '.' . $this->_subdomain;
+        }
+      }
     }
 
     return $this;

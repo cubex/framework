@@ -13,3 +13,5 @@ script: phpunit --coverage-text
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - php: hhvm
