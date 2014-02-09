@@ -1,8 +1,10 @@
 <?php
 namespace Cubex;
 
+use Cubex\Kernel\CubexKernel;
 use Illuminate\Container\Container;
 use Packaged\Config\ConfigProviderInterface;
+use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -16,18 +18,114 @@ use \Cubex\Http\Response as CubexResponse;
 class Cubex extends Container
   implements HttpKernelInterface, TerminableInterface
 {
-  protected $_configuration;
+  const FLAG_CLI = 'cli';
+  const FLAG_WEB = 'web';
+
+  protected $_flags;
+  protected $_docRoot;
+  protected $_projectRoot;
+
+  /**
+   * @param null $webRoot
+   */
+  public function __construct($webRoot = null)
+  {
+    if($webRoot !== null)
+    {
+      $this->_docRoot = $webRoot;
+    }
+
+    $this->setDefaultFlags();
+  }
+
+  /**
+   * Get the document root (usually your public folder)
+   *
+   * @return string
+   */
+  public function getDocRoot()
+  {
+    return $this->_docRoot;
+  }
+
+  /**
+   * Get the base path of the project (level above public)
+   *
+   * @return string
+   */
+  public function getProjectRoot()
+  {
+    if($this->_projectRoot === null)
+    {
+      $this->_projectRoot = dirname($this->_docRoot);
+    }
+    return $this->_projectRoot;
+  }
+
+  public function setDefaultFlags()
+  {
+    $isCli = php_sapi_name() === 'cli';
+    $this->setFlag(self::FLAG_CLI, $isCli);
+    $this->setFlag(self::FLAG_WEB, !$isCli);
+    return $this;
+  }
+
+  /**
+   * Check for a flag
+   *
+   * @param string $flag
+   *
+   * @return bool
+   */
+  public function hasFlag($flag)
+  {
+    return isset($this->_flags[$flag]);
+  }
+
+  /**
+   * Create a flag
+   *
+   * @param string $flag
+   * @param bool   $enabled
+   *
+   * @return $this
+   */
+  public function setFlag($flag, $enabled = true)
+  {
+    if($enabled === true)
+    {
+      $this->_flags[$flag] = true;
+    }
+    else
+    {
+      $this->unsetFlag($flag);
+    }
+    return $this;
+  }
+
+  /**
+   * Remove a flag
+   *
+   * @param string $flag
+   *
+   * @return $this
+   */
+  public function unsetFlag($flag)
+  {
+    unset($this->_flags[$flag]);
+    return $this;
+  }
 
   /**
    * Configure Cubex
    *
-   * @param ConfigProviderInterface $configuration
+   * @param ConfigProviderInterface $conf
    *
    * @return $this
    */
-  public function configure(ConfigProviderInterface $configuration)
+  public function configure(ConfigProviderInterface $conf)
   {
-    $this->_configuration = $configuration;
+    $this->instance('ConfigProvider', $conf);
     return $this;
   }
 
@@ -38,7 +136,14 @@ class Cubex extends Container
    */
   public function getConfiguration()
   {
-    return $this->_configuration;
+    try
+    {
+      return $this->make("ConfigProvider");
+    }
+    catch(\Exception $e)
+    {
+      return null;
+    }
   }
 
   /**
@@ -46,9 +151,38 @@ class Cubex extends Container
    */
   public function prepareCubex()
   {
-    if($this->_configuration === null)
+    if(!$this->bound("ConfigProvider"))
     {
-      //TODO: Load default configuration
+      $config = new IniConfigProvider();
+      $files  = ['defaults.ini'];
+
+      foreach($files as $fileName)
+      {
+        $file = build_path($this->getProjectRoot(), 'conf', $fileName);
+        try
+        {
+          $config->loadFile($file);
+        }
+        catch(\Exception $e)
+        {
+        }
+      }
+
+      $this->instance("ConfigProvider", $config);
+    }
+  }
+
+  /**
+   * Process configuration to bind services, interfaces etc
+   *
+   * @param ConfigProviderInterface $conf
+   */
+  public function processConfiguration(ConfigProviderInterface $conf)
+  {
+    $projectClass = $conf->getItem("kernel", "project", null);
+    if($projectClass !== null)
+    {
+      $this->bindIf('\Cubex\Kernel\CubexKernel', $projectClass, true);
     }
   }
 
@@ -57,7 +191,7 @@ class Cubex extends Container
     $content = '<h1>Uncaught Exception</h1>';
     $content .= '<h2>(' . $e->getCode() . ') ' . $e->getMessage() . '</h2>';
     $content .= '<pre>' . $e->getTraceAsString() . '</pre>';
-    $response = new Response($content, 500);
+    $response = new CubexResponse($content, 500);
     return $response;
   }
 
@@ -85,22 +219,56 @@ class Cubex extends Container
   {
     try
     {
-      //Ensure we are working with a Cubex Request for added functionality
-      if($request instanceof CubexRequest)
+      //Ensure all constants have been configured
+      if($this->getDocRoot() === null)
       {
-        $this->instance('request', $request);
+        throw new \RuntimeException(
+          "Cubex has been constructed without a document root provided" .
+          ", you must call createConstants before calling handle."
+        );
       }
-      else
+
+      //Ensure we are working with a Cubex Request for added functionality
+      if(!($request instanceof CubexRequest))
       {
         throw new \InvalidArgumentException(
           'You must use a \Cubex\Http\Request'
         );
       }
 
+      $this->instance('request', $request);
+
       //Fix anything that hasnt been set by the projects bootstrap
       $this->prepareCubex();
 
-      return new CubexResponse("Hello Cubex");
+      //Bind services
+      $this->processConfiguration($this->getConfiguration());
+
+      //Retrieve the
+      $kernel = $this->make('\Cubex\Kernel\CubexKernel');
+      if($kernel instanceof CubexKernel)
+      {
+        $kernel->setCubex($this);
+        $response = $kernel->handle($request, $type, $catch);
+
+        if(!($response instanceof Response))
+        {
+          throw new \RuntimeException(
+            "A valid response was not generated by the default kernel", 500
+          );
+        }
+
+        if($this->getConfiguration()->getItem('response', 'gzip', false))
+        {
+          if($response instanceof CubexResponse)
+          {
+            $response->enableGzip();
+          }
+        }
+        return $response;
+      }
+
+      throw new \RuntimeException("No Cubex Kernel has been configured");
     }
     catch(\Exception $e)
     {

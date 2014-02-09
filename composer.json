@@ -17,15 +17,20 @@
     "packaged/config":         "*",
     "packaged/helpers":        "*",
     "symfony/http-foundation": "~2.1",
-    "symfony/http-kernel":     "~2.1",
-    "stack/builder":           "1.0.*"
+    "symfony/http-kernel":     "~2.1"
   },
   "require-dev":       {
-    "phpunit/phpunit": "*"
+    "phpunit/phpunit": "*",
+    "stack/builder":   "1.0.*"
   },
   "autoload":          {
     "psr-0": {
       "Cubex\\": "src/"
+    }
+  },
+  "autoload-dev":      {
+    "psr-4": {
+      "testProject\\": "testProject/src/"
     }
   },
   "minimum-stability": "dev"

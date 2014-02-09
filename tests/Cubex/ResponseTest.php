@@ -56,4 +56,19 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     $response->setCubexHeaders();
     $this->assertContains('X-Execution-Time', (string)$response);
   }
+
+  /**
+   * @runInSeparateProcess
+   * @requires extension zlib
+   */
+  public function testGzipCompression()
+  {
+    $response = new \Cubex\Http\Response();
+    $response->enableGzip(false);
+    $this->assertEquals('', ini_get('zlib.output_compression'));
+    $response->enableGzip(true);
+    $this->assertEquals('On', ini_get('zlib.output_compression'));
+    $response->enableGzip(null);
+    $this->assertEquals('On', ini_get('zlib.output_compression'));
+  }
 }

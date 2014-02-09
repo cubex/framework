@@ -127,4 +127,21 @@ class Response extends \Symfony\Component\HttpFoundation\Response
       );
     }
   }
+
+  /**
+   * Enable zlib output compression
+   *
+   * @param null|bool $force null to enable if extension loaded
+   *
+   * @return bool
+   */
+  public function enableGzip($force = null)
+  {
+    if($force === true || ($force === null && extension_loaded("zlib")))
+    {
+      ini_set('zlib.output_compression', 'On');
+      return true;
+    }
+    return false;
+  }
 }
