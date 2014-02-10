@@ -20,4 +20,4 @@ interface ICubexAware
    * @return Cubex
    */
   public function getCubex();
-} 
+}

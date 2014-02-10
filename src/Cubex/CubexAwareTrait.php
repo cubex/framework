@@ -18,7 +18,7 @@ trait CubexAwareTrait
   /**
    * Retrieve the cubex application
    *
-   * @return mixed
+   * @return Cubex
    *
    * @throws \RuntimeException
    */
