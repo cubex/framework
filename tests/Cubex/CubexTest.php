@@ -4,7 +4,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
 {
   public function sampleProjectPath()
   {
-    return dirname(dirname(__DIR__)) . '/testProject/public';
+    return dirname(__DIR__);
   }
 
   public function sampleProjectCubex()
@@ -61,7 +61,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $this->assertContains('345', (string)$resp);
 
     $exception = \Cubex\CubexException::debugException("msg", 123, 'solution');
-    $resp = $cubex->exceptionResponse($exception);
+    $resp      = $cubex->exceptionResponse($exception);
     $this->assertContains('msg', (string)$resp);
     $this->assertContains('123', (string)$resp);
     $this->assertContains('solution', (string)$resp);
@@ -173,9 +173,10 @@ class CubexTest extends PHPUnit_Framework_TestCase
   public function testConfigure()
   {
     $config = new \Packaged\Config\Provider\Test\TestConfigProvider();
-    $config->addItem("kernel", "project", 'testProject\Project');
+    $config->addItem("kernel", "project", 'Project');
 
     $cubex = new \Cubex\Cubex();
     $cubex->configure($config);
+    $this->assertSame($config, $cubex->getConfiguration());
   }
 }

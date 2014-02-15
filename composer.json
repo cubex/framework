@@ -26,9 +26,6 @@
   "autoload":          {
     "psr-0": {
       "Cubex\\": "src/"
-    },
-    "psr-4": {
-      "testProject\\": "testProject/src/"
     }
   },
   "minimum-stability": "dev"
