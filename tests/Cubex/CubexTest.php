@@ -130,7 +130,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel');
     $kernel->expects($this->any())
       ->method("handle")
-      ->willReturn(null);
+      ->will($this->returnValue((null)));
     $kernel->setCubex($cubex);
 
     $request = \Cubex\Http\Request::createFromGlobals();
@@ -161,7 +161,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel');
     $kernel->expects($this->any())
       ->method("handle")
-      ->willReturn(new \Cubex\Http\Response("Good Data"));
+      ->will($this->returnValue((new \Cubex\Http\Response("Good Data"))));
     $kernel->setCubex($cubex);
 
     $cubex->instance('\Cubex\Kernel\CubexKernel', $kernel);

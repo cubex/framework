@@ -215,17 +215,18 @@ class Cubex extends Container
     }
   }
 
-  public function exceptionResponse(\Exception $e)
+  public function exceptionResponse(\Exception $exception)
   {
     $content = '<h1>Uncaught Exception</h1>';
-    $content .= '<h2>(' . $e->getCode() . ') ' . $e->getMessage() . '</h2>';
+    $content .= '<h2>(' . $exception->getCode() . ') ';
+    $content .= $exception->getMessage() . '</h2>';
 
     //If we have a cubex exception, lets provide some debug data
-    if($e instanceof CubexException)
+    if($exception instanceof CubexException)
     {
       $content .= '<h3>Debug Data</h3>';
       ob_start();
-      var_dump($e->getDebug());
+      var_dump($exception->getDebug());
       $debugData = ob_get_clean();
 
       $content .= '<pre>' . $debugData . '</pre>';
@@ -233,7 +234,7 @@ class Cubex extends Container
       $content .= '<h3>Stack Trace</h3>';
     }
 
-    $content .= '<pre>' . $e->getTraceAsString() . '</pre>';
+    $content .= '<pre>' . $exception->getTraceAsString() . '</pre>';
     $response = new CubexResponse($content, 500);
     return $response;
   }

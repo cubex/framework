@@ -1,6 +1,6 @@
 <?php
 
-class RouterTest extends PHPUnit_Framework_TestCase
+class RouterTest extends CubexTestCase
 {
   public function testCreateRoute()
   {
@@ -68,9 +68,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         "Unable to locate a suitable route"
       );
     }
-    $router  = new \Cubex\Routing\Router();
+    $router = new \Cubex\Routing\Router();
+    $router->setCubex($this->newCubexInstace());
     $subject = $this->getMock('\Cubex\Routing\IRoutable', ['getRoutes']);
-    $subject->expects($this->any())->method("getRoutes")->willReturn($routes);
+    $subject->expects($this->any())->method("getRoutes")
+      ->will($this->returnValue($routes));
     $router->setSubject($subject);
     $route = $router->process($url);
 

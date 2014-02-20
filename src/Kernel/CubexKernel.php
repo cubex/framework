@@ -87,19 +87,38 @@ abstract class CubexKernel
       }
       //Tell the router who its working for
       $router->setSubject($this);
+      $response = null;
 
       try
       {
-        $route = $router->process($request->getPathInfo());
+        //Process the route to get the response
+        $response = $this->executeRoute(
+          $router->process($request->getPathInfo()),
+          $request,
+          $type,
+          $catch
+        );
       }
       catch(\Exception $e)
       {
-        //If no route could be found, use the default action as defined
-        $route = Route::create('defaultAction');
+        try
+        {
+          $response = $this->autoRoute($request);
+        }
+        catch(\Exception $e)
+        {
+        }
       }
 
-      //Process the route to get the response
-      $response = $this->executeRoute($route, $request, $type, $catch);
+      if(!($response instanceof Response))
+      {
+        $response = $this->executeRoute(
+          Route::create('defaultAction'),
+          $request,
+          $type,
+          $catch
+        );
+      }
 
       if(!($response instanceof Response))
       {
@@ -175,22 +194,19 @@ abstract class CubexKernel
         $method = $this->attemptMethod($value, $request);
         if($method !== null)
         {
-          ob_start();
-          //TODO: Call with args
-          $response = $this->$method();
-          return $this->handleResponse($response, ob_get_clean());
+          return $this->_getMethodResult($method);
         }
-      }
-
-      if($value instanceof Response)
-      {
-        return $value;
       }
     }
 
     if($value instanceof ICubexAware)
     {
       $value->setCubex($this->getCubex());
+    }
+
+    if($value instanceof Response)
+    {
+      return $value;
     }
 
     //Support for nested kernels, e.g. project > application > controller
@@ -210,6 +226,28 @@ abstract class CubexKernel
     }
 
     return null;
+  }
+
+  /**
+   * Execute a method, and convert the response or output into a response
+   *
+   * @param            $method
+   * @param null|array $params Parameters to send into the method
+   *
+   * @return \Cubex\Http\Response|null
+   */
+  protected function _getMethodResult($method, $params = null)
+  {
+    ob_start();
+    if($params === null)
+    {
+      $response = $this->$method();
+    }
+    else
+    {
+      $response = call_user_func_array([$this, $method], $params);
+    }
+    return $this->handleResponse($response, ob_get_clean());
   }
 
   /**
@@ -324,5 +362,58 @@ abstract class CubexKernel
     }
 
     return null;
+  }
+
+  /**
+   * Auto build the result based on the URL
+   *
+   * @param Request $request
+   *
+   * @return null|Response
+   */
+  public function autoRoute(Request $request)
+  {
+    $params      = null;
+    $paramString = trim($request->getPathInfo(), '/');
+    if(!$paramString)
+    {
+      return null;
+    }
+
+    $params = explode('/', $paramString);
+    $path   = array_shift($params);
+
+    if(empty($params))
+    {
+      $params = null;
+    }
+
+    //Does the method exist?
+    $method = $this->attemptMethod($path, $request);
+    if($method !== null)
+    {
+      return $this->_getMethodResult($method, $params);
+    }
+
+    //Nothing was found to automatically make things better
+    return null;
+  }
+
+  /**
+   * Retrieve a cubex configuration item
+   *
+   * @param      $section
+   * @param      $item
+   * @param null $default
+   *
+   * @return mixed
+   */
+  public function getConfigItem($section, $item, $default = null)
+  {
+    return $this->getCubex()->getConfiguration()->getItem(
+      $section,
+      $item,
+      $default
+    );
   }
 }

@@ -13,20 +13,18 @@
   ],
   "require":           {
     "php":                     ">=5.4.0",
-    "illuminate/container":    "4.2.*",
+    "illuminate/container":    "4.1.*",
     "packaged/config":         "*",
     "packaged/helpers":        "*",
     "symfony/http-foundation": "~2.1",
     "symfony/http-kernel":     "~2.1"
   },
   "require-dev":       {
-    "phpunit/phpunit": "*",
     "stack/builder":   "1.0.*"
   },
   "autoload":          {
-    "psr-0": {
+    "psr-4": {
       "Cubex\\": "src/"
     }
-  },
-  "minimum-stability": "dev"
+  }
 }

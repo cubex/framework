@@ -11,11 +11,26 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['defaultAction']);
-    $kernel->expects($this->any())->method("defaultAction")->willReturn(
-      $defaultAction
+    $kernel->expects($this->any())->method("defaultAction")->will(
+      $this->returnValue(($defaultAction))
     );
     $kernel->setCubex($cubex);
     return $kernel;
+  }
+
+  public function testConfiguration()
+  {
+    $kernel = $this->getMockForAbstractClass('\Cubex\Kernel\CubexKernel');
+    /**
+     * @var $kernel \Cubex\Kernel\CubexKernel
+     */
+    $config = new \Packaged\Config\Provider\Test\TestConfigProvider();
+    $config->addItem('test', 'entry', 'cube');
+    $cubex = new \Cubex\Cubex();
+    $cubex->configure($config);
+    $kernel->setCubex($cubex);
+    $this->assertEquals('cube', $kernel->getConfigItem('test', 'entry', false));
+    $this->assertEquals(false, $kernel->getConfigItem('test', 'ab', false));
   }
 
   public function testCubexAwareGetNull()
@@ -49,6 +64,36 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
+  }
+
+  public function testHandleWithRoutes()
+  {
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/hello/world');
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+    $kernel = $this->getMock(
+      '\Cubex\Kernel\CubexKernel',
+      ['getRoutes', 'resp']
+    );
+    $kernel->expects($this->any())->method("getRoutes")->will(
+      $this->returnValue(
+        [
+          'hello/world' => 'resp'
+        ]
+      )
+    );
+    $kernel->expects($this->any())->method("resp")->will(
+      $this->returnValue("respdata")
+    );
+    $kernel->setCubex($cubex);
+    $resp = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $this->assertInstanceOf(
+      '\Symfony\Component\HttpFoundation\Response',
+      $resp
+    );
+    $this->assertContains("respdata", (string)$resp);
   }
 
   public function testHandleInvalidResponse()
@@ -202,6 +247,43 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     ];
   }
 
+  public function testAutoRoute()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+    $kernel = $this->getMock(
+      '\Cubex\Kernel\CubexKernel',
+      ['renderCubexed', 'cubex']
+    );
+    $kernel->expects($this->any())->method("renderCubexed")->will(
+      $this->returnValue(("cubexed"))
+    );
+    $kernel->expects($this->any())->method("cubex")->will(
+      $this->returnValue(("cubex"))
+    );
+    /**
+     * @var PHPUnit_Framework_MockObject_MockObject|\Cubex\Kernel\CubexKernel $kernel
+     */
+
+    $kernel->setCubex($cubex);
+    /**
+     * @var \Cubex\Http\Request $request
+     */
+
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/tester');
+    $this->assertNull($kernel->autoRoute($request));
+
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/cubexed/tester');
+    $this->assertContains("cubexed", (string)$kernel->autoRoute($request));
+
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/cubex/tester');
+    $this->assertContains("cubex", (string)$kernel->autoRoute($request));
+  }
+
   /**
    * @dataProvider executeRouteProvider
    */
@@ -243,14 +325,20 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $response = new \Cubex\Http\Response("hey");
 
     $toString = $this->getMock('stdClass', ['__toString']);
-    $toString->expects($this->any())->method("__toString")->willReturn("test");
+    $toString->expects($this->any())->method("__toString")->will(
+      $this->returnValue("test")
+    );
 
     $kernel = $this->getMock(
       '\Cubex\Kernel\CubexKernel',
       ['actionIn', 'handle']
     );
-    $kernel->expects($this->any())->method("actionIn")->willReturn("method");
-    $kernel->expects($this->any())->method("handle")->willReturn($response);
+    $kernel->expects($this->any())->method("actionIn")->will(
+      $this->returnValue(("method"))
+    );
+    $kernel->expects($this->any())->method("handle")->will(
+      $this->returnValue(($response))
+    );
     $kernel->setCubex($cubex);
 
     $callable = function ()

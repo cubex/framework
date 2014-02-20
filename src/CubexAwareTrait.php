@@ -24,9 +24,12 @@ trait CubexAwareTrait
    */
   public function getCubex()
   {
-    if($this->_cubex === null)
+    if($this->_cubex === null || !($this->_cubex instanceof Cubex))
     {
-      throw new \RuntimeException("The cubex application has not been set", 404);
+      throw new \RuntimeException(
+        "The cubex application has not been set",
+        404
+      );
     }
     return $this->_cubex;
   }

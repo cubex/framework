@@ -59,43 +59,42 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     if(count($parts) == 1)
     {
       $this->_domain = $parts[0];
+      return $this;
     }
-    else
+
+    foreach($parts as $i => $part)
     {
-      foreach($parts as $i => $part)
+      if(empty($this->_tld))
       {
-        if(empty($this->_tld))
-        {
-          $this->_tld = $part;
-          continue;
-        }
+        $this->_tld = $part;
+        continue;
+      }
 
-        if(empty($this->_domain))
-        {
-          if($i < 2
-            && (strlen($part) == 2
-              || isset($this->_definedTlds[$part . '.' . $this->_tld])
-              || isset($this->_knownTlds[$part])
-            )
+      if(empty($this->_domain))
+      {
+        if($i < 2
+          && (strlen($part) == 2
+            || isset($this->_definedTlds[$part . '.' . $this->_tld])
+            || isset($this->_knownTlds[$part])
           )
-          {
-            $this->_tld = $part . '.' . $this->_tld;
-          }
-          else
-          {
-            $this->_domain = $part;
-          }
-          continue;
-        }
-
-        if(empty($this->_subdomain))
+        )
         {
-          $this->_subdomain = $part;
+          $this->_tld = $part . '.' . $this->_tld;
         }
         else
         {
-          $this->_subdomain = $part . '.' . $this->_subdomain;
+          $this->_domain = $part;
         }
+        continue;
+      }
+
+      if(empty($this->_subdomain))
+      {
+        $this->_subdomain = $part;
+      }
+      else
+      {
+        $this->_subdomain = $part . '.' . $this->_subdomain;
       }
     }
 
@@ -226,5 +225,46 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     }
 
     return $match;
+  }
+
+  /**
+   * Pull back a specific number of parts from the URL
+   *
+   * @param null|int $depth depth of /
+   *
+   * @return null
+   */
+  public function path($depth = null)
+  {
+    if($depth !== null)
+    {
+      $depth++;
+      $parts = explode("/", $this->getPathInfo(), $depth + 1);
+      if(count($parts) > $depth)
+      {
+        array_pop($parts);
+        return implode('/', $parts);
+      }
+    }
+    return $this->getPathInfo();
+  }
+
+  /**
+   * Retrieve a section of the path
+   *
+   * @param int  $offset
+   * @param null $limit
+   *
+   * @return string
+   */
+  public function offsetPath($offset = 0, $limit = null)
+  {
+    $path  = $this->path($limit === null ? null : $offset + $limit);
+    $parts = explode("/", $path);
+    for($i = 0; $i <= $offset; $i++)
+    {
+      array_shift($parts);
+    }
+    return '/' . implode('/', $parts);
   }
 }

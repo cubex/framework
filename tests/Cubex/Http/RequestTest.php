@@ -90,4 +90,38 @@ class RequestTest extends PHPUnit_Framework_TestCase
     $request->defineTlds(['devx'], true);
     $this->assertEquals(['dev', 'cubex', 'devx'], $request->getDefinedTlds());
   }
+
+  /**
+   * @dataProvider pathProvider
+   *
+   * @param     $path
+   * @param     $expect
+   * @param     $offset
+   * @param int $depth
+   */
+  public function testPaths($path, $expect, $depth = 1, $offset = -1)
+  {
+    $request = \Cubex\Http\Request::createFromGlobals();
+    /**
+     * @var \Cubex\Http\Request $request
+     */
+    $request->server->set('REQUEST_URI', $path);
+    if($offset == -1)
+    {
+      $this->assertEquals($expect, $request->path($depth));
+    }
+    else
+    {
+      $this->assertEquals($expect, $request->offsetPath($offset, $depth));
+    }
+  }
+
+  public function pathProvider()
+  {
+    return [
+      ['/hello/world', '/hello', 1],
+      ['/hello/world', '/hello/world', 2],
+      ['/hello/world', '/world', 1, 1],
+    ];
+  }
 }
