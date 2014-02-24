@@ -44,7 +44,7 @@ class Router implements IRouter
       return $route;
     }
 
-    throw new \Exception("Unable to locate a suitable route");
+    throw new RouteNotFoundException("Unable to locate a suitable route");
   }
 
   protected function _processRoutes($url, $routes)

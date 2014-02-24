@@ -1,8 +1,11 @@
 <?php
 namespace Cubex;
 
+use Cubex\Facade\FacadeLoader;
 use Cubex\Kernel\CubexKernel;
+use Cubex\ServiceManager\ServiceManager;
 use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Symfony\Component\HttpFoundation\Request;
@@ -179,31 +182,18 @@ class Cubex extends Container
    */
   public function processConfiguration(ConfigProviderInterface $conf)
   {
-    $this->bindFromConfigIf(
-      $conf,
-      '\Cubex\Kernel\CubexKernel',
-      "kernel",
-      "default",
-      null
-    );
-
-    $this->bindFromConfigIf(
-      $conf,
-      '\Cubex\Routing\IRouter',
-      "routing",
-      "router",
-      '\Cubex\Routing\Router'
-    );
-
-    $this->bindFromConfigIf(
-      $conf,
-      '404',
-      "errors",
-      "404",
-      '\Cubex\Responses\Error404Response'
-    );
+    CubexDefaultConfiguration::processConfiguration($this, $conf);
   }
 
+  /**
+   * Bind config item if not already defined
+   *
+   * @param ConfigProviderInterface $conf
+   * @param                         $abstract
+   * @param                         $section
+   * @param                         $item
+   * @param                         $default
+   */
   public function bindFromConfigIf(
     ConfigProviderInterface $conf, $abstract, $section, $item, $default
   )
@@ -215,6 +205,30 @@ class Cubex extends Container
     }
   }
 
+  /**
+   * Boot Cubex, Setup Facades, & Service Providers
+   */
+  public function boot()
+  {
+    //Setup facades
+    Facade::clearResolvedInstances();
+    Facade::setFacadeApplication($this);
+    FacadeLoader::register();
+
+    //Setup Service Providers
+    $serviceManager = new ServiceManager();
+    $serviceManager->setCubex($this);
+    $serviceManager->boot();
+    $this->instance('service.manager', $serviceManager);
+  }
+
+  /**
+   * Convert an exception into a beautiful html response
+   *
+   * @param \Exception $exception
+   *
+   * @return Http\Response
+   */
   public function exceptionResponse(\Exception $exception)
   {
     $content = '<h1>Uncaught Exception</h1>';
@@ -240,22 +254,7 @@ class Cubex extends Container
   }
 
   /**
-   * Handles a Request to convert it to a Response.
-   *
-   * When $catch is true, the implementation must catch all exceptions
-   * and do its best to convert them to a Response instance.
-   *
-   * @param Request $request  A Request instance
-   * @param integer $type     The type of the request
-   *                          (one of HttpKernelInterface::MASTER_REQUEST
-   *                          or HttpKernelInterface::SUB_REQUEST)
-   * @param Boolean $catch    Whether to catch exceptions or not
-   *
-   * @return Response A Response instance
-   *
-   * @throws \Exception When an Exception occurs during processing
-   *
-   * @api
+   * @inhreitdoc
    */
   public function handle(
     Request $request, $type = self::MASTER_REQUEST, $catch = true
@@ -288,11 +287,14 @@ class Cubex extends Container
       //Bind services
       $this->processConfiguration($this->getConfiguration());
 
+      //Boot Cubex
+      $this->boot();
+
       //Retrieve the
       $kernel = $this->makeWithCubex('\Cubex\Kernel\CubexKernel');
       if($kernel instanceof CubexKernel)
       {
-        $response = $kernel->handle($request, $type, $catch);
+        $response = $kernel->handle($request, $type, false);
 
         if(!($response instanceof Response))
         {
@@ -329,19 +331,19 @@ class Cubex extends Container
   }
 
   /**
-   * Terminates a request/response cycle.
-   *
-   * Should be called after sending the response and before
-   * shutting down the kernel.
-   *
-   * @param Request  $request  A Request instance
-   * @param Response $response A Response instance
-   *
-   * @api
+   * @inhreitdoc
    */
   public function terminate(Request $request, Response $response)
   {
-    //Shutdown Cubex
+    //Shutdown All Registered Services
+    if($this->bound('service.manager'))
+    {
+      $serviceManager = $this->make('service.manager');
+      if($serviceManager instanceof ServiceManager)
+      {
+        $serviceManager->shutdown();
+      }
+    }
   }
 
   /**
@@ -360,5 +362,13 @@ class Cubex extends Container
       $item->setCubex($this);
     }
     return $item;
+  }
+
+  /**
+   * @return string
+   */
+  public function env()
+  {
+    return 'dev';
   }
 }

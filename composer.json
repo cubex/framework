@@ -1,28 +1,32 @@
 {
-  "name":              "cubex/framework",
-  "description":       "Cubex Framework",
-  "keywords":          ["framework", "cubex"],
-  "homepage":          "http://cubex.io",
-  "license":           "BSD-3-Clause",
-  "authors":           [
+  "name":        "cubex/framework",
+  "description": "Cubex Framework",
+  "keywords":    ["framework", "cubex"],
+  "homepage":    "http://cubex.io",
+  "license":     "BSD-3-Clause",
+  "authors":     [
     {
       "name":     "Brooke Bryan",
       "email":    "brooke@bajb.net",
       "homepage": "http://www.bajb.net"
     }
   ],
-  "require":           {
+  "require":     {
     "php":                     ">=5.4.0",
+    "psr/log":                 "1.0.*",
     "illuminate/container":    "4.1.*",
-    "packaged/config":         "*",
-    "packaged/helpers":        "*",
-    "symfony/http-foundation": "~2.1",
-    "symfony/http-kernel":     "~2.1"
+    "illuminate/support":      "4.1.*",
+    "monolog/monolog":         "1.7.*",
+    "packaged/config":         "0.0.1",
+    "packaged/helpers":        "0.0.1",
+    "symfony/http-foundation": "2.4.*",
+    "symfony/http-kernel":     "2.4.*"
   },
-  "require-dev":       {
-    "stack/builder":   "1.0.*"
+  "require-dev": {
+    "stack/builder":   "1.0.*",
+    "mockery/mockery": "*"
   },
-  "autoload":          {
+  "autoload":    {
     "psr-4": {
       "Cubex\\": "src/"
     }

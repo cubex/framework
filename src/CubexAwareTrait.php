@@ -3,6 +3,9 @@ namespace Cubex;
 
 trait CubexAwareTrait
 {
+  /**
+   * @var Cubex
+   */
   protected $_cubex;
 
   /**

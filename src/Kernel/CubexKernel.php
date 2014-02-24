@@ -8,6 +8,7 @@ use Cubex\Routing\IRoutable;
 use Cubex\Routing\IRoute;
 use Cubex\Routing\IRouter;
 use Cubex\Routing\Route;
+use Cubex\Routing\RouteNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -99,15 +100,9 @@ abstract class CubexKernel
           $catch
         );
       }
-      catch(\Exception $e)
+      catch(RouteNotFoundException $e)
       {
-        try
-        {
-          $response = $this->autoRoute($request);
-        }
-        catch(\Exception $e)
-        {
-        }
+        $response = $this->autoRoute($request);
       }
 
       if(!($response instanceof Response))
