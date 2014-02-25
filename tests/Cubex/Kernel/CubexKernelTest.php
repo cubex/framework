@@ -373,4 +373,59 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       [$kernel, $toString, "test"],
     ];
   }
+
+  public function testSubClassRouting()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+    $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['subRouteTo']);
+    $kernel->expects($this->any())->method("subRouteTo")->will(
+      $this->returnValue(['%sTest'])
+    );
+    $kernel->setCubex($cubex);
+
+    $kernel->attemptSubClass(
+      'boiler',
+      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+
+    $kernel->attemptSubClass(
+      'boiler',
+      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $kernel->attemptSubClass(
+      'kernelBoiler',
+      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+
+    $kernel->attemptSubClass(
+      'failureClass',
+      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+  }
+}
+
+class BoilerTest implements \Cubex\ICubexAware
+{
+  use \Cubex\CubexAwareTrait;
+}
+
+class KernelBoilerTest extends \Cubex\Kernel\CubexKernel
+{
+  public function handle(
+    \Symfony\Component\HttpFoundation\Request $request,
+    $type = self::MASTER_REQUEST, $catch = true
+  )
+  {
+    return new \Cubex\Http\Response('Kernel Boiler Response');
+  }
 }

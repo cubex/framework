@@ -20,6 +20,16 @@ abstract class CubexKernel
   use CubexAwareTrait;
 
   /**
+   * @var int Level to which routing has automatically processed
+   */
+  protected $_routeLevel = 0;
+
+  /**
+   * @var string Current processed section of the path to ignore
+   */
+  protected $_processedPath = '';
+
+  /**
    * Initialise component
    */
   public function init()
@@ -189,6 +199,7 @@ abstract class CubexKernel
         $method = $this->attemptMethod($value, $request);
         if($method !== null)
         {
+          //TODO: Extract params
           return $this->_getMethodResult($method);
         }
       }
@@ -363,10 +374,14 @@ abstract class CubexKernel
    * Auto build the result based on the URL
    *
    * @param Request $request
+   * @param int     $type
+   * @param bool    $catch
    *
-   * @return null|Response
+   * @return \Cubex\Http\Response|null|Response
    */
-  public function autoRoute(Request $request)
+  public function autoRoute(
+    Request $request, $type = self::MASTER_REQUEST, $catch = true
+  )
   {
     $params      = null;
     $paramString = trim($request->getPathInfo(), '/');
@@ -376,6 +391,7 @@ abstract class CubexKernel
     }
 
     $params = explode('/', $paramString);
+    $params = array_slice($params, $this->_routeLevel);
     $path   = array_shift($params);
 
     if(empty($params))
@@ -390,7 +406,63 @@ abstract class CubexKernel
       return $this->_getMethodResult($method, $params);
     }
 
-    //Nothing was found to automatically make things better
+    return $this->attemptSubClass($path, $request, $type, $catch);
+  }
+
+  /**
+   *
+   * @param         $part
+   * @param Request $request
+   * @param int     $type
+   * @param bool    $catch
+   *
+   * @return null|Response
+   */
+  public function attemptSubClass(
+    $part, Request $request, $type = self::MASTER_REQUEST, $catch = true
+  )
+  {
+    $classPath = ucfirst($part);
+    $namespace = get_namespace(get_called_class());
+    $subRoutes = $this->subRouteTo();
+
+    //No subroutes available
+    if($subRoutes === null || empty($subRoutes))
+    {
+      return null;
+    }
+
+    foreach($subRoutes as $subRoute)
+    {
+      //Half sprintf style, but changed to str_replace for multiple instances
+      $attempt = build_path_win(
+        $namespace,
+        str_replace('%s', $classPath, $subRoute)
+      );
+
+      if(class_exists($attempt))
+      {
+        $manager = new $attempt;
+
+        if($manager instanceof ICubexAware)
+        {
+          $manager->setCubex($this->getCubex());
+        }
+
+        if($manager instanceof CubexKernel)
+        {
+          $manager->_routeLevel = $this->_routeLevel + 1;
+        }
+
+        if($manager instanceof HttpKernelInterface)
+        {
+          return $manager->handle($request, $type, $catch);
+        }
+
+        return $this->handleResponse($manager, null);
+      }
+    }
+
     return null;
   }
 
@@ -410,5 +482,10 @@ abstract class CubexKernel
       $item,
       $default
     );
+  }
+
+  public function subRouteTo()
+  {
+    return null;
   }
 }
