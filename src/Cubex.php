@@ -305,13 +305,6 @@ class Cubex extends Container
           );
         }
 
-        if($this->getConfiguration()->getItem('response', 'gzip', false))
-        {
-          if($response instanceof CubexResponse)
-          {
-            $response->enableGzip();
-          }
-        }
         return $response;
       }
 

@@ -145,15 +145,13 @@ class CubexTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @runInSeparateProcess
    * @requires extension zlib
    */
-  public function testGzipsResponse()
+  public function testResponse()
   {
     $request = \Cubex\Http\Request::createFromGlobals();
 
     $config = new \Packaged\Config\Provider\Test\TestConfigProvider();
-    $config->addItem("response", 'gzip', true);
 
     $cubex = new \Cubex\Cubex(__DIR__);
     $cubex->configure($config);
@@ -166,8 +164,6 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
     $cubex->instance('\Cubex\Kernel\CubexKernel', $kernel);
     $cubex->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
-
-    $this->assertEquals('On', ini_get('zlib.output_compression'));
   }
 
   public function testConfigure()

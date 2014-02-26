@@ -1,0 +1,5 @@
+Server {
+  IncludeSearchPaths {
+    forphpunit = /usr/lib/php/pear/
+  }
+}
