@@ -193,10 +193,12 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   /**
    * @dataProvider urlProvider
    */
-  public function testAttemptUrl($route, $expectUrl = null, $expectCode = null)
+  public function testAttemptUrl(
+    $route, $expectUrl = null, $expectCode = null, $request = null
+  )
   {
     $kernel = $this->getKernel();
-    $result = $kernel->attemptUrl($route);
+    $result = $kernel->attemptUrl($route, $request);
 
     if($expectUrl === null)
     {
@@ -214,11 +216,19 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
   public function urlProvider()
   {
+    $slashedRequest = \Cubex\Http\Request::createFromGlobals();
+    $slashedRequest->server->set('REQUEST_URI', '/tester/');
+
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/tester');
+
     return [
       ["invalid", null],
       ["invalid/url", null],
       ["#@home", "home", 302],
       ["#@home", "home"],
+      ["#@home", "home", null, $request],
+      ["#@home", "../home", null, $slashedRequest],
       ["#@/home", "/home"],
       ["http://google.com", "http://google.com"],
       ["@301!http://google.com", "http://google.com", 301],
@@ -287,13 +297,20 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   /**
    * @dataProvider executeRouteProvider
    */
-  public function testExecuteRoute($kernel, $routeData, $expect)
+  public function testExecuteRoute(
+    $kernel, $routeData, $expect, $exception = null
+  )
   {
     $route = new \Cubex\Routing\Route();
     $route->createFromRaw($routeData);
 
     $request = \Cubex\Http\Request::createFromGlobals();
     $type    = \Cubex\Cubex::MASTER_REQUEST;
+
+    if($exception !== null)
+    {
+      $this->setExpectedException('Exception', $exception);
+    }
 
     $result = $kernel->executeRoute($route, $request, $type, true);
 
@@ -346,6 +363,9 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       return "testCallable";
     };
 
+    $namespaceKernel = new \namespaced\CubexProject();
+    $namespaceKernel->setCubex($cubex);
+
     return [
       [$kernel, null, null],
       [$kernel, $response, $response],
@@ -357,6 +377,14 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       ],
       [$kernel, 'stdClass', null],
       [$kernel, $callable, "testCallable"],
+      [$namespaceKernel, 'Sub\SubRoutable', "namespaced sub"],
+      [$namespaceKernel, '\TheRoutable', "namespaced"],
+      [
+        $namespaceKernel,
+        '\NoSuchClass',
+        null,
+        "Your route provides an invalid class '\\NoSuchClass'"
+      ],
       [
         $kernel,
         'http://google.com',
@@ -379,44 +407,87 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $cubex = new \Cubex\Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
+
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['subRouteTo']);
     $kernel->expects($this->any())->method("subRouteTo")->will(
       $this->returnValue(['%sTest'])
     );
     $kernel->setCubex($cubex);
 
-    $kernel->attemptSubClass(
+    $result = $kernel->attemptSubClass(
       'boiler',
       \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
       \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
       false
     );
+    $this->assertContains('boiled', (string)$result);
 
-    $kernel->attemptSubClass(
-      'boiler',
-      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
-      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
-      false
-    );
-    $kernel->attemptSubClass(
+    $result = $kernel->attemptSubClass(
       'kernelBoiler',
       \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
       \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
       false
     );
+    $this->assertContains('Kernel Boiler Response', (string)$result);
 
-    $kernel->attemptSubClass(
+    $result = $kernel->attemptSubClass(
       'failureClass',
       \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
       \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
       false
     );
+    $this->assertNull($result);
+
+    $kernel = new \namespaced\CubexProject();
+    $kernel->setCubex($cubex);
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/random/tags/pet');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test tag pet', (string)$result);
+
+    $kernel = new \namespaced\CubexProject();
+    $kernel->setCubex($cubex);
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/random/blue/mist');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('blue mist', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/random');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test extension', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test application', (string)$result);
   }
 }
 
 class BoilerTest implements \Cubex\ICubexAware
 {
   use \Cubex\CubexAwareTrait;
+
+  public function __toString()
+  {
+    return 'boiled';
+  }
 }
 
 class KernelBoilerTest extends \Cubex\Kernel\CubexKernel

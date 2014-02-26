@@ -7,7 +7,15 @@ class Router implements IRouter
 {
   use CubexAwareTrait;
 
+  /**
+   * @var IRoutable entity to pull route table from
+   */
   protected $_subject;
+
+  /**
+   * @var array Data collected from the route
+   */
+  protected $_routeData;
 
   /**
    * Set the object you wish to handle routing for
@@ -89,7 +97,23 @@ class Router implements IRouter
       return false;
     }
 
-    return starts_with($url, $pattern, false);
+    $matches = array();
+    $pattern = self::convertSimpleRoute($pattern);
+    $match   = preg_match("#^$pattern#", $url, $matches);
+
+    if($match)
+    {
+      foreach($matches as $k => $v)
+      {
+        //Strip out all non declared matches
+        if(!\is_numeric($k))
+        {
+          $this->_routeData[$k] = $v;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -106,6 +130,44 @@ class Router implements IRouter
       return $data;
     }
 
-    return Route::create($data);
+    return Route::create($data, $this->_routeData);
+  }
+
+  /**
+   * Convert simple routes e.g. :name@num to full regex strings
+   *
+   * @param $route
+   *
+   * @return mixed
+   */
+  public static function convertSimpleRoute($route)
+  {
+    $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
+    $repl  = [];
+    /* Allow Simple Routes */
+
+    if(strstr($route, '{'))
+    {
+      $repl["/{" . "$idPat\@alpha}/"] = "(?P<$1>\w+)";
+      $repl["/{" . "$idPat\@all}/"]   = "(?P<$1>.+)";
+      $repl["/{" . "$idPat\@num}/"]   = "(?P<$1>\d+)";
+      $repl["/{" . "$idPat}/"]        = "(?P<$1>[^\/]+)";
+    }
+
+    if(strstr($route, ':'))
+    {
+      $repl["/\:$idPat\@alpha/"] = "(?P<$1>\w+)";
+      $repl["/\:$idPat\@all/"]   = "(?P<$1>.+)";
+      $repl["/\:$idPat\@num/"]   = "(?P<$1>\d+)";
+      $repl["/\:$idPat/"]        = "(?P<$1>[^\/]+)";
+    }
+
+    if(!empty($repl))
+    {
+      $route = preg_replace(array_keys($repl), array_values($repl), $route);
+    }
+
+    $route = str_replace('//', '/', $route);
+    return $route;
   }
 }

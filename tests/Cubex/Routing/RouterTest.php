@@ -103,4 +103,42 @@ class RouterTest extends CubexTestCase
       ],
     ];
   }
+
+  /**
+   * @dataProvider simpleRouteProvider
+   */
+  public function testSimpleRoutes($route, $expect)
+  {
+    $this->assertEquals(
+      $expect,
+      \Cubex\Routing\Router::convertSimpleRoute($route)
+    );
+  }
+
+  public function simpleRouteProvider()
+  {
+    return [
+      ['{var@alpha}', '(?P<var>\w+)'],
+      ['{var@all}', '(?P<var>.+)'],
+      ['{var@num}', '(?P<var>\d+)'],
+      ['{var}', '(?P<var>[^\/]+)'],
+      [':var@alpha', '(?P<var>\w+)'],
+      [':var@all', '(?P<var>.+)'],
+      [':var@num', '(?P<var>\d+)'],
+      [':var', '(?P<var>[^\/]+)'],
+    ];
+  }
+
+  public function testRouteData()
+  {
+    $router = new \Cubex\Routing\Router();
+    $router->setCubex($this->newCubexInstace());
+    $subject = $this->getMock('\Cubex\Routing\IRoutable', ['getRoutes']);
+    $subject->expects($this->any())->method("getRoutes")
+      ->will($this->returnValue([':test/:number@num' => 'test']));
+    $router->setSubject($subject);
+    $route  = $router->process('hello/23');
+    $expect = ["test" => "hello", "number" => 23];
+    $this->assertEquals($expect, $route->getRouteData());
+  }
 }

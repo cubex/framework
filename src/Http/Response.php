@@ -20,7 +20,14 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   {
     if(is_object($source) || is_array($source))
     {
-      $this->fromJson($source);
+      if(method_exists($source, '__toString'))
+      {
+        $this->setContent((string)$source);
+      }
+      else
+      {
+        $this->fromJson($source);
+      }
     }
     else
     {

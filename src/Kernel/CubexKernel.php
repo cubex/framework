@@ -25,9 +25,9 @@ abstract class CubexKernel
   protected $_routeLevel = 0;
 
   /**
-   * @var string Current processed section of the path to ignore
+   * @var array params sent through by the constructor
    */
-  protected $_processedPath = '';
+  protected $_processParams;
 
   /**
    * Initialise component
@@ -99,7 +99,6 @@ abstract class CubexKernel
       //Tell the router who its working for
       $router->setSubject($this);
       $response = null;
-
       try
       {
         //Process the route to get the response
@@ -159,10 +158,12 @@ abstract class CubexKernel
   }
 
   public function executeRoute(
-    IRoute $route, Request $request, $type = self::MASTER_REQUEST, $catch = true
+    IRoute $route, Request $request, $type = self::MASTER_REQUEST,
+    $catch = true
   )
   {
-    $value = $route->getValue();
+    $value  = $route->getValue();
+    $params = $route->getRouteData();
 
     //If the action has returned a valid response, lets send that back
     if($value instanceof Response)
@@ -176,7 +177,26 @@ abstract class CubexKernel
       $match = '/^(\\\?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)+$/';
       if(stripos($value, '\\') !== false && preg_match($match, $value))
       {
-        $value = $this->getCubex()->make($value);
+        $class   = $value;
+        $nsClass = build_path_win(get_namespace($this), $value);
+
+        try
+        {
+          if(class_exists($nsClass))
+          {
+            $value = $this->getCubex()->make($nsClass);
+          }
+          else
+          {
+            $value = $this->getCubex()->make($class);
+          }
+        }
+        catch(\Exception $e)
+        {
+          throw new \RuntimeException(
+            "Your route provides an invalid class '$class'"
+          );
+        }
       }
       else
       {
@@ -188,7 +208,7 @@ abstract class CubexKernel
         }
 
         //Attempt to see if the route is a redirect
-        $url = $this->attemptUrl($value);
+        $url = $this->attemptUrl($value, $request);
         if($url !== null)
         {
           //Redirect to url
@@ -199,8 +219,18 @@ abstract class CubexKernel
         $method = $this->attemptMethod($value, $request);
         if($method !== null)
         {
-          //TODO: Extract params
-          return $this->_getMethodResult($method);
+          if($params === null && $method === 'defaultAction')
+          {
+            $params = $this->_processParams;
+          }
+          /*
+           * TODO: Find a use case for this, or if its fixed upstream
+          else if($params === null && count($this->_processParams) > 0)
+          {
+            $params = array_slice($this->_processParams, 1);
+          }*/
+
+          return $this->_getMethodResult($method, $params);
         }
       }
     }
@@ -213,6 +243,11 @@ abstract class CubexKernel
     if($value instanceof Response)
     {
       return $value;
+    }
+
+    if($value instanceof CubexKernel)
+    {
+      $value->_processParams = $params;
     }
 
     //Support for nested kernels, e.g. project > application > controller
@@ -324,11 +359,12 @@ abstract class CubexKernel
   /**
    * Check the route for a redirect rule
    *
-   * @param $routeValue
+   * @param         $routeValue
+   * @param Request $request
    *
    * @return array|null
    */
-  public function attemptUrl($routeValue)
+  public function attemptUrl($routeValue, Request $request = null)
   {
     //Match full urls, status code and urls, and relative urls.
     if(preg_match('/^(.*tps?:\/\/|\/|#@|@[0-9]{3}\!)/', $routeValue))
@@ -342,8 +378,16 @@ abstract class CubexKernel
       else if(substr($routeValue, 0, 2) == '#@')
       {
         //Starting a url with #@ implies a redirect.  Useful for redirecting
-        //to relative urls e.g. /homepage or about
-        $routeValue = substr($routeValue, 2);
+        if($request !== null && substr($request->getPathInfo(), -1) == '/')
+        {
+          //If there is a leading slash, make sure you put them up a directory
+          $routeValue = '../' . substr($routeValue, 2);
+        }
+        else
+        {
+          //to relative urls e.g. /homepage or about
+          $routeValue = substr($routeValue, 2);
+        }
       }
       return ['code' => 302, 'url' => $routeValue];
     }
@@ -406,7 +450,7 @@ abstract class CubexKernel
       return $this->_getMethodResult($method, $params);
     }
 
-    return $this->attemptSubClass($path, $request, $type, $catch);
+    return $this->attemptSubClass($path, $request, $type, $catch, $params);
   }
 
   /**
@@ -415,11 +459,13 @@ abstract class CubexKernel
    * @param Request $request
    * @param int     $type
    * @param bool    $catch
+   * @param array   $params
    *
    * @return null|Response
    */
   public function attemptSubClass(
-    $part, Request $request, $type = self::MASTER_REQUEST, $catch = true
+    $part, Request $request, $type = self::MASTER_REQUEST, $catch = true,
+    array $params = null
   )
   {
     $classPath = ucfirst($part);
@@ -451,7 +497,8 @@ abstract class CubexKernel
 
         if($manager instanceof CubexKernel)
         {
-          $manager->_routeLevel = $this->_routeLevel + 1;
+          $manager->_routeLevel    = $this->_routeLevel + 1;
+          $manager->_processParams = $params;
         }
 
         if($manager instanceof HttpKernelInterface)

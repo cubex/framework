@@ -9,4 +9,11 @@ interface IRoute
    * @return mixed
    */
   public function getValue();
+
+  /**
+   * Get the parameters available within the route
+   *
+   * @return array|null
+   */
+  public function getRouteData();
 }
