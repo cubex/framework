@@ -96,6 +96,36 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertContains("respdata", (string)$resp);
   }
 
+  public function testHandleWithException()
+  {
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/hello/world');
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+    $kernel = $this->getMock(
+      '\Cubex\Kernel\CubexKernel',
+      ['getRoutes', 'resp']
+    );
+    $kernel->expects($this->any())->method("getRoutes")->will(
+      $this->returnValue(
+        [
+          'hello/world' => 'resp'
+        ]
+      )
+    );
+    $kernel->expects($this->any())->method("resp")->will(
+      $this->throwException(new Exception("Mocked Exception"))
+    );
+    $kernel->setCubex($cubex);
+    $resp = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, true);
+    $this->assertInstanceOf(
+      '\Symfony\Component\HttpFoundation\Response',
+      $resp
+    );
+    $this->assertContains("Mocked Exception", (string)$resp);
+  }
+
   public function testHandleInvalidResponse()
   {
     $request = \Cubex\Http\Request::createFromGlobals();
@@ -338,7 +368,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
   public function executeRouteProvider()
   {
-    $cubex    = new \Cubex\Cubex();
+    $cubex = new \Cubex\Cubex();
     $response = new \Cubex\Http\Response("hey");
 
     $toString = $this->getMock('stdClass', ['__toString']);
@@ -377,6 +407,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       ],
       [$kernel, 'stdClass', null],
       [$kernel, $callable, "testCallable"],
+      [$kernel, new RenderableTest(), "renderable"],
       [$namespaceKernel, 'Sub\SubRoutable', "namespaced sub"],
       [$namespaceKernel, '\TheRoutable', "namespaced"],
       [
@@ -487,6 +518,15 @@ class BoilerTest implements \Cubex\ICubexAware
   public function __toString()
   {
     return 'boiled';
+  }
+}
+
+class RenderableTest
+  implements \Illuminate\Support\Contracts\RenderableInterface
+{
+  public function render()
+  {
+    return 'renderable';
   }
 }
 

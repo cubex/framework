@@ -19,6 +19,27 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   );
 
   /**
+   * @inheritdoc
+   */
+  public function __construct(
+    array $query = array(), array $request = array(),
+    array $attributes = array(), array $cookies = array(),
+    array $files = array(), array $server = array(), $content = null
+  )
+  {
+    parent::__construct(
+      $query,
+      $request,
+      $attributes,
+      $cookies,
+      $files,
+      $server,
+      $content
+    );
+    $this->setLocale($this->getPreferredLanguage());
+  }
+
+  /**
    * Define accepted TLDs for use when determining tlds
    *
    * @param array $tlds

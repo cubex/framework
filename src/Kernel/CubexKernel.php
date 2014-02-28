@@ -9,6 +9,7 @@ use Cubex\Routing\IRoute;
 use Cubex\Routing\IRouter;
 use Cubex\Routing\Route;
 use Cubex\Routing\RouteNotFoundException;
+use Illuminate\Support\Contracts\RenderableInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -133,14 +134,18 @@ abstract class CubexKernel
         );
       }
     }
+    catch(CubexException $e)
+    {
+      $this->shutdown();
+      return $this->getCubex()->make('404');
+    }
     catch(\Exception $e)
     {
       if($catch)
       {
         //shutdown the kernel
         $this->shutdown();
-
-        return $this->getCubex()->make('404');
+        return $this->getCubex()->exceptionResponse($e);
       }
       else
       {
@@ -254,6 +259,11 @@ abstract class CubexKernel
     if($value instanceof HttpKernelInterface)
     {
       return $value->handle($request, $type, $catch);
+    }
+
+    if($value instanceof RenderableInterface)
+    {
+      return $value->render();
     }
 
     if(is_callable($value))

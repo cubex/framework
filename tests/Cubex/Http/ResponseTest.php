@@ -46,6 +46,14 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     $this->assertStringEndsWith('phpunit({"a":"b"})', (string)$response);
   }
 
+  public function testRenderable()
+  {
+    $renderable = new RenderableClass();
+    $response   = new \Cubex\Http\Response();
+    $response->from($renderable);
+    $this->assertContains('rendered content', (string)$response);
+  }
+
   public function testCubexHeaders()
   {
     if(!defined('PHP_START'))
@@ -55,5 +63,14 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     $response = new \Cubex\Http\Response();
     $response->setCubexHeaders();
     $this->assertContains('X-Execution-Time', (string)$response);
+  }
+}
+
+class RenderableClass
+  implements \Illuminate\Support\Contracts\RenderableInterface
+{
+  public function render()
+  {
+    return 'rendered content';
   }
 }

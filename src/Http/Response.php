@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Http;
 
+use Illuminate\Support\Contracts\RenderableInterface;
+
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
   public function __construct($content = '', $status = 200, $headers = array())
@@ -20,7 +22,11 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   {
     if(is_object($source) || is_array($source))
     {
-      if(method_exists($source, '__toString'))
+      if($source instanceof RenderableInterface)
+      {
+        $this->setContent($source->render());
+      }
+      else if(method_exists($source, '__toString'))
       {
         $this->setContent((string)$source);
       }

@@ -2,6 +2,7 @@
 namespace namespaced\sub;
 
 use Cubex\Kernel\ApplicationKernel;
+use Cubex\View\ViewModel;
 
 class SubRoutable
 {
@@ -37,5 +38,13 @@ class RandomExtension extends ApplicationKernel
   public function defaultAction($base = 'test', $type = 'extension')
   {
     return "$base $type";
+  }
+}
+
+class TestView extends ViewModel
+{
+  public function render()
+  {
+    return 'testable';
   }
 }
