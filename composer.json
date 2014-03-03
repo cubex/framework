@@ -12,15 +12,17 @@
     }
   ],
   "require":     {
-    "php":                     ">=5.4.0",
-    "psr/log":                 "1.0.*",
-    "illuminate/container":    "4.1.*",
-    "illuminate/support":      "4.1.*",
-    "monolog/monolog":         "1.7.*",
-    "packaged/config":         "0.0.1",
-    "packaged/helpers":        "0.0.1",
-    "symfony/http-foundation": "2.4.*",
-    "symfony/http-kernel":     "2.4.*"
+    "php":                               ">=5.4.0",
+    "psr/log":                           "1.0.*",
+    "illuminate/container":              "4.1.*",
+    "illuminate/support":                "4.1.*",
+    "monolog/monolog":                   "1.7.*",
+    "packaged/config":                   "0.0.1",
+    "packaged/helpers":                  "0.0.1",
+    "symfony/http-foundation":           "2.4.*",
+    "symfony/http-kernel":               "2.4.*",
+    "symfony/console":                   "2.4.*",
+    "phpdocumentor/reflection-docblock": "2.0.*"
   },
   "require-dev": {
     "stack/builder":   "1.0.*",
@@ -30,5 +32,6 @@
     "psr-4": {
       "Cubex\\": "src/"
     }
-  }
+  },
+  "bin":         ["bin/cubex"]
 }

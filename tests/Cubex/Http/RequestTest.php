@@ -124,4 +124,15 @@ class RequestTest extends PHPUnit_Framework_TestCase
       ['/hello/world', '/world', 1, 1],
     ];
   }
+
+  public function testCreateConsoleRequest()
+  {
+    $_SERVER['consoletest'] = 'tested';
+    $request                = \Cubex\Http\Request::createConsoleRequest();
+    $this->assertEquals('localhost', $request->getHost());
+    $this->assertEquals('GET', $request->getMethod());
+    $this->assertEquals('http', $request->getScheme());
+    $this->assertEquals('tested', $request->server->get('consoletest'));
+    unset($_SERVER['consoletest']);
+  }
 }

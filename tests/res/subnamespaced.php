@@ -1,6 +1,7 @@
 <?php
 namespace namespaced\sub;
 
+use Cubex\Console\ConsoleCommand;
 use Cubex\Kernel\ApplicationKernel;
 use Cubex\View\ViewModel;
 
@@ -47,4 +48,11 @@ class TestView extends ViewModel
   {
     return 'testable';
   }
+}
+
+/**
+ * @name Hidden
+ */
+class HiddenCommand extends ConsoleCommand
+{
 }

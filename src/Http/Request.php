@@ -288,4 +288,22 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     }
     return '/' . implode('/', $parts);
   }
+
+  /**
+   * Create a request for the console
+   *
+   * @return \Cubex\Http\Request
+   */
+  public static function createConsoleRequest()
+  {
+    return self::create(
+      'http://localhost',
+      'GET',
+      array(),
+      array(),
+      array(),
+      $_SERVER,
+      null
+    );
+  }
 }

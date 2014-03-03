@@ -19,6 +19,15 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(dirname(__DIR__), $cubex->getProjectRoot());
   }
 
+  public function testDoubleBoot()
+  {
+    $cubex = new \Cubex\Cubex(__DIR__);
+    $cubex->boot();
+    $sm = $cubex->make('service.manager');
+    $cubex->boot();
+    $this->assertSame($sm, $cubex->make('service.manager'));
+  }
+
   public function testExceptionWhenNoDocRootDefined()
   {
     $request = \Cubex\Http\Request::createFromGlobals();

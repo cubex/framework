@@ -1,6 +1,7 @@
 <?php
 namespace namespaced;
 
+use Cubex\Console\ConsoleCommand;
 use Cubex\Kernel\CubexKernel;
 
 class CubexProject extends CubexKernel
@@ -19,4 +20,11 @@ class TheRoutable
   {
     return 'namespaced';
   }
+}
+
+/**
+ * @name Namer
+ */
+class NamerCommand extends ConsoleCommand
+{
 }

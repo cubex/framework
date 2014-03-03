@@ -27,6 +27,7 @@ class Cubex extends Container
   protected $_flags;
   protected $_docRoot;
   protected $_projectRoot;
+  protected $_booted = false;
 
   /**
    * @param null $webRoot
@@ -210,6 +211,17 @@ class Cubex extends Container
    */
   public function boot()
   {
+    if($this->_booted)
+    {
+      return null;
+    }
+
+    //Fix anything that hasnt been set by the projects bootstrap
+    $this->prepareCubex();
+
+    //Bind services
+    $this->processConfiguration($this->getConfiguration());
+
     //Setup facades
     Facade::clearResolvedInstances();
     Facade::setFacadeApplication($this);
@@ -220,6 +232,8 @@ class Cubex extends Container
     $serviceManager->setCubex($this);
     $serviceManager->boot();
     $this->instance('service.manager', $serviceManager);
+
+    $this->_booted = true;
   }
 
   /**
@@ -280,12 +294,6 @@ class Cubex extends Container
       }
 
       $this->instance('request', $request);
-
-      //Fix anything that hasnt been set by the projects bootstrap
-      $this->prepareCubex();
-
-      //Bind services
-      $this->processConfiguration($this->getConfiguration());
 
       //Boot Cubex
       $this->boot();
