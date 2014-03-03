@@ -32,6 +32,5 @@
     "psr-4": {
       "Cubex\\": "src/"
     }
-  },
-  "bin":         ["bin/cubex"]
+  }
 }

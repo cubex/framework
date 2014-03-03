@@ -2,6 +2,7 @@
 namespace Cubex\Console;
 
 use Cubex\Console\Commands\BuiltInWebServer;
+use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\ICubexAware;
 use Symfony\Component\Console\Application;
@@ -17,16 +18,17 @@ class Console extends Application implements ICubexAware
   protected $_configured = false;
 
   /**
-   * Constructor.
+   * Create a new console application with Cubex Set
    *
-   * @param string $name    The name of the application
-   * @param string $version The version of the application
+   * @param Cubex $cubex
    *
-   * @api
+   * @return Console
    */
-  public function __construct($name = 'Cubex Console', $version = 'UNKNOWN')
+  public static function withCubex(Cubex $cubex)
   {
-    parent::__construct($name, $version);
+    $console = new self('Cubex Console', '1.0.0');
+    $console->setCubex($cubex);
+    return $console;
   }
 
   /**
@@ -43,6 +45,12 @@ class Console extends Application implements ICubexAware
     return parent::doRun($input, $output);
   }
 
+  /**
+   * Pull the configuration from cubex and setup resolving patterns and
+   * defined command lists
+   *
+   * @return $this
+   */
   public function configure()
   {
     if($this->_configured)

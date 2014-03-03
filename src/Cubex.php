@@ -336,6 +336,15 @@ class Cubex extends Container
    */
   public function terminate(Request $request, Response $response)
   {
+    //Shutdown
+    $this->shutdown();
+  }
+
+  /**
+   * Shutdown Cubex
+   */
+  public function shutdown()
+  {
     //Shutdown All Registered Services
     if($this->bound('service.manager'))
     {

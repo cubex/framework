@@ -4,8 +4,8 @@ class ConsoleTest extends PHPUnit_Framework_TestCase
 {
   public function getConsole()
   {
-    $console = new \Cubex\Console\Console();
     $cubex   = new \Cubex\Cubex();
+    $console = \Cubex\Console\Console::withCubex($cubex);
     $config  = new \Packaged\Config\Provider\Test\TestConfigProvider();
     $config->addItem(
       'console',
