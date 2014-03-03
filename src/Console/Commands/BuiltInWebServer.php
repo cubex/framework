@@ -2,7 +2,6 @@
 namespace Cubex\Console\Commands;
 
 use Cubex\Console\ConsoleCommand;
-use Cubex\Facade\Log;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
