@@ -14,6 +14,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class ConsoleCommand extends Command
 {
   /**
+   * @var InputInterface
+   */
+  protected $_input;
+  /**
+   * @var OutputInterface
+   */
+  protected $_output;
+
+  /**
    * Constructor.
    *
    * @param string|null $name The name of the command;
@@ -51,7 +60,7 @@ abstract class ConsoleCommand extends Command
       }
     }
 
-    $argsAdded = $this->createFromExecuteCommandMethod($reflect);
+    $argsAdded = $this->createFromActionableMethod($reflect);
     $this->createOptionsFromPublic($reflect, $argsAdded);
 
     if($this->getName() === null)
@@ -67,9 +76,22 @@ abstract class ConsoleCommand extends Command
    *
    * @return bool|null
    */
-  protected function createFromExecuteCommandMethod(\ReflectionClass $class)
+  protected function createFromActionableMethod(\ReflectionClass $class)
   {
-    $method = $class->getMethod('executeCommand');
+    if($class->hasMethod('executeCommand'))
+    {
+      $methodName = 'executeCommand';
+    }
+    else if($class->hasMethod('process'))
+    {
+      $methodName = 'process';
+    }
+    else
+    {
+      return null;
+    }
+
+    $method = $class->getMethod($methodName);
     if($method->class == 'Cubex\Console\ConsoleCommand')
     {
       return null;
@@ -90,8 +112,8 @@ abstract class ConsoleCommand extends Command
 
     foreach($method->getParameters() as $paramNum => $parameter)
     {
-      //Skip over the input and output args
-      if($paramNum < 2)
+      //Skip over the input and output args for executeCommand
+      if($paramNum < 2 && $methodName == 'executeCommand')
       {
         continue;
       }
@@ -215,26 +237,32 @@ abstract class ConsoleCommand extends Command
    */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    $params = $input->getArguments();
-    array_shift($params);
-    array_unshift($params, $input, $output);
-    return call_user_func_array([$this, 'executeCommand'], $params);
-  }
+    $this->_input  = $input;
+    $this->_output = $output;
 
-  /**
-   * Extend this method if you wish to define your
-   * input arguments with method parameters
-   *
-   * @param InputInterface  $input
-   * @param OutputInterface $output
-   *
-   * @throws \RuntimeException
-   */
-  protected function executeCommand(
-    InputInterface $input, OutputInterface $output
-  )
-  {
-    throw new \RuntimeException("This command has nothing to do");
+    $params = $input->getArguments();
+    //Strip off the command name
+    array_shift($params);
+
+    //Call the execute command with $input and $output as the first args
+    if(method_exists($this, 'executeCommand'))
+    {
+      array_unshift($params, $input, $output);
+      return call_user_func_array([$this, 'executeCommand'], $params);
+    }
+
+    //Call the process method, without $input and $output
+    if(method_exists($this, 'process'))
+    {
+      return call_user_func_array([$this, 'process'], $params);
+    }
+
+    throw new \RuntimeException(
+      "Your command must contain one of the following methods:\n" .
+      "process()\n" .
+      'executeCommand(InputInterface $input, OutputInterface $output)' . "\n",
+      500
+    );
   }
 
   /**

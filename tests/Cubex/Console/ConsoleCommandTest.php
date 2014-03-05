@@ -60,13 +60,28 @@ Middle(s): Anthony James',
     );
   }
 
+  public function testOutputProcess()
+  {
+    $command = new TestProcessConsoleCommand();
+    $this->assertContains(
+      'First: Brooke
+Last: Bryan
+Middle(s): Anthony James',
+      $this->getCommandOutput(
+        $command,
+        [
+          'name'        => 'Brooke',
+          'surname'     => 'Bryan',
+          'middleNames' => ['Anthony', 'James']
+        ]
+      )
+    );
+  }
+
   public function testUnfinishedCommand()
   {
     $command = new NoDocBlockTestConsoleCommand('tester');
-    $this->setExpectedException(
-      'RuntimeException',
-      'This command has nothing to do'
-    );
+    $this->setExpectedException('RuntimeException');
     $this->getCommandOutput($command, []);
   }
 }
@@ -125,6 +140,26 @@ class TestConsoleCommand extends \Cubex\Console\ConsoleCommand
     $output->writeln("First: $name");
     $output->writeln("Last: $surname");
     $output->writeln("Middle(s): " . implode(' ', $middleNames));
+  }
+}
+
+/**
+ * @name Tester
+ */
+class TestProcessConsoleCommand extends \Cubex\Console\ConsoleCommand
+{
+  /**
+   * @param        $name
+   * @param string $surname
+   * @param array  $middleNames
+   */
+  public function process(
+    $name, $surname = 'Smith', array $middleNames = ['Simon', 'Dennis']
+  )
+  {
+    $this->_output->writeln("First: $name");
+    $this->_output->writeln("Last: $surname");
+    $this->_output->writeln("Middle(s): " . implode(' ', $middleNames));
   }
 }
 
