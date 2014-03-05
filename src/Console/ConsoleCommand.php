@@ -92,10 +92,6 @@ abstract class ConsoleCommand extends Command
     }
 
     $method = $class->getMethod($methodName);
-    if($method->class == 'Cubex\Console\ConsoleCommand')
-    {
-      return null;
-    }
 
     $addedArguments = false;
 
