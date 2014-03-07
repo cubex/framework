@@ -51,6 +51,12 @@ abstract class ConsoleCommand extends Command
       }
     }
 
+    //Always ensure the command has a name
+    if($this->getName() === null)
+    {
+      $this->setName(strtolower(class_basename(get_called_class())));
+    }
+
     if($this->getDescription() === null)
     {
       $description = head($docBlock->getTagsByName('description'));
@@ -58,15 +64,14 @@ abstract class ConsoleCommand extends Command
       {
         $this->setDescription($description->getDescription());
       }
+      else
+      {
+        $this->setDescription($docBlock->getShortDescription());
+      }
     }
 
     $argsAdded = $this->createFromActionableMethod($reflect);
     $this->createOptionsFromPublic($reflect, $argsAdded);
-
-    if($this->getName() === null)
-    {
-      throw new \LogicException('The command name cannot be empty.');
-    }
   }
 
   /**

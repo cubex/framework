@@ -2,6 +2,7 @@
 namespace Cubex\Console\Commands;
 
 use Cubex\Console\ConsoleCommand;
+use Packaged\Figlet\Figlet;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -29,8 +30,11 @@ class BuiltInWebServer extends ConsoleCommand
    */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    $output->write(Figlet::create('PHP WEB', 'ivrit'));
+    $output->write(Figlet::create('SERVER', 'ivrit'));
+
     $output->writeln("");
-    $output->write("Starting a built in web server on ");
+    $output->write("\tStarting on ");
     $output->write("http://");
     $output->write($this->host == '0.0.0.0' ? 'localhost' : $this->host);
     $output->write(':' . $this->port);
@@ -41,7 +45,7 @@ class BuiltInWebServer extends ConsoleCommand
     $command[] = trim($this->router);
     $command   = implode(' ', array_filter($command));
 
-    $output->writeln(["", "Raw Command: $command", ""]);
+    $output->writeln(["", "\tRaw Command: $command", ""]);
 
     return $this->runCommand($command);
   }

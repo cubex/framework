@@ -61,9 +61,9 @@ class ConsoleTest extends PHPUnit_Framework_TestCase
     return [
       ['\Cubex\Console\Commands\BuiltInWebServer', 'serve'],
       [null, 'missing.service-x', true],
-      ['\namespaced\NamerCommand', 'namespaced.NamerCommand'],
+      ['\namespaced\NamerCommand', 'Namer'],
       ['\namespaced\TheRoutable', 'namespaced.TheRoutable', true],
-      ['\namespaced\sub\HiddenCommand', 'HiddenCommand'],
+      ['\namespaced\sub\HiddenCommand', 'namespaced.sub.HiddenCommand'],
     ];
   }
 }

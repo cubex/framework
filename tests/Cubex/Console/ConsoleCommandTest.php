@@ -35,11 +35,8 @@ class ConsoleCommandTest extends CommandTestCase
     );
     $this->assertFalse($def->getOption('on')->acceptValue());
 
-    $this->setExpectedException(
-      'LogicException',
-      'The command name cannot be empty.'
-    );
-    new NoDocBlockTestConsoleCommand();
+    $cmd = new NoDocBlockTestConsoleCommand();
+    $this->assertEquals('nodocblocktestconsolecommand', $cmd->getName());
   }
 
   public function testOutput()

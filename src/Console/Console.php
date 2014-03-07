@@ -87,11 +87,12 @@ class Console extends Application implements ICubexAware
   }
 
   /**
-   * @param $name
+   * @param string $name    Name of the command
+   * @param bool   $setName If the name should be passed through from the call
    *
    * @return Command|null
    */
-  protected function getCommandByString($name)
+  protected function getCommandByString($name, $setName = false)
   {
     if(stristr($name, '.'))
     {
@@ -112,7 +113,15 @@ class Console extends Application implements ICubexAware
         continue;
       }
 
-      $command = new $attempt($name);
+      if($setName)
+      {
+        $command = new $attempt($name);
+      }
+      else
+      {
+        $command = new $attempt;
+      }
+
       if($command instanceof Command)
       {
         return $command;
@@ -138,7 +147,7 @@ class Console extends Application implements ICubexAware
     }
     catch(\Exception $e)
     {
-      $command = $this->getCommandByString($name);
+      $command = $this->getCommandByString($name, true);
       if($command !== null)
       {
         $this->add($command);
