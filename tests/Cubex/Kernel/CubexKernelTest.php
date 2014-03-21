@@ -360,6 +360,10 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       );
       $this->assertEquals($expect->getContent(), $result->getContent());
     }
+    else if($result instanceof \Symfony\Component\HttpFoundation\Response)
+    {
+      $this->assertEquals($expect, $result->getContent());
+    }
     else
     {
       $this->assertEquals($expect, $result);
@@ -368,7 +372,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
   public function executeRouteProvider()
   {
-    $cubex = new \Cubex\Cubex();
+    $cubex    = new \Cubex\Cubex();
     $response = new \Cubex\Http\Response("hey");
 
     $toString = $this->getMock('stdClass', ['__toString']);

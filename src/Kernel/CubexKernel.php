@@ -12,6 +12,7 @@ use Cubex\Routing\RouteNotFoundException;
 use Illuminate\Support\Contracts\RenderableInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Cubex\Http\Response as CubexResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -235,7 +236,7 @@ abstract class CubexKernel
             $params = array_slice($this->_processParams, 1);
           }*/
 
-          return $this->_getMethodResult($method, $params);
+          $value = $this->_getMethodResult($method, $params);
         }
       }
     }
@@ -263,7 +264,7 @@ abstract class CubexKernel
 
     if($value instanceof RenderableInterface)
     {
-      return $value->render();
+      return new Response($value->render());
     }
 
     if(is_callable($value))
@@ -271,9 +272,16 @@ abstract class CubexKernel
       return $value();
     }
 
-    if(is_object($value) && method_exists($value, '__toString'))
+    if(is_object($value))
     {
-      return (string)$value;
+      if(method_exists($value, '__toString'))
+      {
+        return new CubexResponse((string)$value);
+      }
+      else
+      {
+        return new CubexResponse($value);
+      }
     }
 
     return null;
@@ -406,7 +414,7 @@ abstract class CubexKernel
 
   public function handleResponse($response, $capturedOutput)
   {
-    if($response instanceof Response)
+    if(is_object($response))
     {
       return $response;
     }
