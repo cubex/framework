@@ -176,6 +176,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
           'getUser',
           'renderIndex',
           'actionHomepage',
+          'renderGettingStarted',
           'defaultAction'
         ]
       )
@@ -186,6 +187,11 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(
       "getUser",
       $kernel->attemptMethod("getUser", $request)
+    );
+
+    $this->assertEquals(
+      "renderGettingStarted",
+      $kernel->attemptMethod("getting-started", $request)
     );
 
     $this->assertEquals(

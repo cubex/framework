@@ -339,7 +339,8 @@ abstract class CubexKernel
   public function attemptMethod($routeValue, Request $request)
   {
     $method     = trim($routeValue);
-    $callMethod = \ucfirst($method);
+    $callMethod = ucwords(str_replace(['-', '_'], ' ', $method));
+    $callMethod = str_replace(' ', '', $callMethod);
 
     $attempts = [];
     //Handle Ajax Requests
@@ -491,6 +492,9 @@ abstract class CubexKernel
 
     foreach($subRoutes as $subRoute)
     {
+      $subRoute = ucwords(str_replace(['-', '_'], ' ', $subRoute));
+      $subRoute = str_replace(' ', '', $subRoute);
+
       //Half sprintf style, but changed to str_replace for multiple instances
       $attempt = build_path_win(
         $namespace,
