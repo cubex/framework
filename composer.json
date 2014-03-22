@@ -27,7 +27,8 @@
   },
   "require-dev": {
     "stack/builder":   "1.0.*",
-    "mockery/mockery": "*"
+    "mockery/mockery": "*",
+    "phpunit/phpunit": "*"
   },
   "autoload":    {
     "psr-4": {
