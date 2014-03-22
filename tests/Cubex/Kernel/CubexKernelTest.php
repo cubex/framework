@@ -400,6 +400,9 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $namespaceKernel = new \namespaced\CubexProject();
     $namespaceKernel->setCubex($cubex);
 
+    $dataO       = new stdClass();
+    $dataO->name = "Brooke";
+
     return [
       [$kernel, null, null],
       [$kernel, $response, $response],
@@ -411,6 +414,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       ],
       [$kernel, 'stdClass', null],
       [$kernel, $callable, "testCallable"],
+      [$kernel, $dataO, '{"name":"Brooke"}'],
       [$kernel, new RenderableTest(), "renderable"],
       [$namespaceKernel, 'Sub\SubRoutable', "namespaced sub"],
       [$namespaceKernel, '\TheRoutable', "namespaced"],

@@ -11,6 +11,7 @@ abstract class TemplatedViewModel extends ViewModel
    */
   public function render()
   {
+    $this->preRender();
     ob_start();
     try
     {
@@ -22,5 +23,12 @@ abstract class TemplatedViewModel extends ViewModel
       throw $e;
     }
     return ob_get_clean();
+  }
+
+  /**
+   * Hook for pre-render, allowing resource injection etc
+   */
+  public function preRender()
+  {
   }
 }

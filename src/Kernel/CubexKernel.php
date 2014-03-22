@@ -274,14 +274,7 @@ abstract class CubexKernel
 
     if(is_object($value))
     {
-      if(method_exists($value, '__toString'))
-      {
-        return new CubexResponse((string)$value);
-      }
-      else
-      {
-        return new CubexResponse($value);
-      }
+      return new CubexResponse($value);
     }
 
     return null;
@@ -421,12 +414,12 @@ abstract class CubexKernel
 
     if($response !== null && !empty($response))
     {
-      return new \Cubex\Http\Response($response);
+      return new CubexResponse($response);
     }
 
     if($capturedOutput !== null && !empty($capturedOutput))
     {
-      return new \Cubex\Http\Response($capturedOutput);
+      return new CubexResponse($capturedOutput);
     }
 
     return null;
