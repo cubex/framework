@@ -492,8 +492,9 @@ abstract class CubexKernel
 
     foreach($subRoutes as $subRoute)
     {
-      $subRoute = ucwords(str_replace(['-', '_'], ' ', $subRoute));
-      $subRoute = str_replace(' ', '', $subRoute);
+      $classPath = ucwords(str_replace(['-', '_'], ' ', $classPath));
+      $classPath = str_replace(' ', '', $classPath);
+
 
       //Half sprintf style, but changed to str_replace for multiple instances
       $attempt = build_path_win(
