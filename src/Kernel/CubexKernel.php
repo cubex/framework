@@ -240,6 +240,18 @@ abstract class CubexKernel
         }
       }
     }
+    return $this->_processResponse($value, $request, $type, $catch, $params);
+  }
+
+  protected function _processResponse(
+    $value, Request $request, $type = self::MASTER_REQUEST, $catch = true,
+    $params = []
+  )
+  {
+    if(!is_array($params))
+    {
+      $params = [];
+    }
 
     if($value instanceof ICubexAware)
     {
@@ -459,7 +471,13 @@ abstract class CubexKernel
     $method = $this->attemptMethod($path, $request);
     if($method !== null)
     {
-      return $this->_getMethodResult($method, $params);
+      return $this->_processResponse(
+        $this->_getMethodResult($method, $params),
+        $request,
+        $type,
+        $catch,
+        $params
+      );
     }
 
     return $this->attemptSubClass($path, $request, $type, $catch, $params);
@@ -494,7 +512,6 @@ abstract class CubexKernel
     {
       $classPath = ucwords(str_replace(['-', '_'], ' ', $classPath));
       $classPath = str_replace(' ', '', $classPath);
-
 
       //Half sprintf style, but changed to str_replace for multiple instances
       $attempt = build_path_win(
