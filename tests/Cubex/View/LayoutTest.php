@@ -14,19 +14,30 @@ class LayoutTest extends \PHPUnit_Framework_TestCase
 
     $this->assertFalse($layout->exists('first'));
 
-    $layout->insert($section, 'first');
+    $layout->insert('first', $section);
     $this->assertTrue($layout->exists('first'));
     $this->assertEquals('section', $layout->first());
+    $this->assertEquals($section, $layout->get('first'));
 
     $layout->remove('first');
     $this->assertFalse($layout->exists('first'));
     $this->assertNull($layout->first());
   }
 
+  public function testInvalidSectionGet()
+  {
+    $this->setExpectedException(
+      'Exception',
+      "missing has not yet been bound to this layout"
+    );
+    $layout = new Layout(new CubexProject(), 'Default');
+    $layout->get('missing');
+  }
+
   public function testRender()
   {
     $layout = new Layout(new CubexProject(), 'Default');
-    $layout->insert(new RenderableSection(), 'testing');
+    $layout->insert('testing', new RenderableSection());
     $rendered = $layout->render();
     $this->assertContains('Testing', $rendered);
     $this->assertContains('<pre>section</pre>', $rendered);

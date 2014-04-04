@@ -45,12 +45,12 @@ class Layout extends TemplatedViewModel
   /**
    * Add a new section to the layout
    *
-   * @param RenderableInterface $renderable
    * @param                     $sectionName
+   * @param RenderableInterface $renderable
    *
    * @return $this
    */
-  public function insert(RenderableInterface $renderable, $sectionName)
+  public function insert($sectionName, RenderableInterface $renderable)
   {
     $this->_sections[$sectionName] = $renderable;
     return $this;
@@ -67,6 +67,23 @@ class Layout extends TemplatedViewModel
   {
     unset($this->_sections[$sectionName]);
     return $this;
+  }
+
+  /**
+   * Retrieve the renderable object bound to this section
+   *
+   * @param $sectionName
+   *
+   * @return RenderableInterface
+   * @throws \Exception
+   */
+  public function get($sectionName)
+  {
+    if(isset($this->_sections[$sectionName]))
+    {
+      return $this->_sections[$sectionName];
+    }
+    throw new \Exception("$sectionName has not yet been bound to this layout");
   }
 
   /**
