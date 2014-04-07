@@ -3,6 +3,8 @@ namespace namespaced;
 
 use Cubex\Console\ConsoleCommand;
 use Cubex\Kernel\CubexKernel;
+use Cubex\View\LayoutController;
+use Cubex\View\ViewModel;
 
 class CubexProject extends CubexKernel
 {
@@ -27,4 +29,39 @@ class TheRoutable
  */
 class NamerCommand extends ConsoleCommand
 {
+}
+
+class TestLayoutController extends LayoutController
+{
+  protected $_contentName = 'testing';
+
+  public function renderTest()
+  {
+    return 'test renderTest';
+  }
+
+  public function renderEcho()
+  {
+    echo 'test renderEcho';
+  }
+
+  public function renderView()
+  {
+    return $this->prepareView(new TestViewModel());
+  }
+
+  public function renderJson()
+  {
+    $class       = new \stdClass();
+    $class->test = 'json';
+    return $class;
+  }
+}
+
+class TestViewModel extends ViewModel
+{
+  public function render()
+  {
+    return 'View Model Test';
+  }
 }
