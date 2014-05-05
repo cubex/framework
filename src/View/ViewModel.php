@@ -2,12 +2,14 @@
 namespace Cubex\View;
 
 use Cubex\CubexAwareTrait;
+use Cubex\I18n\TranslationTrait;
 use Cubex\ICubexAware;
 use Illuminate\Support\Contracts\RenderableInterface;
 
 abstract class ViewModel implements RenderableInterface, ICubexAware
 {
   use CubexAwareTrait;
+  use TranslationTrait;
 
   protected $_templateDirName = 'Templates';
 

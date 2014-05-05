@@ -568,4 +568,18 @@ abstract class CubexKernel
   {
     return null;
   }
+
+  /**
+   * Set the cubex instance on an object to the current instance
+   *
+   * @param ICubexAware $instance
+   *
+   * @return ICubexAware
+   * @throws \RuntimeException
+   */
+  public function bindCubex(ICubexAware $instance)
+  {
+    $instance->setCubex($this->getCubex());
+    return $instance;
+  }
 }

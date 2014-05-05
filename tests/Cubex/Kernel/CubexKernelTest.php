@@ -523,6 +523,15 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     );
     $this->assertContains('test application', (string)$result);
   }
+
+  public function testCubexify()
+  {
+    $boiler = new BoilerTest();
+    $kernel = $this->getKernel();
+    $cubex  = $kernel->getCubex();
+    $kernel->bindCubex($boiler);
+    $this->assertSame($cubex, $boiler->getCubex());
+  }
 }
 
 class BoilerTest implements \Cubex\ICubexAware
