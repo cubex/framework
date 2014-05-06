@@ -184,4 +184,23 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $cubex->configure($config);
     $this->assertSame($config, $cubex->getConfiguration());
   }
+
+  public function testEnv()
+  {
+    $cubex = new \Cubex\Cubex();
+    $this->assertEquals('local', $cubex->env());
+
+    $cubex->setEnv('rand');
+    $this->assertEquals('rand', $cubex->env());
+
+    $_ENV['CUBEX_ENV'] = 'prod';
+    $cubex             = new \Cubex\Cubex();
+    $this->assertEquals('prod', $cubex->env());
+
+    putenv('CUBEX_ENV=stage');
+    $cubex = new \Cubex\Cubex();
+    $this->assertEquals('stage', $cubex->env());
+
+    putenv('CUBEX_ENV');
+  }
 }

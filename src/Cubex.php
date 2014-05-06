@@ -24,6 +24,7 @@ class Cubex extends Container
   const FLAG_CLI = 'cli';
   const FLAG_WEB = 'web';
 
+  protected $_env;
   protected $_flags;
   protected $_docRoot;
   protected $_projectRoot;
@@ -158,7 +159,7 @@ class Cubex extends Container
     if(!$this->bound("ConfigProvider"))
     {
       $config = new IniConfigProvider();
-      $files  = ['defaults.ini'];
+      $files  = ['defaults.ini', $this->env() . '.ini'];
 
       foreach($files as $fileName)
       {
@@ -375,10 +376,43 @@ class Cubex extends Container
   }
 
   /**
+   * Retrieve the current environment name e.g. local, development, production
+   *
    * @return string
    */
   public function env()
   {
-    return 'dev';
+    if($this->_env !== null)
+    {
+      return $this->_env;
+    }
+
+    $this->_env = getenv('CUBEX_ENV'); // Apache Config
+
+    if(($this->_env === null || !$this->_env) && isset($_ENV['CUBEX_ENV']))
+    {
+      $this->_env = $_ENV['CUBEX_ENV'];
+    }
+
+    if($this->_env === null || !$this->_env)
+    {
+      //If
+      $this->_env = 'local';
+    }
+
+    return $this->_env;
+  }
+
+  /**
+   * Set the environment name
+   *
+   * @param $env
+   *
+   * @return $this
+   */
+  public function setEnv($env)
+  {
+    $this->_env = $env;
+    return $this;
   }
 }
