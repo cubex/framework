@@ -276,7 +276,7 @@ abstract class CubexKernel
 
     if($value instanceof RenderableInterface)
     {
-      return new Response($value->render());
+      return new CubexResponse($value->render());
     }
 
     if(is_callable($value))
