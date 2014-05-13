@@ -8,6 +8,7 @@ class FacadeLoader
   public static $aliases = [
     'Log'           => '\Cubex\Facade\Log',
     'Cubex\Log\Log' => '\Cubex\Facade\Log',
+    'Cookie'        => '\Cubex\Facade\Cookie',
   ];
 
   public static function register()

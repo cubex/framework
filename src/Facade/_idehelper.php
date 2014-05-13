@@ -6,3 +6,7 @@
 class Log extends \Cubex\Facade\Log
 {
 }
+
+class Cookie extends \Cubex\Facade\Cookie
+{
+}
