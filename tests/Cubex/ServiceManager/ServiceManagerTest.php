@@ -102,6 +102,17 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
       ],
     ];
   }
+
+  public function testServiceAliases()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $manager = new \Cubex\ServiceManager\ServiceManager();
+    $manager->setCubex($cubex);
+    $manager->boot();
+    $encrypter = $cubex->make('encrypter');
+    $this->assertInstanceOf('\Illuminate\Encryption\Encrypter', $encrypter);
+  }
 }
 
 class CorruptableServiceManager extends \Cubex\ServiceManager\ServiceManager

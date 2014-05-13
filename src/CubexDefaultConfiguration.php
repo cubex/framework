@@ -19,7 +19,6 @@ class CubexDefaultConfiguration
     //Abstract, section, value, default
     $defaults   = array();
     $defaults[] = ['\Cubex\Kernel\CubexKernel', "kernel", "default", null];
-    //$defaults[] = ['log', "logging", 'logger', '\Illuminate\Log\Writer'];
     $defaults[] = [
       '\Cubex\Routing\IRouter',
       "routing",
@@ -27,6 +26,7 @@ class CubexDefaultConfiguration
       '\Cubex\Routing\Router'
     ];
     $defaults[] = ['404', "errors", "404", '\Cubex\Responses\Error404Response'];
+    $defaults[] = ['cookie', "user", "cookie", '\Illuminate\Cookie\CookieJar'];
 
     foreach($defaults as $item)
     {

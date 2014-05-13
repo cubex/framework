@@ -17,6 +17,13 @@ class ServiceManager implements ICubexAware
   protected $_services = [];
 
   /**
+   * Aliases for service register, used when a service will register instances
+   *
+   * @var array
+   */
+  protected $_aliases = [];
+
+  /**
    * Maintain the registered services so they can be correctly shutdown
    * @var array
    */
@@ -37,6 +44,25 @@ class ServiceManager implements ICubexAware
     foreach(array_keys($this->_services) as $service)
     {
       $this->_bindService($service);
+    }
+
+    //Loop over all aliases to make sure the service is registered
+    foreach($this->_aliases as $alias => $service)
+    {
+      $this->getCubex()->bind(
+        $alias,
+        function (Cubex $cubex) use ($alias, $service)
+        {
+          //Destroy the alias binding
+          $cubex->forgetInstance($alias);
+
+          //Force the service to register
+          $cubex->make($service);
+
+          //Make the service defined binding
+          return $cubex->make($alias);
+        }
+      );
     }
   }
 
@@ -67,6 +93,13 @@ class ServiceManager implements ICubexAware
       '\Cubex\ServiceManager\Services\LogService',
       ['log_name' => 'misc']
     ];
+
+    //Register the encryption service
+    $this->_services['encryption'] = [
+      '\Cubex\ServiceManager\Services\EncryptionService',
+      [],
+    ];
+    $this->_aliases['encrypter']   = 'encryption';
   }
 
   /**
