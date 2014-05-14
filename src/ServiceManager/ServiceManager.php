@@ -100,13 +100,14 @@ class ServiceManager implements ICubexAware
       [],
     ];
 
+    //Setup Aliases
+    $this->_aliases['encrypter'] = 'encryption';
+
     //Register the auth service
     $this->_services['auth'] = [
       '\Cubex\ServiceManager\Services\AuthService',
       [],
     ];
-
-    $this->_aliases['encrypter'] = 'encryption';
   }
 
   /**
