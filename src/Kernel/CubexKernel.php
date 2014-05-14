@@ -66,6 +66,20 @@ abstract class CubexKernel
   }
 
   /**
+   * Authentication hook, allowing validation before the router is attempted
+   *
+   * To verify the process can process, return true.
+   * To reject the request, and return a custom response, simply return the
+   * desired response
+   *
+   * @return true|Response
+   */
+  public function canProcess()
+  {
+    return true;
+  }
+
+  /**
    * Handles a Request to convert it to a Response.
    *
    * When $catch is true, the implementation must catch all exceptions
@@ -92,6 +106,15 @@ abstract class CubexKernel
 
     try
     {
+      //Check to see if the request is allowed to process
+      $authed = $this->canProcess();
+
+      //If can process returns a response, use that to send back to the user
+      if($authed instanceof Response)
+      {
+        return $authed;
+      }
+
       //Get the default router
       $router = $this->getCubex()->makeWithCubex('\Cubex\Routing\IRouter');
       if(!($router instanceof IRouter))

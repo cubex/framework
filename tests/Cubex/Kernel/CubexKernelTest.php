@@ -524,6 +524,17 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertContains('test application', (string)$result);
   }
 
+  public function testCanProcess()
+  {
+    $kernel = new KernelAuthTest();
+    $result = $kernel->handle(
+      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('Please Login', (string)$result);
+  }
+
   public function testCubexify()
   {
     $boiler = new BoilerTest();
@@ -561,5 +572,14 @@ class KernelBoilerTest extends \Cubex\Kernel\CubexKernel
   )
   {
     return new \Cubex\Http\Response('Kernel Boiler Response');
+  }
+}
+
+
+class KernelAuthTest extends \Cubex\Kernel\CubexKernel
+{
+  public function canProcess()
+  {
+    return new \Cubex\Http\Response('Please Login', 200);
   }
 }
