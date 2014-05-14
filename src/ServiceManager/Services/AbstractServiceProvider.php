@@ -36,6 +36,19 @@ abstract class AbstractServiceProvider implements IServiceProvider, ICubexAware
   }
 
   /**
+   * Get a specific item from the config
+   *
+   * @param $key
+   * @param $default
+   *
+   * @return mixed
+   */
+  public function getConfigItem($key, $default = null)
+  {
+    return $this->getConfig()->getItem($key, $default);
+  }
+
+  /**
    * Register the service
    *
    * @param array $parameters
