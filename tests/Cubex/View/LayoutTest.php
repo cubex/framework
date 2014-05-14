@@ -42,6 +42,16 @@ class LayoutTest extends \PHPUnit_Framework_TestCase
     $this->assertContains('Testing', $rendered);
     $this->assertContains('<pre>section</pre>', $rendered);
   }
+
+  public function testSetCallingClass()
+  {
+    $layout = new Layout(new CubexProject(), 'Default');
+    $layout->setCallingClass('namespaced\CubexProject');
+    $layout->insert('testing', new RenderableSection());
+    $rendered = $layout->render();
+    $this->assertContains('Testing', $rendered);
+    $this->assertContains('<pre>section</pre>', $rendered);
+  }
 }
 
 class RenderableSection implements RenderableInterface

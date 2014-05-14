@@ -103,4 +103,17 @@ class Layout extends TemplatedViewModel
       return $this->_sections[$method]->render($args);
     }
   }
+
+  /**
+   * Set the full class name to use when looking up the layout files on the fs.
+   *
+   * @param $class string
+   *
+   * @return $this
+   */
+  public function setCallingClass($class)
+  {
+    $this->_callingClass = (string)$class;
+    return $this;
+  }
 }
