@@ -9,6 +9,7 @@ class FacadeLoader
     'Log'           => '\Cubex\Facade\Log',
     'Cubex\Log\Log' => '\Cubex\Facade\Log',
     'Cookie'        => '\Cubex\Facade\Cookie',
+    'Auth'          => '\Cubex\Facade\Auth',
   ];
 
   public static function register()

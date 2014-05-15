@@ -36,6 +36,13 @@ class AuthService extends AbstractServiceProvider
     );
   }
 
+  /**
+   * @param       $username
+   * @param       $password
+   * @param array $options
+   *
+   * @return IAuthedUser|null
+   */
   public function login($username, $password, array $options = null)
   {
     //Call auth provider
@@ -108,6 +115,9 @@ class AuthService extends AbstractServiceProvider
     return $this->getConfigItem('cookie_name', 'cubex_login');
   }
 
+  /**
+   * @return IAuthedUser
+   */
   public function getAuthedUser()
   {
     if($this->_authedUser !== null)
