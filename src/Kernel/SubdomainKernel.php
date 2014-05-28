@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use \Cubex\Http\Request as CubexRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class SubdomainProjectKernel extends CubexKernel
+abstract class SubdomainKernel extends CubexKernel
 {
   /**
    * Handles a Request to convert it to a Response.
@@ -14,11 +14,11 @@ abstract class SubdomainProjectKernel extends CubexKernel
    * When $catch is true, the implementation must catch all exceptions
    * and do its best to convert them to a Response instance.
    *
-   * @param Request $request A Request instance
-   * @param integer $type The type of the request
+   * @param Request $request  A Request instance
+   * @param integer $type     The type of the request
    *                          (one of HttpKernelInterface::MASTER_REQUEST
    *                          or HttpKernelInterface::SUB_REQUEST)
-   * @param Boolean $catch Whether to catch exceptions or not
+   * @param Boolean $catch    Whether to catch exceptions or not
    *
    * @return Response A Response instance
    *
@@ -49,8 +49,14 @@ abstract class SubdomainProjectKernel extends CubexKernel
         return $authed;
       }
 
+      $sub = $request->subDomain();
+      if(!method_exists($this, $sub))
+      {
+        $sub = 'defaultAction';
+      }
+
       $response = $this->_processResponse(
-        $this->_getMethodResult($request->subDomain()),
+        $this->_getMethodResult($sub),
         $request,
         $type,
         $catch
