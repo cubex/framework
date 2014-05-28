@@ -11,6 +11,8 @@ class Response extends \Symfony\Component\HttpFoundation\Response
     $this->from($content);
   }
 
+  protected $_originalSource;
+
   /**
    * Automatically detect the source, and create the correct response type
    *
@@ -20,6 +22,8 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    */
   public function from($source)
   {
+    $this->_originalSource = $source;
+
     if(is_object($source) || is_array($source))
     {
       if($source instanceof RenderableInterface)
@@ -52,7 +56,8 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    */
   public function fromJson($object)
   {
-    $response = \json_encode($object);
+    $this->_originalSource = $object;
+    $response              = \json_encode($object);
 
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
@@ -79,8 +84,9 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    */
   public function fromJsonp($responseKey, $object)
   {
-    $responseObject = \json_encode($object);
-    $response       = "{$responseKey}({$responseObject})";
+    $this->_originalSource = $object;
+    $responseObject        = \json_encode($object);
+    $response              = "{$responseKey}({$responseObject})";
 
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
@@ -105,6 +111,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    */
   public function fromText($text)
   {
+    $this->_originalSource = $text;
     $this->setContent($text);
     $this->headers->set("Content-Type", "text/plain");
 
@@ -139,5 +146,15 @@ class Response extends \Symfony\Component\HttpFoundation\Response
         number_format((microtime(true) - PHP_START) * 1000, 3) . ' ms'
       );
     }
+  }
+
+  /**
+   * Retrieve the original data used to create the response
+   *
+   * @return mixed
+   */
+  public function getOriginalResponse()
+  {
+    return $this->_originalSource;
   }
 }
