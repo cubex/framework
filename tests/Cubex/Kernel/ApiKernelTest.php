@@ -23,14 +23,17 @@ class ApiKernelTest extends CubexTestCase
       true
     );
 
-    if($response instanceof \Cubex\Http\Response)
+    if($response instanceof \Cubex\Responses\ApiResponse)
     {
-      $apiObject = $response->getOriginalResponse();
+      $apiObject = json_decode($response->getJson());
       $this->assertObjectHasAttribute('error', $apiObject);
       $this->assertObjectHasAttribute('result', $apiObject);
       $this->assertEquals($errMsg, $apiObject->error->message);
       $this->assertEquals($errNo, $apiObject->error->code);
       $this->assertEquals($expect, $apiObject->result);
+
+      $this->expectOutputString($response->getJson());
+      $response->sendContent();
     }
   }
 
@@ -39,13 +42,19 @@ class ApiKernelTest extends CubexTestCase
     return [
       [
         '/testSuccess',
-        ["username" => 'brooke', 'name' => 'Brooke Bryan'],
+        (object)["username" => 'brooke', 'name' => 'Brooke Bryan'],
         '',
         200
       ],
       ['/testError', '', 'File not found', 404],
       ['/testErrorCodeless', '', 'Missing code', 500],
       ['/testNonCubexResponse', 'Strange Content', '', 200],
+      [
+        '/testSubKernel',
+        (object)["username" => 'john', 'name' => 'John Smith'],
+        '',
+        200
+      ],
     ];
   }
 
@@ -84,5 +93,18 @@ class ApiTestKernel extends \Cubex\Kernel\ApiKernel
   public function testNonCubexResponse()
   {
     return new \Symfony\Component\HttpFoundation\Response('Strange Content');
+  }
+
+  public function testSubKernel()
+  {
+    return new SubApiTestKernel();
+  }
+}
+
+class SubApiTestKernel extends \Cubex\Kernel\ApiKernel
+{
+  public function defaultAction()
+  {
+    return ["username" => 'john', 'name' => 'John Smith'];
   }
 }
