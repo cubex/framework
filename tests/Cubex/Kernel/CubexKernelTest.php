@@ -47,6 +47,17 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertNull($kernel->defaultAction());
   }
 
+  public function testGetRequest()
+  {
+    $kernel = new RequestGetTest();
+    $cubex = new \Cubex\Cubex();
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $cubex->instance('request',$request);
+    $kernel->setCubex($cubex);
+    $this->assertInstanceOf('\Cubex\Http\Request',$kernel->getRequest());
+    $this->assertSame($request,$kernel->getRequest());
+  }
+
   public function testCubexAwareSetGet()
   {
     $kernel = $this->getKernel();
@@ -581,5 +592,13 @@ class KernelAuthTest extends \Cubex\Kernel\CubexKernel
   public function canProcess()
   {
     return new \Cubex\Http\Response('Please Login', 200);
+  }
+}
+
+class RequestGetTest extends \Cubex\Kernel\CubexKernel
+{
+  public function getRequest()
+  {
+    return $this->_getRequest();
   }
 }
