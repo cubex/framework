@@ -29,9 +29,10 @@
     "phpdocumentor/reflection-docblock": "2.0.*"
   },
   "require-dev": {
-    "stack/builder":   "1.0.*",
-    "mockery/mockery": "*",
-    "phpunit/phpunit": "*"
+    "stack/builder":     "1.0.*",
+    "mockery/mockery":   "*",
+    "guzzlehttp/guzzle": "*",
+    "phpunit/phpunit":   "*"
   },
   "autoload":    {
     "psr-4": {
