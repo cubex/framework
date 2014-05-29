@@ -87,6 +87,18 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $this->assertInstanceOf('\Cubex\Http\Response', $resp);
   }
 
+  public function testFavicon()
+  {
+    $request = \Cubex\Http\Request::create('/favicon.ico');
+    $cubex   = $this->sampleProjectCubex();
+    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $resp = $cubex->handle($request);
+    $this->assertInstanceOf(
+      '\Symfony\Component\HttpFoundation\BinaryFileResponse',
+      $resp
+    );
+  }
+
   public function testInvalidRequest()
   {
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();

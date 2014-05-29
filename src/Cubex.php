@@ -8,6 +8,7 @@ use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Facade;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -275,6 +276,19 @@ class Cubex extends Container
     Request $request, $type = self::MASTER_REQUEST, $catch = true
   )
   {
+    //If the favicon has not been picked up within the public folder
+    //return the cubex favicon
+
+    if($request->getPathInfo() === '/favicon.ico')
+    {
+      $favicon = new BinaryFileResponse(
+        build_path(dirname(__DIR__), 'favicon.ico')
+      );
+
+      $favicon->prepare($request);
+      return $favicon;
+    }
+
     try
     {
       //Ensure all constants have been configured
