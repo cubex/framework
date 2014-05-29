@@ -570,6 +570,15 @@ abstract class CubexKernel
   }
 
   /**
+   * Retrieve the Cubex request object
+   * @return \Cubex\Http\Request
+   */
+  protected function _getRequest()
+  {
+    return $this->getCubex()->make('request');
+  }
+
+  /**
    * Retrieve a cubex configuration item
    *
    * @param      $section
