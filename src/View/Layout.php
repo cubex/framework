@@ -19,6 +19,13 @@ class Layout extends TemplatedViewModel
   protected $_sections = [];
 
   /**
+   * Custom data items
+   *
+   * @var array
+   */
+  protected $_data;
+
+  /**
    * Create a new layout for rendering
    *
    * @param CubexKernel $base
@@ -84,6 +91,33 @@ class Layout extends TemplatedViewModel
       return $this->_sections[$sectionName];
     }
     throw new \Exception("$sectionName has not yet been bound to this layout");
+  }
+
+  /**
+   * Retrieve the value of an item
+   *
+   * @param      $key
+   * @param null $default
+   *
+   * @return null
+   */
+  public function getData($key, $default = null)
+  {
+    return isset($this->_data[$key]) ? $this->_data[$key] : $default;
+  }
+
+  /**
+   * Set a custom data item
+   *
+   * @param $key
+   * @param $value
+   *
+   * @return $this
+   */
+  public function setData($key, $value)
+  {
+    $this->_data[$key] = $value;
+    return $this;
   }
 
   /**
