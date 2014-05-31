@@ -174,17 +174,14 @@ abstract class CubexKernel
     }
     catch(\Exception $e)
     {
+      //shutdown the kernel
+      $this->shutdown();
       if($catch)
       {
-        //shutdown the kernel
-        $this->shutdown();
         return $this->getCubex()->exceptionResponse($e);
       }
       else
       {
-        //shutdown the kernel
-        $this->shutdown();
-
         throw $e;
       }
     }
