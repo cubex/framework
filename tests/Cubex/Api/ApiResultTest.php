@@ -58,4 +58,24 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
       . '"profile":{"callTime":"2.684","executionTime":"38.341"}}';
     new \Cubex\Api\ApiResult($json, true);
   }
+
+  public function testInvalidPayload()
+  {
+    $this->setExpectedException(
+      'Exception',
+      'Unable to decode json string',
+      500
+    );
+    $json = 'Internal Server Error';
+    new \Cubex\Api\ApiResult($json);
+  }
+
+  public function testInvalidJson()
+  {
+    $this->setExpectedException('Exception', 'Invalid json / api result', 500);
+    $json = '{"error":{"message":"Not Found","code":404},'
+      . '"result":""'
+      . '}';
+    new \Cubex\Api\ApiResult($json);
+  }
 }

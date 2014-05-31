@@ -16,10 +16,40 @@ class ApiResult
    *
    * @throws \Exception
    */
-  public function __construct($json, $throw = true)
+  public function __construct($json = null, $throw = true)
+  {
+    if($json !== null)
+    {
+      $this->readJson($json, $throw);
+    }
+  }
+
+  /**
+   * @param string $json  Raw JSON Response from the api
+   * @param bool   $throw Throw errors received from the API
+   *
+   * @throws \Exception
+   */
+  public function readJson($json, $throw = true)
   {
     $result = json_decode($json);
-    //TODO: Add validation to the json object
+
+    if(json_last_error() !== JSON_ERROR_NONE)
+    {
+      throw new \RuntimeException("Unable to decode json string", 500);
+    }
+
+    if(!isset($result->error)
+      || !isset($result->error->message)
+      || !isset($result->error->code)
+      || !isset($result->profile)
+      || !isset($result->profile->callTime)
+      || !isset($result->profile->executionTime)
+      || !isset($result->result)
+    )
+    {
+      throw new \RuntimeException("Invalid json / api result", 500);
+    }
 
     $this->_errorMessage = $result->error->message;
     $this->_errorCode    = $result->error->code;
