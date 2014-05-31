@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Api;
 
-use Cubex\CubexException;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Event\CompleteEvent;
 use GuzzleHttp\Message\ResponseInterface;
 use GuzzleHttp\Client;
 
@@ -17,10 +17,49 @@ class ApiClient
    */
   protected $_guzzle;
 
+  protected $_batchOpen;
+  protected $_batch;
+  protected $_results;
+
   public function __construct($baseUri, ClientInterface $guzzle = null)
   {
     $this->_baseUri = $baseUri;
     $this->_guzzle  = $guzzle === null ? new Client() : $guzzle;
+  }
+
+  public function openBatch()
+  {
+    $this->_batchOpen = true;
+  }
+
+  public function closeBatch()
+  {
+    $this->_batchOpen = false;
+  }
+
+  public function runBatch()
+  {
+    $this->_guzzle->sendAll(
+      $this->_batch,
+      [
+        'complete' => function (CompleteEvent $event)
+        {
+          $batchId = $event->getRequest()->getHeader('X-Batch-ID');
+          $result  = $this->_results[$batchId];
+          if($result instanceof ApiResult)
+          {
+            $result->readJson($event->getResponse()->getBody());
+          }
+        }
+      ]
+    );
+    $this->_batch   = [];
+    $this->_results = [];
+  }
+
+  public function isBatchOpen()
+  {
+    return (bool)$this->_batchOpen;
   }
 
   /**
@@ -30,9 +69,30 @@ class ApiClient
    */
   public function get($call)
   {
-    $time     = microtime(true);
-    $response = $this->_guzzle->get(build_path($this->_baseUri, $call));
-    return $this->_processResponse($response, $time);
+    return $this->callApi($call, 'GET');
+  }
+
+  public function callApi($call, $method = 'GET')
+  {
+    $time    = microtime(true);
+    $request = $this->_guzzle->createRequest(
+      $method,
+      build_path($this->_baseUri, $call)
+    );
+
+    $batchId = uniqid($method);
+    $request->addHeader('X-Batch-ID', $batchId);
+
+    if(!$this->isBatchOpen())
+    {
+      return $this->_processResponse($this->_guzzle->send($request), $time);
+    }
+
+    $apiResult                = new ApiResult();
+    $this->_batch[]           = $request;
+    $this->_results[$batchId] = $apiResult;
+
+    return $apiResult;
   }
 
   /**
