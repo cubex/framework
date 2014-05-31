@@ -160,8 +160,17 @@ abstract class CubexKernel
     }
     catch(CubexException $e)
     {
+      //shutdown the kernel
       $this->shutdown();
-      return $this->getCubex()->make('404');
+
+      if($catch)
+      {
+        return $this->getCubex()->make('404');
+      }
+      else
+      {
+        throw $e;
+      }
     }
     catch(\Exception $e)
     {
