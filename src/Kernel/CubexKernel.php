@@ -153,7 +153,7 @@ abstract class CubexKernel
       {
         throw CubexException::debugException(
           "The processed route did not yield a valid response",
-          500,
+          404,
           $response
         );
       }
