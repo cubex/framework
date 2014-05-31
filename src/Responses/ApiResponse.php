@@ -61,6 +61,7 @@ class ApiResponse extends Response
    */
   public function setContent($content)
   {
+    $this->headers->set("Content-Type", "application/json");
     $this->content = $content;
     return $this;
   }
