@@ -39,13 +39,14 @@ class ApiResult
       throw new \RuntimeException("Unable to decode json string", 500);
     }
 
-    if(!isset($result->error)
-      || !isset($result->error->message)
-      || !isset($result->error->code)
-      || !isset($result->profile)
-      || !isset($result->profile->callTime)
-      || !isset($result->profile->executionTime)
-      || !isset($result->result)
+    if(!isset(
+    $result->error,
+    $result->error->message,
+    $result->error->code,
+    $result->profile,
+    $result->profile->callTime,
+    $result->profile->executionTime,
+    $result->result)
     )
     {
       throw new \RuntimeException("Invalid json / api result", 500);
