@@ -49,13 +49,13 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
   public function testGetRequest()
   {
-    $kernel = new RequestGetTest();
-    $cubex = new \Cubex\Cubex();
+    $kernel  = new RequestGetTest();
+    $cubex   = new \Cubex\Cubex();
     $request = \Cubex\Http\Request::createFromGlobals();
-    $cubex->instance('request',$request);
+    $cubex->instance('request', $request);
     $kernel->setCubex($cubex);
-    $this->assertInstanceOf('\Cubex\Http\Request',$kernel->getRequest());
-    $this->assertSame($request,$kernel->getRequest());
+    $this->assertInstanceOf('\Cubex\Http\Request', $kernel->getRequest());
+    $this->assertSame($request, $kernel->getRequest());
   }
 
   public function testCubexAwareSetGet()
@@ -75,6 +75,20 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
+  }
+
+  public function test404Handle()
+  {
+    $this->setExpectedException(
+      'Exception',
+      "The processed route did not yield a valid response",
+      404
+    );
+
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $kernel  = new ResultNotFoundTest();
+    $kernel->setCubex($this->getKernel()->getCubex());
+    $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
   }
 
   public function testHandleWithRoutes()
@@ -345,7 +359,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
    * @dataProvider executeRouteProvider
    */
   public function testExecuteRoute(
-    $kernel, $routeData, $expect, $exception = null
+    \Cubex\Kernel\CubexKernel $kernel, $routeData, $expect, $exception = null
   )
   {
     $route = new \Cubex\Routing\Route();
@@ -354,12 +368,14 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $request = \Cubex\Http\Request::createFromGlobals();
     $type    = \Cubex\Cubex::MASTER_REQUEST;
 
-    if($exception !== null)
+    $catch = $exception === null;
+
+    if(!$catch)
     {
       $this->setExpectedException('Exception', $exception);
     }
 
-    $result = $kernel->executeRoute($route, $request, $type, true);
+    $result = $kernel->executeRoute($route, $request, $type, $catch);
 
     if($expect instanceof \Symfony\Component\HttpFoundation\RedirectResponse)
     {
@@ -440,6 +456,12 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
         '\NoSuchClass',
         null,
         "Your route provides an invalid class '\\NoSuchClass'"
+      ],
+      [
+        $namespaceKernel,
+        '\NoSuchClass',
+        null,
+        null
       ],
       [
         $kernel,
@@ -600,5 +622,13 @@ class RequestGetTest extends \Cubex\Kernel\CubexKernel
   public function getRequest()
   {
     return $this->_getRequest();
+  }
+}
+
+class ResultNotFoundTest extends \Cubex\Kernel\CubexKernel
+{
+  public function defaultAction()
+  {
+    return null;
   }
 }

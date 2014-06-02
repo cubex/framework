@@ -228,9 +228,16 @@ abstract class CubexKernel
         }
         catch(\Exception $e)
         {
-          throw new \RuntimeException(
-            "Your route provides an invalid class '$class'"
-          );
+          if(!$catch)
+          {
+            throw new \RuntimeException(
+              "Your route provides an invalid class '$class'"
+            );
+          }
+          else
+          {
+            return null;
+          }
         }
       }
       else
