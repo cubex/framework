@@ -31,6 +31,17 @@ abstract class CubexKernel
    */
   protected $_processParams;
 
+  protected $_initialised = false;
+
+  protected function _init()
+  {
+    if(!$this->_initialised)
+    {
+      $this->init();
+      $this->_initialised = true;
+    }
+  }
+
   /**
    * Initialise component
    */
@@ -101,8 +112,8 @@ abstract class CubexKernel
     Request $request, $type = self::MASTER_REQUEST, $catch = true
   )
   {
-    //Imitialise the kernel
-    $this->init();
+    //Initialise the kernel
+    $this->_init();
 
     try
     {

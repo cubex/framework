@@ -35,8 +35,8 @@ abstract class SubdomainKernel extends CubexKernel
       throw new \RuntimeException("Invalid cubex request");
     }
 
-    //Imitialise the kernel
-    $this->init();
+    //Initialise the kernel
+    $this->_init();
 
     try
     {
