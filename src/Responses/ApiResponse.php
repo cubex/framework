@@ -26,6 +26,16 @@ class ApiResponse extends Response
     return $this;
   }
 
+  public function getErrorCode()
+  {
+    return $this->_errorCode;
+  }
+
+  public function getErrorMessage()
+  {
+    return $this->_errorMessage;
+  }
+
   /**
    * Set the execution time for the call
    *
