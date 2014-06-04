@@ -51,16 +51,23 @@ abstract class ApiKernel extends CubexKernel
     }
     catch(\Exception $e)
     {
-      //Take the exception code as the http error code,
-      //assuming 500 if not available
-      $code = $e->getCode();
-      if($code < 1)
+      if($catch)
       {
-        $code = 500;
-      }
+        //Take the exception code as the http error code,
+        //assuming 500 if not available
+        $code = $e->getCode();
+        if($code < 1)
+        {
+          $code = 500;
+        }
 
-      //Let the end user known the exception message
-      $apiResponse->setError($e->getMessage(), $code);
+        //Let the end user known the exception message
+        $apiResponse->setError($e->getMessage(), $code);
+      }
+      else
+      {
+        throw $e;
+      }
     }
 
     //Output call performance
