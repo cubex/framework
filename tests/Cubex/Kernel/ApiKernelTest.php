@@ -31,6 +31,8 @@ class ApiKernelTest extends CubexTestCase
       $this->assertEquals($errMsg, $apiObject->error->message);
       $this->assertEquals($errNo, $apiObject->error->code);
       $this->assertEquals($expect, $apiObject->result);
+      $this->assertEquals($errMsg, $response->getErrorMessage());
+      $this->assertEquals($errNo, $response->getErrorCode());
 
       $this->expectOutputString($response->getJson());
       $response->sendContent();
@@ -70,6 +72,38 @@ class ApiKernelTest extends CubexTestCase
       ],
       $apiTestKernel->subRouteTo()
     );
+  }
+
+
+  /**
+   * @param $path
+   * @param $expect
+   * @param $errMsg
+   * @param $errNo
+   *
+   * @dataProvider uncaughtProvider
+   */
+  public function testUncaught($path, $errType, $errMsg, $errNo)
+  {
+    $request = \Cubex\Http\Request::create($path);
+    $kernel  = new ApiTestKernel();
+    $cubex   = $this->newCubexInstace();
+    $cubex->instance('\Cubex\Routing\IRouter', new \Cubex\Routing\Router());
+    $kernel->setCubex($cubex);
+    $this->setExpectedException($errType, $errMsg, $errNo);
+    $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+  }
+
+  public function uncaughtProvider()
+  {
+    return [
+      ['/testError', '\Exception', 'File not found', 404],
+      ['/testErrorCodeless', '\Exception', 'Missing code', 0],
+    ];
   }
 }
 
