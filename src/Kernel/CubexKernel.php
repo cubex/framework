@@ -3,6 +3,7 @@ namespace Cubex\Kernel;
 
 use Cubex\CubexAwareTrait;
 use Cubex\CubexException;
+use Cubex\Http\Response as CubexResponse;
 use Cubex\ICubexAware;
 use Cubex\Routing\IRoutable;
 use Cubex\Routing\IRoute;
@@ -12,7 +13,6 @@ use Cubex\Routing\RouteNotFoundException;
 use Illuminate\Support\Contracts\RenderableInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Cubex\Http\Response as CubexResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -350,13 +350,21 @@ abstract class CubexKernel
   protected function _getMethodResult($method, $params = null)
   {
     ob_start();
-    if($params === null)
+    try
     {
-      $response = $this->$method();
+      if($params === null)
+      {
+        $response = $this->$method();
+      }
+      else
+      {
+        $response = call_user_func_array([$this, $method], $params);
+      }
     }
-    else
+    catch(\Exception $e)
     {
-      $response = call_user_func_array([$this, $method], $params);
+      ob_get_clean();
+      throw $e;
     }
     return $this->handleResponse($response, ob_get_clean());
   }
