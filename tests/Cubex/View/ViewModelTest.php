@@ -16,7 +16,7 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('randomFile', $view->getTemplateFile());
 
     $this->assertEquals(
-      build_path('randomDir','randomFile.phtml'),
+      build_path('randomDir', 'randomFile.phtml'),
       $view->getTemplatePath('.phtml')
     );
   }

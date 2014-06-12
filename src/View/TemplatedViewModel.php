@@ -11,11 +11,17 @@ abstract class TemplatedViewModel extends ViewModel
    */
   public function render()
   {
+    $tpl = $this->getTemplatePath('.phtml');
+    if(!file_exists($tpl))
+    {
+      throw new \Exception("The template file '$tpl' does not exist", 404);
+    }
+
     $this->preRender();
     ob_start();
     try
     {
-      include $this->getTemplatePath('.phtml');
+      include $tpl;
     }
     catch(\Exception $e)
     {
