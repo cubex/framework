@@ -317,7 +317,7 @@ class Cubex extends Container
       $kernel = $this->makeWithCubex('\Cubex\Kernel\CubexKernel');
       if($kernel instanceof CubexKernel)
       {
-        $response = $kernel->handle($request, $type, false);
+        $response = $kernel->handle($request, $type, $catch);
 
         if(!($response instanceof Response))
         {
