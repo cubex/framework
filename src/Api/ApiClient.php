@@ -21,6 +21,8 @@ class ApiClient
   protected $_batch;
   protected $_results;
 
+  protected $_headers;
+
   public function __construct($baseUri, ClientInterface $guzzle = null)
   {
     $this->_baseUri = $baseUri;
@@ -95,6 +97,14 @@ class ApiClient
     $batchId = uniqid($method);
     $request->addHeader('X-Batch-ID', $batchId);
 
+    if($this->_headers)
+    {
+      foreach($this->_headers as $header => $value)
+      {
+        $request->addHeader($header, $value);
+      }
+    }
+
     if(!$this->isBatchOpen())
     {
       return $this->_processResponse($this->_guzzle->send($request), $time);
@@ -105,6 +115,18 @@ class ApiClient
     $this->_results[$batchId] = $apiResult;
 
     return $apiResult;
+  }
+
+  public function addGlobalHeader($headerKey, $value)
+  {
+    $this->_headers[$headerKey] = $value;
+    return $this;
+  }
+
+  public function removeGlobalHeader($headerKey)
+  {
+    unset($this->_headers[$headerKey]);
+    return $this;
   }
 
   /**
