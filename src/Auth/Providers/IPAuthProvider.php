@@ -31,7 +31,10 @@ class IPAuthProvider implements IAuthProvider, ICubexAware
    * @param       $password
    * @param array $options
    *
-   * @return IAuthedUser|null
+   * @return IAuthedUser
+   *
+   * @throws \Exception
+   * @throws \RuntimeException
    */
   public function login($username, $password, array $options = null)
   {
@@ -51,7 +54,9 @@ class IPAuthProvider implements IAuthProvider, ICubexAware
   /**
    * Retrieve the logged in user dynamically, e.g. off sessions or ips
    *
-   * @return IAuthedUser|null
+   * @return IAuthedUser
+   * @throws \Exception
+   * @throws \RuntimeException
    */
   public function retrieveUser()
   {
@@ -64,7 +69,7 @@ class IPAuthProvider implements IAuthProvider, ICubexAware
       if(!isset($info))
       {
         //IP not configured
-        return null;
+        throw new \Exception("Unauthorized IP");
       }
       if(isset($info['alias']))
       {
@@ -82,7 +87,11 @@ class IPAuthProvider implements IAuthProvider, ICubexAware
           $info['username'], $info['userid'], $info
         );
       }
+      else
+      {
+        throw new \Exception("Invalid IP Configuration");
+      }
     }
-    return null;
+    throw new \RuntimeException("Unable to retrieve the users IP");
   }
 }

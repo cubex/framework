@@ -41,12 +41,17 @@ class AuthService extends AbstractServiceProvider
    * @param       $password
    * @param array $options
    *
-   * @return IAuthedUser|null
+   * @return IAuthedUser
+   *
+   * @throws \Exception
+   * @throws \RuntimeException
    */
   public function login($username, $password, array $options = null)
   {
     //Call auth provider
     $login = $this->_authProvider->login($username, $password, $options);
+
+    //Just incase the login provider didnt throw an exception on error
     if($login === null)
     {
       throw new \RuntimeException("Unable to login '$username'");
@@ -117,6 +122,9 @@ class AuthService extends AbstractServiceProvider
 
   /**
    * @return IAuthedUser
+   *
+   * @throws \Exception
+   * @throws \RuntimeException
    */
   public function getAuthedUser()
   {

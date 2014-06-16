@@ -8,7 +8,9 @@ interface IAuthProvider
    * @param       $password
    * @param array $options
    *
-   * @return IAuthedUser|null
+   * @return IAuthedUser
+   *
+   * @throws \Exception
    */
   public function login($username, $password, array $options = null);
 
@@ -20,7 +22,9 @@ interface IAuthProvider
   /**
    * Retrieve the logged in user dynamically, e.g. off sessions or ips
    *
-   * @return IAuthedUser|null
+   * @return IAuthedUser
+   *
+   * @throws \Exception
    */
   public function retrieveUser();
 }

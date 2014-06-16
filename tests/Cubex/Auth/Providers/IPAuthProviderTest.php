@@ -18,8 +18,16 @@ class IPAuthProviderTest extends PHPUnit_Framework_TestCase
    *
    * @dataProvider ipOptions
    */
-  public function testRetrieve($ip, $username, $userid, $display)
+  public function testRetrieve(
+    $ip, $username, $userid, $display, $exception = null,
+    $corruptRequest = false
+  )
   {
+    if($exception !== null)
+    {
+      $this->setExpectedException('\Exception', $exception);
+    }
+
     $cnf                 = [];
     $cnf['192.168.0.10'] = [
       'username' => 'bob',
@@ -52,7 +60,14 @@ class IPAuthProviderTest extends PHPUnit_Framework_TestCase
     $request = new \Cubex\Http\Request();
 
     $request->server->set('REMOTE_ADDR', $ip);
-    $cubex->instance('request', $request);
+    if($corruptRequest)
+    {
+      $cubex->instance('request', 'invalid');
+    }
+    else
+    {
+      $cubex->instance('request', $request);
+    }
     $auth = new \Cubex\Auth\Providers\IPAuthProvider();
     $auth->setCubex($cubex);
     $user = $auth->login('test', 'test');
@@ -74,9 +89,17 @@ class IPAuthProviderTest extends PHPUnit_Framework_TestCase
     return [
       ['192.168.0.20', 'pet', 2, 'Dog'],
       ['192.168.0.10', 'bob', 3, 'Bobby'],
-      ['192.168.0.11', null, null, null],
+      ['192.168.0.11', null, null, null, 'Invalid IP Configuration'],
+      [
+        '192.168.0.11',
+        null,
+        null,
+        null,
+        "Unable to retrieve the users IP",
+        true
+      ],
       ['192.168.0.12', 'bob', 0, 'Bobby'],
-      ['192.168.0.13', null, null, null],
+      ['192.168.0.13', null, null, null, 'Unauthorized IP'],
     ];
   }
 }

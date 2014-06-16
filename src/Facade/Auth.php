@@ -36,6 +36,9 @@ class Auth extends Facade
 
   /**
    * @return \Cubex\Auth\IAuthedUser
+   *
+   * @throws \Exception
+   * @throws \RuntimeException
    */
   public static function getAuthedUser()
   {
@@ -47,7 +50,10 @@ class Auth extends Facade
    * @param       $password
    * @param array $options
    *
-   * @return \Cubex\Auth\IAuthedUser|null
+   * @return \Cubex\Auth\IAuthedUser
+   *
+   * @throws \Exception
+   * @throws \RuntimeException
    */
   public static function login($username, $password, array $options = null)
   {
