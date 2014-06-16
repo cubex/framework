@@ -23,6 +23,39 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(['Tasker', 'worker'], $apiResult->getResult());
   }
 
+  public function testPost()
+  {
+
+    $response = function (\GuzzleHttp\Adapter\TransactionInterface $transaction)
+    {
+      $body = $transaction->getRequest()->getBody();
+      if($body instanceof \GuzzleHttp\Post\PostBody)
+      {
+        $resp          = new stdClass();
+        $resp->error   = ['message' => '', 'code' => 200];
+        $resp->result  = $body->getFields();
+        $resp->profile = ['callTime' => '2', 'executionTime' => 34];
+        return new \GuzzleHttp\Message\Response(
+          200,
+          [],
+          \GuzzleHttp\Stream\Stream::factory(json_encode($resp))
+        );
+      }
+    };
+
+    $adapter = new \GuzzleHttp\Adapter\MockAdapter();
+    $adapter->setResponse($response);
+    $guzzler = new \GuzzleHttp\Client(['adapter' => $adapter]);
+
+    $client    = new \Cubex\Api\ApiClient('http://www.test.com', $guzzler);
+    $apiResult = $client->post('', ['key' => 'value', 'key2' => 'vals']);
+    $this->assertInstanceOf('\Cubex\Api\ApiResult', $apiResult);
+    $this->assertEquals(
+      (object)['key' => 'value', 'key2' => 'vals'],
+      $apiResult->getResult()
+    );
+  }
+
   public function testBatch()
   {
     $json = '{"error":{"message":"","code":200},'

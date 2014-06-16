@@ -72,12 +72,24 @@ class ApiClient
     return $this->callApi($call, 'GET');
   }
 
-  public function callApi($call, $method = 'GET')
+  /**
+   * @param       $call
+   * @param array $params
+   *
+   * @return ApiResult
+   */
+  public function post($call, array $params)
+  {
+    return $this->callApi($call, 'POST', ['body' => $params]);
+  }
+
+  public function callApi($call, $method = 'GET', array $options = [])
   {
     $time    = microtime(true);
     $request = $this->_guzzle->createRequest(
       $method,
-      build_path($this->_baseUri, $call)
+      build_path($this->_baseUri, $call),
+      $options
     );
 
     $batchId = uniqid($method);
