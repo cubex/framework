@@ -4,6 +4,7 @@ namespace Cubex\ServiceManager\Services;
 use Cubex\Auth\IAuthedUser;
 use Cubex\Auth\IAuthProvider;
 use Cubex\Facade\Cookie;
+use Cubex\Http\Request;
 use Packaged\Helpers\ValueAs;
 
 class AuthService extends AbstractServiceProvider
@@ -68,13 +69,20 @@ class AuthService extends AbstractServiceProvider
    */
   protected function _setLoginCookie(IAuthedUser $user)
   {
+    $request = $this->getCubex()->make('request');
+    $domain  = null;
+    if($request instanceof Request)
+    {
+      $domain = $request->domain() . '.' . $request->tld();
+    }
+
     Cookie::queue(
       Cookie::make(
         $this->getCookieName(),
         $user->serialize(),
         $this->getConfigItem('cookie_time', 2592000),
         null,
-        null,
+        $domain,
         ValueAs::bool($this->getConfigItem('cookie_secure', false))
       )
     );
