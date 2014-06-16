@@ -102,7 +102,14 @@ class AuthService extends AbstractServiceProvider
    */
   public function isLoggedIn()
   {
-    return $this->getAuthedUser() !== null;
+    try
+    {
+      return $this->getAuthedUser() !== null;
+    }
+    catch(\Exception $e)
+    {
+      return false;
+    }
   }
 
   /**

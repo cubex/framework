@@ -75,7 +75,7 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
     if($request instanceof \Cubex\Http\Request)
     {
       $request->cookies->set('cubex_login', 'InvalidCookie');
-      $this->assertNull($auth->getAuthedUser());
+      $this->assertFalse($auth->isLoggedIn());
       $auth->logout();
 
       $request->cookies->set('cubex_login', $usr->serialize());
@@ -123,10 +123,16 @@ class TestAuthProvider implements \Cubex\Auth\IAuthProvider
   /**
    * Retrieve the logged in user dynamically, e.g. off sessions or ips
    *
-   * @return \Cubex\Auth\IAuthedUser|null
+   * @return \Cubex\Auth\IAuthedUser
+   *
+   * @throws Exception
    */
   public function retrieveUser()
   {
+    if($this->_retrieve === null)
+    {
+      throw new Exception('Unable to auth user');
+    }
     return $this->_retrieve;
   }
 
