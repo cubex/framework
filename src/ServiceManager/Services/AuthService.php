@@ -41,17 +41,12 @@ class AuthService extends AbstractServiceProvider
    * @param       $password
    * @param array $options
    *
-   * @return IAuthedUser
-   *
-   * @throws \Exception
-   * @throws \RuntimeException
+   * @return IAuthedUser|null
    */
   public function login($username, $password, array $options = null)
   {
     //Call auth provider
     $login = $this->_authProvider->login($username, $password, $options);
-
-    //Just incase the login provider didnt throw an exception on error
     if($login === null)
     {
       throw new \RuntimeException("Unable to login '$username'");
@@ -122,9 +117,6 @@ class AuthService extends AbstractServiceProvider
 
   /**
    * @return IAuthedUser
-   *
-   * @throws \Exception
-   * @throws \RuntimeException
    */
   public function getAuthedUser()
   {
@@ -134,23 +126,11 @@ class AuthService extends AbstractServiceProvider
     }
 
     //Check cookie
-    $cookied = Cookie::get($this->getCookieName());
-    if($cookied !== null)
+    $cookieUser = $this->getCookieUser();
+    if($cookieUser !== null)
     {
-      $authedUser = $this->getCubex()->make('\Cubex\Auth\AuthedUser');
-      if($authedUser instanceof IAuthedUser)
-      {
-        try
-        {
-          $authedUser->unserialize($cookied);
-          $this->_authedUser = $authedUser;
-          return $this->_authedUser;
-        }
-        catch(\Exception $e)
-        {
-          $cookied = null;
-        }
-      }
+      $this->_authedUser = $cookieUser;
+      return $this->_authedUser;
     }
 
     //Check auth provider retrieve
@@ -168,6 +148,27 @@ class AuthService extends AbstractServiceProvider
     }
 
     return $this->_authedUser;
+  }
+
+  public function getCookieUser()
+  {
+    $cookied = Cookie::get($this->getCookieName());
+    if($cookied !== null)
+    {
+      $authedUser = $this->getCubex()->make('\Cubex\Auth\AuthedUser');
+      if($authedUser instanceof IAuthedUser)
+      {
+        try
+        {
+          $authedUser->unserialize($cookied);
+          return $authedUser;
+        }
+        catch(\Exception $e)
+        {
+        }
+      }
+    }
+    return null;
   }
 
   /**
