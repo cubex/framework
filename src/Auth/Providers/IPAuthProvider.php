@@ -94,4 +94,9 @@ class IPAuthProvider implements IAuthProvider, ICubexAware
     }
     throw new \RuntimeException("Unable to retrieve the users IP");
   }
+
+  public function forgottenPassword($username, array $options = null)
+  {
+    throw new \Exception('Forgotten Password is not available');
+  }
 }

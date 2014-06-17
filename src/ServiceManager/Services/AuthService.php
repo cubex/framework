@@ -202,4 +202,9 @@ class AuthService extends AbstractServiceProvider
   {
     return $this->_authProvider;
   }
+
+  public function forgottenPassword($username, array $options = null)
+  {
+    return $this->_authProvider->forgottenPassword($username, $options);
+  }
 }

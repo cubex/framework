@@ -27,4 +27,15 @@ interface IAuthProvider
    * @throws \Exception
    */
   public function retrieveUser();
+
+  /**
+   * @param       $username
+   * @param array $options
+   *  ['callback' => closure]
+   *
+   * @return bool
+   *
+   * @throws \Exception
+   */
+  public function forgottenPassword($username, array $options = null);
 }

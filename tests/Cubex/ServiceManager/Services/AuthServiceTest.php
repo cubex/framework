@@ -141,4 +141,13 @@ class TestAuthProvider implements \Cubex\Auth\IAuthProvider
     $this->_retrieve = $user;
     return $this;
   }
+
+  public function forgottenPassword($username, array $options = null)
+  {
+    if($username == 'valid')
+    {
+      return true;
+    }
+    throw new Exception('User not found');
+  }
 }

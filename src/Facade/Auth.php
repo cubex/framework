@@ -59,4 +59,9 @@ class Auth extends Facade
   {
     return self::getFacadeRoot()->login($username, $password, $options);
   }
+
+  public static function forgottenPassword($username, array $options = null)
+  {
+    return self::getFacadeRoot()->forgottenPassword($username, $options);
+  }
 }
