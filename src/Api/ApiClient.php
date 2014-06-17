@@ -90,7 +90,7 @@ class ApiClient
     $time    = microtime(true);
     $request = $this->_guzzle->createRequest(
       $method,
-      build_path($this->_baseUri, $call),
+      build_path_unix($this->_baseUri, $call),
       $options
     );
 
