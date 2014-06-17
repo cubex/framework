@@ -4,14 +4,14 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
 {
   public function testSuccess()
   {
-    $json      = '{"error":{"message":"","code":200},'
+    $json      = '{"status":{"message":"","code":200},'
       . '"result":["Tasker","worker"],'
       . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
     $apiResult = new \Cubex\Api\ApiResult($json, false);
     $apiResult->setTotalTime(60.000);
 
-    $this->assertEquals(200, $apiResult->getErrorCode());
-    $this->assertEquals('', $apiResult->getErrorMessage());
+    $this->assertEquals(200, $apiResult->getStatusCode());
+    $this->assertEquals('', $apiResult->getStatusMessage());
 
     $this->assertEquals(["Tasker", "worker"], $apiResult->getResult());
 
@@ -28,14 +28,14 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
 
   public function testFailure()
   {
-    $json      = '{"error":{"message":"Broken","code":500},'
+    $json      = '{"status":{"message":"Broken","code":500},'
       . '"result":"",'
       . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
     $apiResult = new \Cubex\Api\ApiResult($json, false);
     $apiResult->setTotalTime(60.000);
 
-    $this->assertEquals(500, $apiResult->getErrorCode());
-    $this->assertEquals('Broken', $apiResult->getErrorMessage());
+    $this->assertEquals(500, $apiResult->getStatusCode());
+    $this->assertEquals('Broken', $apiResult->getStatusMessage());
 
     $this->assertEquals('', $apiResult->getResult());
 
@@ -53,7 +53,7 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
   public function testExceptions()
   {
     $this->setExpectedException('Exception', 'Not Found', 404);
-    $json = '{"error":{"message":"Not Found","code":404},'
+    $json = '{"status":{"message":"Not Found","code":404},'
       . '"result":"",'
       . '"profile":{"callTime":"2.684","executionTime":"38.341"}}';
     new \Cubex\Api\ApiResult($json, true);
@@ -73,7 +73,7 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
   public function testInvalidJson()
   {
     $this->setExpectedException('Exception', 'Invalid json / api result', 500);
-    $json = '{"error":{"message":"Not Found","code":404},'
+    $json = '{"status":{"message":"Not Found","code":404},'
       . '"result":""'
       . '}';
     new \Cubex\Api\ApiResult($json);

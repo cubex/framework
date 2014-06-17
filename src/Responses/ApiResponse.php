@@ -5,35 +5,35 @@ use Cubex\Http\Response;
 
 class ApiResponse extends Response
 {
-  protected $_errorMessage = '';
-  protected $_errorCode = 200;
+  protected $_statusMessage = '';
+  protected $_statusCode = 200;
 
   protected $_callTime;
   protected $_phpTime;
 
   /**
-   * Set the error message
+   * Set the status/error message
    *
    * @param $message
    * @param $code
    *
    * @return $this
    */
-  public function setError($message, $code)
+  public function setStatus($message, $code)
   {
-    $this->_errorMessage = $message;
-    $this->_errorCode    = $code;
+    $this->_statusMessage = $message;
+    $this->_statusCode    = $code;
     return $this;
   }
 
-  public function getErrorCode()
+  public function getStatusCode()
   {
-    return $this->_errorCode;
+    return $this->_statusCode;
   }
 
-  public function getErrorMessage()
+  public function getStatusMessage()
   {
-    return $this->_errorMessage;
+    return $this->_statusMessage;
   }
 
   /**
@@ -104,10 +104,10 @@ class ApiResponse extends Response
    */
   protected function _buildResponseObject()
   {
-    $result                 = new \stdClass();
-    $result->error          = new \stdClass();
-    $result->error->message = $this->_errorMessage;
-    $result->error->code    = $this->_errorCode;
+    $result                  = new \stdClass();
+    $result->status          = new \stdClass();
+    $result->status->message = $this->_statusMessage;
+    $result->status->code    = $this->_statusCode;
 
     $result->result = $this->getContent();
 

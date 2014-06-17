@@ -62,7 +62,7 @@ abstract class ApiKernel extends CubexKernel
         }
 
         //Let the end user known the exception message
-        $apiResponse->setError($e->getMessage(), $code);
+        $apiResponse->setStatus($e->getMessage(), $code);
       }
       else
       {

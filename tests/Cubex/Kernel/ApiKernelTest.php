@@ -26,13 +26,13 @@ class ApiKernelTest extends CubexTestCase
     if($response instanceof \Cubex\Responses\ApiResponse)
     {
       $apiObject = json_decode($response->getJson());
-      $this->assertObjectHasAttribute('error', $apiObject);
+      $this->assertObjectHasAttribute('status', $apiObject);
       $this->assertObjectHasAttribute('result', $apiObject);
-      $this->assertEquals($errMsg, $apiObject->error->message);
-      $this->assertEquals($errNo, $apiObject->error->code);
+      $this->assertEquals($errMsg, $apiObject->status->message);
+      $this->assertEquals($errNo, $apiObject->status->code);
       $this->assertEquals($expect, $apiObject->result);
-      $this->assertEquals($errMsg, $response->getErrorMessage());
-      $this->assertEquals($errNo, $response->getErrorCode());
+      $this->assertEquals($errMsg, $response->getStatusMessage());
+      $this->assertEquals($errNo, $response->getStatusCode());
 
       $this->expectOutputString($response->getJson());
       $response->sendContent();
@@ -74,10 +74,9 @@ class ApiKernelTest extends CubexTestCase
     );
   }
 
-
   /**
    * @param $path
-   * @param $expect
+   * @param $errType
    * @param $errMsg
    * @param $errNo
    *

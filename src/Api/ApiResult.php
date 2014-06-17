@@ -3,8 +3,8 @@ namespace Cubex\Api;
 
 class ApiResult
 {
-  protected $_errorMessage;
-  protected $_errorCode;
+  protected $_statusMessage;
+  protected $_statusCode;
   protected $_result;
   protected $_executionTime;
   protected $_callTime;
@@ -40,9 +40,9 @@ class ApiResult
     }
 
     if(!isset(
-    $result->error,
-    $result->error->message,
-    $result->error->code,
+    $result->status,
+    $result->status->message,
+    $result->status->code,
     $result->profile,
     $result->profile->callTime,
     $result->profile->executionTime,
@@ -52,12 +52,12 @@ class ApiResult
       throw new \RuntimeException("Invalid json / api result", 500);
     }
 
-    $this->_errorMessage = $result->error->message;
-    $this->_errorCode    = $result->error->code;
+    $this->_statusMessage = $result->status->message;
+    $this->_statusCode    = $result->status->code;
 
-    if($throw && $this->_errorCode !== 200)
+    if($throw && $this->_statusCode !== 200)
     {
-      throw new \Exception($this->_errorMessage, $this->_errorCode);
+      throw new \Exception($this->_statusMessage, $this->_statusCode);
     }
 
     $this->_result        = $result->result;
@@ -131,29 +131,29 @@ class ApiResult
    *
    * @return mixed
    */
-  public function getErrorMessage()
+  public function getStatusMessage()
   {
-    return $this->_errorMessage;
+    return $this->_statusMessage;
   }
 
   /**
-   * Error code
+   * status code
    *
    * @return mixed
    */
-  public function getErrorCode()
+  public function getStatusCode()
   {
-    return $this->_errorCode;
+    return $this->_statusCode;
   }
 
   /**
-   * The error message/code as an exception
+   * The status message/code as an exception
    *
    * @return \Exception
    */
   public function getException()
   {
-    return new \Exception($this->_errorMessage, $this->_errorCode);
+    return new \Exception($this->_statusMessage, $this->_statusCode);
   }
 
   /**
@@ -163,6 +163,6 @@ class ApiResult
    */
   public function isError()
   {
-    return $this->_errorCode !== 200;
+    return $this->_statusCode !== 200;
   }
 }

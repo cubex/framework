@@ -4,7 +4,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
 {
   public function testGet()
   {
-    $json = '{"error":{"message":"","code":200},'
+    $json = '{"status":{"message":"","code":200},'
       . '"result":["Tasker","worker"],'
       . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
 
@@ -32,7 +32,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
       if($body instanceof \GuzzleHttp\Post\PostBody)
       {
         $resp          = new stdClass();
-        $resp->error   = ['message' => '', 'code' => 200];
+        $resp->status   = ['message' => '', 'code' => 200];
         $resp->result  = $body->getFields();
         $resp->profile = ['callTime' => '2', 'executionTime' => 34];
         return new \GuzzleHttp\Message\Response(
@@ -63,7 +63,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     {
       $headers       = $transaction->getRequest()->getHeaders();
       $resp          = new stdClass();
-      $resp->error   = ['message' => '', 'code' => 200];
+      $resp->status   = ['message' => '', 'code' => 200];
       $resp->result  = $headers;
       $resp->profile = ['callTime' => '2', 'executionTime' => 34];
       return new \GuzzleHttp\Message\Response(
@@ -92,7 +92,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
 
   public function testBatch()
   {
-    $json = '{"error":{"message":"","code":200},'
+    $json = '{"status":{"message":"","code":200},'
       . '"result":["Tasker","worker"],'
       . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
 
