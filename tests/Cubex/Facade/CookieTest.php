@@ -31,4 +31,17 @@ class CookieTest extends PHPUnit_Framework_TestCase
     \Cubex\Facade\Cookie::queue($cookie);
     $this->assertTrue(\Cubex\Facade\Cookie::getJar()->hasQueued('test'));
   }
+
+  public function testDelete()
+  {
+    \Cubex\Facade\Cookie::delete('deletetest');
+    $this->assertTrue(\Cubex\Facade\Cookie::getJar()->hasQueued('deletetest'));
+  }
+
+  public function testForget()
+  {
+    $cookie = \Cubex\Facade\Cookie::forget('testforget');
+    $this->assertTrue($cookie->getExpiresTime() < time());
+    $this->assertEquals('testforget', $cookie->getName());
+  }
 }

@@ -65,6 +65,32 @@ class Cookie extends Facade
   }
 
   /**
+   * Return an expired cookie to queue
+   *
+   * @param      $name
+   * @param null $path
+   * @param null $domain
+   *
+   * @return SymfonyCookie
+   */
+  public static function forget($name, $path = null, $domain = null)
+  {
+    return self::getJar()->forget($name, $path, $domain);
+  }
+
+  /**
+   * Forget and queue a cookie
+   *
+   * @param      $name
+   * @param null $path
+   * @param null $domain
+   */
+  public static function delete($name, $path = null, $domain = null)
+  {
+    self::getJar()->queue(self::getJar()->forget($name, $path, $domain));
+  }
+
+  /**
    * Retrieve a cookie
    *
    * @param      $name

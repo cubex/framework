@@ -98,6 +98,15 @@ class AuthService extends AbstractServiceProvider
     if($this->_authProvider->logout())
     {
       $this->_authedUser = null;
+
+      $request = $this->getCubex()->make('request');
+      $domain  = null;
+      if($request instanceof Request)
+      {
+        $domain = $request->domain() . '.' . $request->tld();
+      }
+
+      Cookie::delete($this->getCookieName(), null, $domain);
       return true;
     }
     return false;
