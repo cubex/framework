@@ -152,8 +152,21 @@ abstract class CubexKernel
 
       if(!($response instanceof Response))
       {
+        $parts = null;
+        if(empty($this->_processParams) && $this->_processParams !== null)
+        {
+          $trimmed = trim($request->getPathInfo(), '/');
+          if(!empty($trimmed))
+          {
+            $parts = explode('/', $trimmed);
+          }
+        }
+        if(empty($parts))
+        {
+          $parts = null;
+        }
         $response = $this->executeRoute(
-          Route::create('defaultAction'),
+          Route::create('defaultAction', $parts),
           $request,
           $type,
           $catch
