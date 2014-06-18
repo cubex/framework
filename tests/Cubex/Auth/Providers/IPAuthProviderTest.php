@@ -8,6 +8,16 @@ class IPAuthProviderTest extends PHPUnit_Framework_TestCase
     $this->assertFalse($auth->logout());
   }
 
+  public function testForgottenPassword()
+  {
+    $auth = new \Cubex\Auth\Providers\IPAuthProvider();
+    $this->setExpectedException(
+      '\Exception',
+      'Forgotten Password is not available'
+    );
+    $auth->forgottenPassword('user');
+  }
+
   /**
    * @param $ip
    * @param $username

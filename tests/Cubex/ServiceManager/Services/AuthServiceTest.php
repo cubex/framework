@@ -25,6 +25,13 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
     $auth->login('user', 'password');
   }
 
+  public function testForgottenPasswordException()
+  {
+    $this->setExpectedException('\Exception', "User not found");
+    $auth = $this->getAuthService();
+    $auth->forgottenPassword('user');
+  }
+
   public function testAuthService()
   {
     $app  = \Cubex\Facade\Cookie::getFacadeApplication();
