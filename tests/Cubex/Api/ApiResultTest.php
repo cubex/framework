@@ -73,9 +73,7 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
   public function testInvalidJson()
   {
     $this->setExpectedException('Exception', 'Invalid json / api result', 500);
-    $json = '{"status":{"message":"Not Found","code":404},'
-      . '"result":""'
-      . '}';
+    $json = '{"status":{"message":"Not Found","code":404}}';
     new \Cubex\Api\ApiResult($json);
   }
 }

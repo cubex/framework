@@ -61,6 +61,10 @@ abstract class ApiKernel extends CubexKernel
           // no code specified, or outside of normal range.
           $code = 400; // Bad Request
         }
+        if($originalCode < 1)
+        {
+          $originalCode = $code;
+        }
 
         //Let the end user known the exception message
         $apiResponse->setStatus($e->getMessage(), $originalCode);

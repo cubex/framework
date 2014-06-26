@@ -49,7 +49,7 @@ class ApiKernelTest extends CubexTestCase
         200
       ],
       ['/testError', '', 'File not found', 404],
-      ['/testErrorCodeless', '', 'Missing code', 500],
+      ['/testErrorCodeless', '', 'Missing code', 400],
       ['/testNonCubexResponse', 'Strange Content', '', 200],
       [
         '/testSubKernel',
