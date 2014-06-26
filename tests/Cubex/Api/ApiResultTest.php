@@ -2,12 +2,23 @@
 
 class ApiResultTest extends PHPUnit_Framework_TestCase
 {
+  public function getResponse($body)
+  {
+    $response = new \GuzzleHttp\Message\Response(200);
+    $response->setBody(
+      \GuzzleHttp\Stream\Stream::factory($body)
+    );
+    return $response;
+  }
+
   public function testSuccess()
   {
-    $json      = '{"status":{"message":"","code":200},'
+    $response = $this->getResponse(
+      '{"status":{"message":"","code":200},'
       . '"result":["Tasker","worker"],'
-      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
-    $apiResult = new \Cubex\Api\ApiResult($json, false);
+      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}'
+    );
+    $apiResult = new \Cubex\Api\ApiResult($response, false);
     $apiResult->setTotalTime(60.000);
 
     $this->assertEquals(200, $apiResult->getStatusCode());
@@ -28,10 +39,12 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
 
   public function testFailure()
   {
-    $json      = '{"status":{"message":"Broken","code":500},'
+    $response = $this->getResponse(
+      '{"status":{"message":"Broken","code":500},'
       . '"result":"",'
-      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
-    $apiResult = new \Cubex\Api\ApiResult($json, false);
+      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}'
+    );
+    $apiResult = new \Cubex\Api\ApiResult($response, false);
     $apiResult->setTotalTime(60.000);
 
     $this->assertEquals(500, $apiResult->getStatusCode());
@@ -53,10 +66,12 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
   public function testExceptions()
   {
     $this->setExpectedException('Exception', 'Not Found', 404);
-    $json = '{"status":{"message":"Not Found","code":404},'
+    $response = $this->getResponse(
+      '{"status":{"message":"Not Found","code":404},'
       . '"result":"",'
-      . '"profile":{"callTime":"2.684","executionTime":"38.341"}}';
-    new \Cubex\Api\ApiResult($json, true);
+      . '"profile":{"callTime":"2.684","executionTime":"38.341"}}'
+    );
+    new \Cubex\Api\ApiResult($response, true);
   }
 
   public function testInvalidPayload()
@@ -66,14 +81,16 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
       'Unable to decode json string',
       500
     );
-    $json = 'Internal Server Error';
-    new \Cubex\Api\ApiResult($json);
+    $response = $this->getResponse('Internal Server Error');
+    new \Cubex\Api\ApiResult($response);
   }
 
   public function testInvalidJson()
   {
     $this->setExpectedException('Exception', 'Invalid json / api result', 500);
-    $json = '{"status":{"message":"Not Found","code":404}}';
-    new \Cubex\Api\ApiResult($json);
+    $response = $this->getResponse(
+      '{"status":{"message":"Not Found","code":404}}'
+    );
+    new \Cubex\Api\ApiResult($response);
   }
 }

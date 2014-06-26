@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Api;
 
+use GuzzleHttp\Message\ResponseInterface;
+
 class ApiResult
 {
   protected $_statusMessage;
@@ -11,16 +13,18 @@ class ApiResult
   protected $_totalTime;
 
   /**
-   * @param string $json  raw json response
+   * @param string $response  raw json response
    * @param bool   $throw Should throw API errors as exceptions
    *
    * @throws \Exception
    */
-  public function __construct($json = null, $throw = true)
+  public function __construct(ResponseInterface $response = null, $throw = true)
   {
-    if($json !== null)
+    if($response !== null)
     {
-      $this->readJson($json, $throw);
+      $this->_executionTime = $response->getHeader('X-Execution-Time');
+      $this->_callTime = $response->getHeader('X-Call-Time');
+      $this->readJson($response->getBody(), $throw);
     }
   }
 

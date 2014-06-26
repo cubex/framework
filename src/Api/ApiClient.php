@@ -139,7 +139,7 @@ class ApiClient
    */
   protected function _processResponse(ResponseInterface $response, $time)
   {
-    $apiResult = new ApiResult($response->getBody(), true);
+    $apiResult = new ApiResult($response, true);
     $apiResult->setTotalTime(
       number_format((microtime(true) - $time) * 1000, 3)
     );
