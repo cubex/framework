@@ -35,7 +35,7 @@ class ApiKernelTest extends CubexTestCase
       $this->assertEquals($errNo, $response->getStatusCode());
 
       $this->expectOutputString($response->getJson());
-      $response->sendContent();
+      $response->send();
     }
   }
 
