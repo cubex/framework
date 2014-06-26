@@ -27,7 +27,7 @@ abstract class ApiKernel extends CubexKernel
     //Call start time to track performance
     $callStart = microtime(true);
 
-    //Setup the error object
+    //Setup the response object
     $apiResponse = $this->_createApiResponse();
 
     try
@@ -54,33 +54,22 @@ abstract class ApiKernel extends CubexKernel
       if($catch)
       {
         //Take the exception code as the http error code,
-        //assuming 500 if not available
-        $code = $e->getCode();
-        if($code < 1)
+        //assuming 400 if not available
+        $code = $originalCode = $e->getCode();
+        if($code < 1 || $code > 1000)
         {
-          $code = 500;
+          // no code specified, or outside of normal range.
+          $code = 400; // Bad Request
         }
 
         //Let the end user known the exception message
-        $apiResponse->setStatus($e->getMessage(), $code);
+        $apiResponse->setStatus($e->getMessage(), $originalCode);
+        $apiResponse->setStatusCode($code);
       }
       else
       {
         throw $e;
       }
-    }
-
-    //Output call performance
-    $apiResponse->setCallTime(
-      number_format((microtime(true) - $callStart) * 1000, 3)
-    );
-
-    //Track the call time from the start of the process when available
-    if(defined('PHP_START'))
-    {
-      $apiResponse->setExecutionTime(
-        number_format((microtime(true) - PHP_START) * 1000, 3)
-      );
     }
 
     //Allow child classes to add additional data to the response e.g. user data

@@ -43,9 +43,6 @@ class ApiResult
     $result->status,
     $result->status->message,
     $result->status->code,
-    $result->profile,
-    $result->profile->callTime,
-    $result->profile->executionTime,
     $result->result)
     )
     {

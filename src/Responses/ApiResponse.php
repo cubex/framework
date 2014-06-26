@@ -9,7 +9,12 @@ class ApiResponse extends Response
   protected $_statusCode = 200;
 
   protected $_callTime;
-  protected $_phpTime;
+
+  public function __construct($content = '', $status = 200, $headers = array())
+  {
+    parent::__construct($content, $status, $headers);
+    $this->_callTime = microtime(true);
+  }
 
   /**
    * Set the status/error message
@@ -37,32 +42,6 @@ class ApiResponse extends Response
   }
 
   /**
-   * Set the execution time for the call
-   *
-   * @param $time
-   *
-   * @return $this
-   */
-  public function setCallTime($time)
-  {
-    $this->_callTime = $time;
-    return $this;
-  }
-
-  /**
-   * Set the execution time for the php thread
-   *
-   * @param $time
-   *
-   * @return $this
-   */
-  public function setExecutionTime($time)
-  {
-    $this->_phpTime = $time;
-    return $this;
-  }
-
-  /**
    * Store the raw content
    *
    * @param mixed $content
@@ -74,6 +53,22 @@ class ApiResponse extends Response
     $this->headers->set("Content-Type", "application/json");
     $this->content = $content;
     return $this;
+  }
+
+  public function sendHeaders()
+  {
+    if(defined('PHP_START'))
+    {
+      $this->headers->set(
+        'X-Execution-Time',
+        number_format((microtime(true) - PHP_START) * 1000, 3)
+      );
+    }
+    $this->headers->set(
+      'X-Call-Time',
+      number_format((microtime(true) - $this->_callTime) * 1000, 3)
+    );
+    return parent::sendHeaders();
   }
 
   /**
@@ -104,16 +99,13 @@ class ApiResponse extends Response
    */
   protected function _buildResponseObject()
   {
-    $result                  = new \stdClass();
+    $result = new \stdClass();
+
     $result->status          = new \stdClass();
-    $result->status->message = $this->_statusMessage;
     $result->status->code    = $this->_statusCode;
+    $result->status->message = $this->_statusMessage;
 
     $result->result = $this->getContent();
-
-    $result->profile                = new \stdClass();
-    $result->profile->callTime      = $this->_callTime;
-    $result->profile->executionTime = $this->_phpTime;
 
     return $result;
   }
