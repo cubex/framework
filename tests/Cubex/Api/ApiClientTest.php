@@ -203,11 +203,8 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     }
     catch(\GuzzleHttp\Exception\RequestException $e)
     {
-      if(
-        (strpos($e->getMessage(), curl_strerror(CURLE_COULDNT_RESOLVE_HOST))
-          === false)
-        && (strpos($e->getMessage(), 'cURL error 6') === 0)
-        && (strpos($e->getMessage(), '[curl] (#6) ') === 0)
+      if((strpos($e->getMessage(), 'cURL error 6') === 0)
+        && (strpos($e->getMessage(), '[curl] (#6)') === 0)
       )
       {
         throw $e;
