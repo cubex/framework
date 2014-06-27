@@ -124,6 +124,65 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(['Tasker', 'worker'], $apiResult2->getResult());
   }
 
+  public function testBatchError()
+  {
+    $this->setExpectedException('Exception','Oops',1050);
+    $json = '{"status":{"message":"Oops","code":1050},'
+      . '"result":["Tasker","worker"],'
+      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
+
+    $response = new \GuzzleHttp\Message\Response(
+      400,
+      [],
+      \GuzzleHttp\Stream\Stream::factory($json)
+    );
+
+    $adapter = new \GuzzleHttp\Adapter\MockAdapter();
+    $adapter->setResponse($response);
+    $parAdapter = new \GuzzleHttp\Adapter\FakeParallelAdapter($adapter);
+    $guzzler    = new \GuzzleHttp\Client(['parallel_adapter' => $parAdapter]);
+
+    $client = new \Cubex\Api\ApiClient('http://www.test.com', $guzzler);
+
+    $client->openBatch();
+    $apiResult  = $client->get('/');
+
+    $this->assertInstanceOf('\Cubex\Api\ApiResult', $apiResult);
+    $this->assertNull($apiResult->getResult());
+
+    $client->runBatch();
+
+    $this->assertEquals(['Tasker', 'worker'], $apiResult->getResult());
+  }
+
+  public function testBatchErrorStatus200()
+  {
+    $json = '{"status":{"message":"OK","code":200},'
+      . '"result":["Tasker","worker"]}';
+    $response = new \GuzzleHttp\Message\Response(
+      400,
+      [],
+      \GuzzleHttp\Stream\Stream::factory($json)
+    );
+
+    $adapter = new \GuzzleHttp\Adapter\MockAdapter();
+    $adapter->setResponse($response);
+    $parAdapter = new \GuzzleHttp\Adapter\FakeParallelAdapter($adapter);
+    $guzzler    = new \GuzzleHttp\Client(['parallel_adapter' => $parAdapter]);
+
+    $client = new \Cubex\Api\ApiClient('http://www.test.com', $guzzler);
+
+    $client->openBatch();
+    $apiResult  = $client->get('/');
+
+    $this->assertInstanceOf('\Cubex\Api\ApiResult', $apiResult);
+    $this->assertNull($apiResult->getResult());
+
+    $client->runBatch();
+
+    $this->assertEquals(['Tasker', 'worker'], $apiResult->getResult());
+  }
+
   public function testBatchOpenClose()
   {
     $client = new \Cubex\Api\ApiClient('');
