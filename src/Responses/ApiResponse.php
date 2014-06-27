@@ -26,8 +26,23 @@ class ApiResponse extends Response
    */
   public function setStatus($message, $code)
   {
+    //Take the exception code as the http error code,
+    //assuming 400 if not available
+    $originalCode = $code;
+    if($code < 1 || $code > 1000)
+    {
+      // no code specified, or outside of normal range.
+      $code = 400; // Bad Request
+    }
+    $this->setStatusCode($code);
+
+    if($originalCode < 1)
+    {
+      $originalCode = $code;
+    }
+
     $this->_statusMessage = $message;
-    $this->_statusCode    = $code;
+    $this->_statusCode    = $originalCode;
     return $this;
   }
 

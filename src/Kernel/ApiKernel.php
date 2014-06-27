@@ -53,22 +53,8 @@ abstract class ApiKernel extends CubexKernel
     {
       if($catch)
       {
-        //Take the exception code as the http error code,
-        //assuming 400 if not available
-        $code = $originalCode = $e->getCode();
-        if($code < 1 || $code > 1000)
-        {
-          // no code specified, or outside of normal range.
-          $code = 400; // Bad Request
-        }
-        if($originalCode < 1)
-        {
-          $originalCode = $code;
-        }
-
         //Let the end user known the exception message
-        $apiResponse->setStatus($e->getMessage(), $originalCode);
-        $apiResponse->setStatusCode($code);
+        $apiResponse->setStatus($e->getMessage(), $e->getCode());
       }
       else
       {
