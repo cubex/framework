@@ -147,7 +147,7 @@ abstract class CubexKernel
       }
       catch(RouteNotFoundException $e)
       {
-        $response = $this->autoRoute($request);
+        $response = $this->autoRoute($request, $type, $catch);
       }
 
       if(!($response instanceof Response))
