@@ -12,8 +12,22 @@ class ApiResponse extends Response
 
   public function __construct($content = '', $status = 200, $headers = array())
   {
-    parent::__construct($content, $status, $headers);
+    if($status === 200)
+    {
+      parent::__construct($content, $status, $headers);
+      $this->setContent($content);
+    }
+    else
+    {
+      parent::__construct('', 200, $headers);
+      $this->setStatus($content, $status);
+    }
     $this->_callTime = microtime(true);
+  }
+
+  public function setCallTime($time)
+  {
+    $this->_callTime = $time;
   }
 
   /**

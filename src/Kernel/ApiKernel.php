@@ -27,9 +27,6 @@ abstract class ApiKernel extends CubexKernel
     //Call start time to track performance
     $callStart = microtime(true);
 
-    //Setup the response object
-    $apiResponse = $this->_createApiResponse();
-
     try
     {
       $response = parent::handle($request, $type, false);
@@ -41,12 +38,14 @@ abstract class ApiKernel extends CubexKernel
       else if($response instanceof Response)
       {
         //Retrieve the original object from the response
-        $apiResponse->setContent($response->getOriginalResponse());
+        $apiResponse = $this->_createApiResponse(
+          $response->getOriginalResponse()
+        );
       }
       else
       {
         //Shouldn't happen, but just incase
-        $apiResponse->setContent($response->getContent());
+        $apiResponse = $this->_createApiResponse($response->getContent());
       }
     }
     catch(\Exception $e)
@@ -54,13 +53,18 @@ abstract class ApiKernel extends CubexKernel
       if($catch)
       {
         //Let the end user known the exception message
-        $apiResponse->setStatus($e->getMessage(), $e->getCode());
+        $apiResponse = $this->_createApiResponse(
+          $e->getMessage(),
+          $e->getCode()
+        );
       }
       else
       {
         throw $e;
       }
     }
+
+    $apiResponse->setCallTime($callStart);
 
     //Allow child classes to add additional data to the response e.g. user data
     return $this->_finaliseApiResponse($apiResponse);
@@ -84,10 +88,16 @@ abstract class ApiKernel extends CubexKernel
    *
    * Allow for initialisation on response objects
    *
+   * @param string $content
+   * @param int    $status
+   * @param array  $headers
+   *
    * @return ApiResponse
    */
-  protected function _createApiResponse()
+  protected function _createApiResponse(
+    $content = '', $status = 200, $headers = array()
+  )
   {
-    return new ApiResponse();
+    return new ApiResponse($content, $status, $headers);
   }
 }
