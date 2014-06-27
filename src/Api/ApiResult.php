@@ -62,8 +62,6 @@ class ApiResult
     }
 
     $this->_result        = $result->result;
-    $this->_callTime      = $result->profile->callTime;
-    $this->_executionTime = $result->profile->executionTime;
   }
 
   /**

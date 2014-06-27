@@ -32,7 +32,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
       if($body instanceof \GuzzleHttp\Post\PostBody)
       {
         $resp          = new stdClass();
-        $resp->status   = ['message' => '', 'code' => 200];
+        $resp->status  = ['message' => '', 'code' => 200];
         $resp->result  = $body->getFields();
         $resp->profile = ['callTime' => '2', 'executionTime' => 34];
         return new \GuzzleHttp\Message\Response(
@@ -63,7 +63,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     {
       $headers       = $transaction->getRequest()->getHeaders();
       $resp          = new stdClass();
-      $resp->status   = ['message' => '', 'code' => 200];
+      $resp->status  = ['message' => '', 'code' => 200];
       $resp->result  = $headers;
       $resp->profile = ['callTime' => '2', 'executionTime' => 34];
       return new \GuzzleHttp\Message\Response(
@@ -132,5 +132,39 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($client->isBatchOpen());
     $client->closeBatch();
     $this->assertFalse($client->isBatchOpen());
+  }
+
+  public function testInvalidDomain()
+  {
+    $domain = 'invalid.this-domain-does-not-exist.co.test';
+    $this->setExpectedException(
+      '\GuzzleHttp\Exception\RequestException',
+      'Could not resolve host: ' . $domain
+    );
+    $client = new \Cubex\Api\ApiClient('http://' . $domain);
+    $client->get('/');
+  }
+
+  public function testException()
+  {
+    $this->setExpectedException('Exception','Oops',1050);
+    $json = '{"status":{"message":"Oops","code":1050},"result":""}';
+
+    $response = new \GuzzleHttp\Message\Response(
+      400,
+      [],
+      \GuzzleHttp\Stream\Stream::factory($json)
+    );
+
+    $adapter = new \GuzzleHttp\Adapter\MockAdapter();
+    $adapter->setResponse($response);
+    $guzzler = new \GuzzleHttp\Client(['adapter' => $adapter]);
+    $client  = new \Cubex\Api\ApiClient(
+      'http://test.com/this-page-doesnt-exist.test', $guzzler
+    );
+
+    $result = new \Cubex\Api\ApiResult($client->get('/'));
+    $this->assertEquals(400,$result->getStatusCode());
+    $this->assertEquals(1050,$result->getResult()->status);
   }
 }

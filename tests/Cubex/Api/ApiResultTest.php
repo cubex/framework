@@ -15,9 +15,10 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
   {
     $response = $this->getResponse(
       '{"status":{"message":"","code":200},'
-      . '"result":["Tasker","worker"],'
-      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}'
+      . '"result":["Tasker","worker"]}'
     );
+    $response->setHeader('X-Call-Time',"2.000");
+    $response->setHeader('X-Execution-Time',"39.000");
     $apiResult = new \Cubex\Api\ApiResult($response, false);
     $apiResult->setTotalTime(60.000);
 
@@ -41,9 +42,10 @@ class ApiResultTest extends PHPUnit_Framework_TestCase
   {
     $response = $this->getResponse(
       '{"status":{"message":"Broken","code":500},'
-      . '"result":"",'
-      . '"profile":{"callTime":"2.000","executionTime":"39.000"}}'
+      . '"result":""}'
     );
+    $response->setHeader('X-Call-Time',"2.000");
+    $response->setHeader('X-Execution-Time',"39.000");
     $apiResult = new \Cubex\Api\ApiResult($response, false);
     $apiResult->setTotalTime(60.000);
 
