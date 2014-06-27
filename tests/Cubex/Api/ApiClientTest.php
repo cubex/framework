@@ -126,7 +126,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
 
   public function testBatchError()
   {
-    $this->setExpectedException('Exception','Oops',1050);
+    $this->setExpectedException('Exception', 'Oops', 1050);
     $json = '{"status":{"message":"Oops","code":1050},'
       . '"result":["Tasker","worker"],'
       . '"profile":{"callTime":"2.000","executionTime":"39.000"}}';
@@ -145,7 +145,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     $client = new \Cubex\Api\ApiClient('http://www.test.com', $guzzler);
 
     $client->openBatch();
-    $apiResult  = $client->get('/');
+    $apiResult = $client->get('/');
 
     $this->assertInstanceOf('\Cubex\Api\ApiResult', $apiResult);
     $this->assertNull($apiResult->getResult());
@@ -157,7 +157,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
 
   public function testBatchErrorStatus200()
   {
-    $json = '{"status":{"message":"OK","code":200},'
+    $json     = '{"status":{"message":"OK","code":200},'
       . '"result":["Tasker","worker"]}';
     $response = new \GuzzleHttp\Message\Response(
       400,
@@ -173,7 +173,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     $client = new \Cubex\Api\ApiClient('http://www.test.com', $guzzler);
 
     $client->openBatch();
-    $apiResult  = $client->get('/');
+    $apiResult = $client->get('/');
 
     $this->assertInstanceOf('\Cubex\Api\ApiResult', $apiResult);
     $this->assertNull($apiResult->getResult());
@@ -196,17 +196,28 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
   public function testInvalidDomain()
   {
     $domain = 'invalid.this-domain-does-not-exist.co.test';
-    $this->setExpectedException(
-      '\GuzzleHttp\Exception\RequestException',
-      'Could not resolve host: ' . $domain
-    );
     $client = new \Cubex\Api\ApiClient('http://' . $domain);
-    $client->get('/');
+    try
+    {
+      $client->get('/');
+    }
+    catch(\GuzzleHttp\Exception\RequestException $e)
+    {
+      if(
+        (strpos($e->getMessage(), curl_strerror(CURLE_COULDNT_RESOLVE_HOST))
+          === false)
+        && (strpos($e->getMessage(), 'cURL error 6') === 0)
+        && (strpos($e->getMessage(), '[curl] (#6) ') === 0)
+      )
+      {
+        throw $e;
+      }
+    }
   }
 
   public function testException()
   {
-    $this->setExpectedException('Exception','Oops',1050);
+    $this->setExpectedException('Exception', 'Oops', 1050);
     $json = '{"status":{"message":"Oops","code":1050},"result":""}';
 
     $response = new \GuzzleHttp\Message\Response(
@@ -223,7 +234,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     );
 
     $result = new \Cubex\Api\ApiResult($client->get('/'));
-    $this->assertEquals(400,$result->getStatusCode());
-    $this->assertEquals(1050,$result->getResult()->status);
+    $this->assertEquals(400, $result->getStatusCode());
+    $this->assertEquals(1050, $result->getResult()->status);
   }
 }
