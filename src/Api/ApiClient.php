@@ -1,10 +1,12 @@
 <?php
 namespace Cubex\Api;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Event\CompleteEvent;
+use GuzzleHttp\Event\ErrorEvent;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\ResponseInterface;
-use GuzzleHttp\Client;
 
 /**
  * You must require "guzzlehttp/guzzle" within your composer.json file
@@ -44,6 +46,15 @@ class ApiClient
     $this->_guzzle->sendAll(
       $this->_batch,
       [
+        'error'    => function (ErrorEvent $event)
+        {
+          $batchId = $event->getRequest()->getHeader('X-Batch-ID');
+          $result  = $this->_results[$batchId];
+          if($result instanceof ApiResult)
+          {
+            $result->readJson($event->getResponse()->getBody());
+          }
+        },
         'complete' => function (CompleteEvent $event)
         {
           $batchId = $event->getRequest()->getHeader('X-Batch-ID');
@@ -107,7 +118,22 @@ class ApiClient
 
     if(!$this->isBatchOpen())
     {
-      return $this->_processResponse($this->_guzzle->send($request), $time);
+      try
+      {
+        return $this->_processResponse($this->_guzzle->send($request), $time);
+      }
+      catch(RequestException $e)
+      {
+        $response = $e->getResponse();
+        if($response)
+        {
+          return $this->_processResponse($response, $time);
+        }
+        else
+        {
+          throw $e;
+        }
+      }
     }
 
     $apiResult                = new ApiResult();
