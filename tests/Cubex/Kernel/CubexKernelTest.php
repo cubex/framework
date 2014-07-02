@@ -313,7 +313,10 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $resp = new \Cubex\Http\Response("construct");
     return [
       ["response", "capture", "response"],
-      ["", "capture", "capture"],
+      ["", "capture", ""],
+      [null, "capture", "capture"],
+      [true, "capture", 'true'],
+      [false, "capture", 'false'],
       [$resp, "capture", "construct"],
     ];
   }

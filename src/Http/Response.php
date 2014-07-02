@@ -39,6 +39,10 @@ class Response extends \Symfony\Component\HttpFoundation\Response
         $this->fromJson($source);
       }
     }
+    elseif(is_bool($source))
+    {
+      $this->setContent($source ? 'true' : 'false');
+    }
     else
     {
       $this->setContent($source);
