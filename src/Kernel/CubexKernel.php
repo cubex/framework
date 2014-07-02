@@ -493,12 +493,12 @@ abstract class CubexKernel
       return $response;
     }
 
-    if($response !== null && !empty($response))
+    if($response !== null)
     {
       return new CubexResponse($response);
     }
 
-    if($capturedOutput !== null && !empty($capturedOutput))
+    if(!empty($capturedOutput))
     {
       return new CubexResponse($capturedOutput);
     }
