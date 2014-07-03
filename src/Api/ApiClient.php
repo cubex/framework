@@ -105,9 +105,6 @@ class ApiClient
       $options
     );
 
-    $batchId = uniqid($method);
-    $request->addHeader('X-Batch-ID', $batchId);
-
     if($this->_headers)
     {
       foreach($this->_headers as $header => $value)
@@ -135,6 +132,9 @@ class ApiClient
         }
       }
     }
+
+    $batchId = uniqid($method, true);
+    $request->addHeader('X-Batch-ID', $batchId);
 
     $apiResult                = new ApiResult();
     $this->_batch[]           = $request;
