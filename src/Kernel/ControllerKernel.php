@@ -10,6 +10,8 @@ class ControllerKernel extends CubexKernel
   public function subRouteTo()
   {
     return [
+      '%s\%sController',
+      '%sController',
       'Views\%sView',
       'Views\%s',
       '%sView',
