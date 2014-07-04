@@ -410,7 +410,7 @@ class Cubex extends Container
 
     if($this->_env === null || !$this->_env)
     {
-      //If
+      //If there is no environment available, assume local
       $this->_env = 'local';
     }
 
