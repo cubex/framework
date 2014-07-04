@@ -14,25 +14,25 @@
   "require":     {
     "php":                               ">=5.4.0",
     "psr/log":                           "1.0.*",
-    "illuminate/container":              "4.1.*",
-    "illuminate/support":                "4.1.*",
-    "illuminate/cookie":                 "4.1.*",
-    "illuminate/encryption":             "4.1.*",
-    "monolog/monolog":                   "1.7.*",
+    "illuminate/container":              "4.2.*",
+    "illuminate/support":                "4.2.*",
+    "illuminate/cookie":                 "4.2.*",
+    "illuminate/encryption":             "4.2.*",
+    "monolog/monolog":                   "1.10.*",
     "packaged/figlet":                   "0.*",
     "packaged/config":                   "0.1.*",
     "packaged/helpers":                  "0.0.*",
-    "symfony/http-foundation":           "2.4.*",
-    "symfony/http-kernel":               "2.4.*",
-    "symfony/console":                   "2.4.*",
-    "symfony/translation":               "2.4.*",
+    "symfony/http-foundation":           "2.5.*",
+    "symfony/http-kernel":               "2.5.*",
+    "symfony/console":                   "2.5.*",
+    "symfony/translation":               "2.5.*",
     "phpdocumentor/reflection-docblock": "2.0.*"
   },
   "require-dev": {
     "stack/builder":     "1.0.*",
     "mockery/mockery":   "*",
     "guzzlehttp/guzzle": "*",
-    "phpunit/phpunit":   "*"
+    "phpunit/phpunit":   "4.1"
   },
   "autoload":    {
     "psr-4": {
