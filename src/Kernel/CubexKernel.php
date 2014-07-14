@@ -436,7 +436,7 @@ abstract class CubexKernel
 
     $attempts[] = 'render' . $callMethod;
     $attempts[] = 'action' . $callMethod;
-    $attempts[] = $method;
+    $attempts[] = lcfirst($callMethod);
 
     foreach($attempts as $attempt)
     {
