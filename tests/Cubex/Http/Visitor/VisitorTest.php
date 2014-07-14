@@ -105,6 +105,7 @@ class VisitorTest extends \CubexTestCase
 
   public function visitorProvider()
   {
+    $whois = \Packaged\Helpers\System::commandExists('whois');
     return [
       ['127.0.0.1', 'GB', 'London', 'eng'],
       [
@@ -119,9 +120,9 @@ class VisitorTest extends \CubexTestCase
       ],
       [
         '208.67.222.222',
-        'US',
-        'San Francisco',
-        'CA',
+        $whois ? 'US' : 'GB',
+        $whois ? 'San Francisco' : 'London',
+        $whois ? 'CA' : 'eng',
         new \Packaged\Config\Provider\ConfigSection(
           'http_visitor',
           ['whois' => true]
