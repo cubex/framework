@@ -32,6 +32,7 @@
     "stack/builder":     "1.0.*",
     "mockery/mockery":   "*",
     "guzzlehttp/guzzle": "*",
+    "geoip2/geoip2":     "0.6.*",
     "phpunit/phpunit":   "4.1"
   },
   "autoload":    {
