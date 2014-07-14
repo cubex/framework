@@ -310,12 +310,18 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   /**
    * Detect if the user is browsing on the private network
    *
+   * @param string|null $ip IP to test
+   *
    * @return bool
    */
-  public function isPrivateNetwork()
+  public function isPrivateNetwork($ip = null)
   {
+    if($ip === null)
+    {
+      $ip = $this->getClientIp();
+    }
     return starts_with_any(
-      $this->getClientIp(),
+      $ip,
       ['192.168.', '10.', '172.16.', '127.']
     );
   }

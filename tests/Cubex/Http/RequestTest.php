@@ -148,6 +148,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     $server  = array('REMOTE_ADDR' => $remoteAddr);
     $request->initialize(array(), array(), array(), array(), array(), $server);
     $this->assertEquals($isPrivate, $request->isPrivateNetwork());
+    $this->assertEquals($isPrivate, $request->isPrivateNetwork($remoteAddr));
   }
 
   public function privateNetworkProvider()
