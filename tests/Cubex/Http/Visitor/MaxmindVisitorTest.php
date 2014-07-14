@@ -32,6 +32,12 @@ class MaxmindVisitorTest extends \CubexTestCase
     $remoteAddr, $country, $city, $region, $config = null
   )
   {
+    if(!file_exists($this->_geoipdb))
+    {
+      $this->markTestSkipped("GeoIP Database Not Downloaded");
+      return;
+    }
+
     $cubex   = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
     $server  = array('REMOTE_ADDR' => $remoteAddr);

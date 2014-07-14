@@ -98,7 +98,7 @@ class Visitor implements IVisitorInfo, ICubexAware
 
   protected function _fromWhois()
   {
-    $whois = shell_exec("whois " . $this->_ip);
+    $whois = exec("whois " . $this->_ip);
 
     $countries = $cities = $regions = [];
 
