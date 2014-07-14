@@ -306,4 +306,17 @@ class Request extends \Symfony\Component\HttpFoundation\Request
       null
     );
   }
+
+  /**
+   * Detect if the user is browsing on the private network
+   *
+   * @return bool
+   */
+  public function isPrivateNetwork()
+  {
+    return starts_with_any(
+      $this->getClientIp(),
+      ['192.168.', '10.', '172.16.', '127.']
+    );
+  }
 }

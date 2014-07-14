@@ -135,4 +135,29 @@ class RequestTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('tested', $request->server->get('consoletest'));
     unset($_SERVER['consoletest']);
   }
+
+  /**
+   * @dataProvider privateNetworkProvider
+   *
+   * @param $remoteAddr
+   * @param $isPrivate
+   */
+  public function testIsPrivateNetwork($remoteAddr, $isPrivate)
+  {
+    $request = new \Cubex\Http\Request();
+    $server  = array('REMOTE_ADDR' => $remoteAddr);
+    $request->initialize(array(), array(), array(), array(), array(), $server);
+    $this->assertEquals($isPrivate, $request->isPrivateNetwork());
+  }
+
+  public function privateNetworkProvider()
+  {
+    return [
+      ['10.0.1.1', true],
+      ['192.168.0.1', true],
+      ['172.16.0.2', true],
+      ['127.0.0.1', true],
+      ['123.123.123.123', false]
+    ];
+  }
 }
