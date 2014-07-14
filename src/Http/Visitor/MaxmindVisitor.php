@@ -27,7 +27,10 @@ class MaxmindVisitor implements IVisitorInfo
     if($mode == 'reader')
     {
       $this->_reader = new Reader(
-        $config->getItem('database', '/usr/local/share/GeoIP/GeoIP2-City.mmdb')
+        $config->getItem(
+          'database',
+          new \Exception('No GeoIP Database defined')
+        )
       );
     }
     else if($mode == 'client')

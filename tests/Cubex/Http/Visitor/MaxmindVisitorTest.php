@@ -46,6 +46,8 @@ class MaxmindVisitorTest extends \CubexTestCase
       );
     }
 
+    $config->addItem('database', $config->getItem('database', $this->_geoipdb));
+
     $cubex->getConfiguration()->addSection($config);
 
     $visitor = new \Cubex\Http\Visitor\MaxmindVisitor();
