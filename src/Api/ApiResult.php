@@ -13,8 +13,8 @@ class ApiResult
   protected $_totalTime;
 
   /**
-   * @param string $response  raw json response
-   * @param bool   $throw Should throw API errors as exceptions
+   * @param ResponseInterface $response raw json response
+   * @param bool              $throw    Should throw API errors as exceptions
    *
    * @throws \Exception
    */
@@ -23,7 +23,7 @@ class ApiResult
     if($response !== null)
     {
       $this->_executionTime = $response->getHeader('X-Execution-Time');
-      $this->_callTime = $response->getHeader('X-Call-Time');
+      $this->_callTime      = $response->getHeader('X-Call-Time');
       $this->readJson($response->getBody(), $throw);
     }
   }
@@ -44,10 +44,10 @@ class ApiResult
     }
 
     if(!isset(
-    $result->status,
-    $result->status->message,
-    $result->status->code,
-    $result->result)
+      $result->status,
+      $result->status->message,
+      $result->status->code,
+      $result->result)
     )
     {
       throw new \RuntimeException("Invalid json / api result", 500);
@@ -61,7 +61,7 @@ class ApiResult
       throw new \Exception($this->_statusMessage, $this->_statusCode);
     }
 
-    $this->_result        = $result->result;
+    $this->_result = $result->result;
   }
 
   /**
