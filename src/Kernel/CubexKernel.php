@@ -5,6 +5,7 @@ use Cubex\CubexAwareTrait;
 use Cubex\CubexException;
 use Cubex\Http\Response as CubexResponse;
 use Cubex\ICubexAware;
+use Cubex\Responses\Error403Response;
 use Cubex\Routing\IRoutable;
 use Cubex\Routing\IRoute;
 use Cubex\Routing\IRouter;
@@ -82,8 +83,9 @@ abstract class CubexKernel
    * To verify the process can process, return true.
    * To reject the request, and return a custom response, simply return the
    * desired response
+   * Any other response will return a standard 403 page to the user
    *
-   * @return true|Response
+   * @return bool|Response
    */
   public function canProcess()
   {
@@ -124,6 +126,10 @@ abstract class CubexKernel
       if($authed instanceof Response)
       {
         return $authed;
+      }
+      else if($authed !== true)
+      {
+        return new Error403Response();
       }
 
       //Get the default router

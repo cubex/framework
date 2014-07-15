@@ -575,6 +575,15 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       false
     );
     $this->assertContains('Please Login', (string)$result);
+
+    $kernel = new KernelAuthTest(false);
+    $result = $kernel->handle(
+      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('Error 403 - Access Forbidden', (string)$result);
+    $this->assertEquals(403, $result->getStatusCode());
   }
 
   public function testCubexify()
@@ -620,8 +629,19 @@ class KernelBoilerTest extends \Cubex\Kernel\CubexKernel
 
 class KernelAuthTest extends \Cubex\Kernel\CubexKernel
 {
+  protected $_authResponse;
+
+  public function __construct($response = null)
+  {
+    $this->_authResponse = $response;
+  }
+
   public function canProcess()
   {
+    if($this->_authResponse !== null)
+    {
+      return $this->_authResponse;
+    }
     return new \Cubex\Http\Response('Please Login', 200);
   }
 }
