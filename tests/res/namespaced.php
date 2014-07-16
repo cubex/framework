@@ -47,7 +47,7 @@ class TestLayoutController extends LayoutController
 
   public function renderView()
   {
-    return $this->prepareView(new TestViewModel());
+    return new TestViewModel();
   }
 
   public function renderJson()
@@ -62,6 +62,10 @@ class TestViewModel extends ViewModel
 {
   public function render()
   {
-    return 'View Model Test';
+    if($this->isCubexAvailable())
+    {
+      return 'View Model Test';
+    }
+    return 'Cubex Not Available';
   }
 }

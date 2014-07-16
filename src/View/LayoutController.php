@@ -2,6 +2,7 @@
 namespace Cubex\View;
 
 use Cubex\Http\Response;
+use Cubex\ICubexAware;
 use Cubex\Kernel\ControllerKernel;
 use Illuminate\Support\Contracts\RenderableInterface;
 
@@ -73,6 +74,11 @@ abstract class LayoutController extends ControllerKernel
    */
   public function handleResponse($response, $capturedOutput)
   {
+    if($response instanceof ICubexAware)
+    {
+      $this->bindCubex($response);
+    }
+
     if($response instanceof RenderableInterface)
     {
       $this->layout()->insert($this->_contentName, $response);
