@@ -24,7 +24,7 @@ class ApiResult
     {
       $this->_executionTime = $response->getHeader('X-Execution-Time');
       $this->_callTime      = $response->getHeader('X-Call-Time');
-      $this->readJson($response->getBody(), $throw);
+      $this->readJson((string)$response->getBody(), $throw);
     }
   }
 
