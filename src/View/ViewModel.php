@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\View;
 
+use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationTrait;
 use Cubex\ICubexAware;
@@ -157,5 +158,22 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
       $this->getTemplateDir(),
       $this->getTemplateFile()
     ) . $extension;
+  }
+
+  /**
+   * Convert the view model to a string by calling render
+   *
+   * @return string
+   */
+  public function __toString()
+  {
+    try
+    {
+      return $this->render();
+    }
+    catch(\Exception $e)
+    {
+      return Cubex::exceptionAsString($e);
+    }
   }
 }

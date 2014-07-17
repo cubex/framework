@@ -43,4 +43,34 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
     $this->assertStringEndsWith('Templates', $view->getTemplateDir());
     $this->assertEquals('TestView', $view->getTemplateFile());
   }
+
+  public function testToString()
+  {
+    $viewModel = new RenderableViewModel();
+    $this->assertEquals('rendered', (string)$viewModel);
+
+    $exception = 'Render Exception';
+    $viewModel = new RenderableViewModel($exception);
+    $expect    = '<h1>Uncaught Exception</h1><h2>(0) ' . $exception . '</h2>';
+    $this->assertStringStartsWith($expect, (string)$viewModel);
+  }
+}
+
+class RenderableViewModel extends \Cubex\View\ViewModel
+{
+  protected $_exception;
+
+  public function __construct($exception = null)
+  {
+    $this->_exception = $exception;
+  }
+
+  public function render()
+  {
+    if($this->_exception !== null)
+    {
+      throw new Exception($this->_exception);
+    }
+    return 'rendered';
+  }
 }

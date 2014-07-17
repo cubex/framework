@@ -247,6 +247,12 @@ class Cubex extends Container
    */
   public function exceptionResponse(\Exception $exception)
   {
+    $response = new CubexResponse(self::exceptionAsString($exception), 500);
+    return $response;
+  }
+
+  public static function exceptionAsString(\Exception $exception)
+  {
     $content = '<h1>Uncaught Exception</h1>';
     $content .= '<h2>(' . $exception->getCode() . ') ';
     $content .= $exception->getMessage() . '</h2>';
@@ -265,8 +271,7 @@ class Cubex extends Container
     }
 
     $content .= '<pre>' . $exception->getTraceAsString() . '</pre>';
-    $response = new CubexResponse($content, 500);
-    return $response;
+    return $content;
   }
 
   /**
