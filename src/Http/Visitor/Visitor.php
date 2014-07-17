@@ -98,35 +98,34 @@ class Visitor implements IVisitorInfo, ICubexAware
 
   protected function _fromWhois()
   {
-    if(!System::commandExists('whois'))
+    if(System::commandExists('whois'))
     {
-      return;
-    }
+      exec("whois " . $this->_ip, $whois);
+      $whois     = implode("\n", $whois);
+      $countries = $cities = $regions = [];
 
-    exec("whois " . $this->_ip, $whois);
-    $whois     = implode("\n", $whois);
-    $countries = $cities = $regions = [];
+      preg_match_all('/^country:\s*([A-Z]{2})/mi', $whois, $countries);
+      if(isset($countries[1]) && !empty($countries[1]))
+      {
+        $this->_country = end($countries[1]);
+      }
 
-    preg_match_all('/^country:\s*([A-Z]{2})/mi', $whois, $countries);
-    if(isset($countries[1]) && !empty($countries[1]))
-    {
-      $this->_country = end($countries[1]);
-    }
+      preg_match_all('/^city:\s*([A-Z].*$)/mi', $whois, $cities);
+      if(isset($cities[1]) && !empty($cities[1]))
+      {
+        $this->_city = end($cities[1]);
+      }
 
-    preg_match_all('/^city:\s*([A-Z].*$)/mi', $whois, $cities);
-    if(isset($cities[1]) && !empty($cities[1]))
-    {
-      $this->_city = end($cities[1]);
-    }
+      preg_match_all(
+        '/^(state|stateprov|county|prov|province):\s*([A-Z].*$)/mi',
+        $whois,
+        $regions
+      );
 
-    preg_match_all(
-      '/^(state|stateprov|county|prov|province):\s*([A-Z].*$)/mi',
-      $whois,
-      $regions
-    );
-    if(isset($regions[2]) && !empty($regions[1]))
-    {
-      $this->_region = end($regions[2]);
+      if(isset($regions[2]) && !empty($regions[1]))
+      {
+        $this->_region = end($regions[2]);
+      }
     }
   }
 

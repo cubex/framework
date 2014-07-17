@@ -41,6 +41,7 @@ abstract class LayoutController extends ControllerKernel
     if($this->_layout === null)
     {
       $this->_layout = new Layout($this);
+      $this->bindCubex($this->_layout);
     }
 
     return $this->_layout;
@@ -49,19 +50,6 @@ abstract class LayoutController extends ControllerKernel
   public function __toString()
   {
     return $this->layout()->render();
-  }
-
-  /**
-   * Prepare the viewModel for action
-   *
-   * @param ViewModel $view
-   *
-   * @return ViewModel
-   */
-  public function prepareView(ViewModel $view)
-  {
-    $view->setCubex($this->getCubex());
-    return $view;
   }
 
   /**
