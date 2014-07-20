@@ -3,6 +3,7 @@ namespace Cubex\Console\Commands;
 
 use Cubex\Console\ConsoleCommand;
 use Packaged\Figlet\Figlet;
+use Packaged\Helpers\System;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -40,8 +41,11 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write(':' . $this->port);
     $output->writeLn("");
 
+    $projectRoot = trim($this->getCubex()->getProjectRoot());
+    $projectRoot = $projectRoot ? '"' . $projectRoot . '"' : '';
+
     $command   = ["php -S $this->host:$this->port -t"];
-    $command[] = trim($this->getCubex()->getProjectRoot());
+    $command[] = $projectRoot;
     $command[] = trim($this->router);
     $command   = implode(' ', array_filter($command));
 
@@ -54,7 +58,16 @@ class BuiltInWebServer extends ConsoleCommand
   {
     $exitCode = 0;
     $method   = $this->_executeMethod;
-    $method($command, $exitCode);
+    if(System::findCommand('bash'))
+    {
+      // Use bash to execute if available,
+      // enables CTRL+C to also kill spawned process (cygwin issue)
+      $method("bash -c '$command'", $exitCode);
+    }
+    else
+    {
+      $method($command, $exitCode);
+    }
     return $exitCode;
   }
 }
