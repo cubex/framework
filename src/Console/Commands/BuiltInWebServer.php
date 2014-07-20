@@ -62,12 +62,9 @@ class BuiltInWebServer extends ConsoleCommand
     {
       // Use bash to execute if available,
       // enables CTRL+C to also kill spawned process (cygwin issue)
-      $method("bash -c '$command'", $exitCode);
+      $command = "bash -c '$command'";
     }
-    else
-    {
-      $method($command, $exitCode);
-    }
+    $method($command, $exitCode);
     return $exitCode;
   }
 }
