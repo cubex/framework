@@ -58,7 +58,7 @@ class BuiltInWebServer extends ConsoleCommand
   {
     $exitCode = 0;
     $method   = $this->_executeMethod;
-    if(System::findCommand('bash'))
+    if(System::commandExists('bash'))
     {
       // Use bash to execute if available,
       // enables CTRL+C to also kill spawned process (cygwin issue)
