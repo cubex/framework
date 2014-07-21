@@ -15,7 +15,16 @@ class MaxmindVisitorTest extends \CubexTestCase
     if(!file_exists($this->_geoipdb))
     {
       file_put_contents($filename, file_get_contents($dbgz));
-      exec('gunzip ' . $filename);
+
+      $file = gzopen($filename, 'rb');
+      $out  = fopen($this->_geoipdb, 'wb');
+      while(!gzeof($file))
+      {
+        fwrite($out, gzread($file, 4096));
+      }
+      fclose($out);
+      gzclose($file);
+      unlink($filename);
     }
   }
 
