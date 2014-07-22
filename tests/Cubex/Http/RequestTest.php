@@ -37,15 +37,15 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
   public function httpHostsProvider()
   {
-    return array(
-      array(),
-      array(null, 'localhost'),
-      array("www", "cubex", "local"),
-      array("www", "cubex", "local"),
-      array("www", "cubex", "co.uk"),
-      array("beta.www", "cubex", "io"),
-      array("beta.www", "cubex", "co.uk"),
-    );
+    return [
+      [],
+      [null, 'localhost'],
+      ["www", "cubex", "local"],
+      ["www", "cubex", "local"],
+      ["www", "cubex", "co.uk"],
+      ["beta.www", "cubex", "io"],
+      ["beta.www", "cubex", "co.uk"],
+    ];
   }
 
   public function testUrlSprintf()
@@ -55,6 +55,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     $request->server->set('REQUEST_URI', '/path');
 
     $this->assertEquals("81", $request->urlSprintf("%r"));
+    $this->assertEquals(":81", $request->urlSprintf("%o"));
     $this->assertEquals("/path", $request->urlSprintf("%i"));
     $this->assertEquals("http://", $request->urlSprintf("%p"));
     $this->assertEquals("www.cubex.local:81", $request->urlSprintf("%h"));
@@ -65,6 +66,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
       "http://www.cubex.local",
       $request->urlSprintf("%p%s.%d.%t")
     );
+  }
+
+  public function testStandardPort()
+  {
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->headers->set('HOST', 'www.cubex.local:81');
+    $request->server->set('REQUEST_URI', '/path');
+    $this->assertFalse($request->isStandardPort());
+
+    $request->headers->set('HOST', 'www.cubex.local:80');
+    $request->server->set('REQUEST_URI', '/path');
+    $this->assertTrue($request->isStandardPort());
   }
 
   public function testMatchDomain()
@@ -145,8 +158,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
   public function testIsPrivateNetwork($remoteAddr, $isPrivate)
   {
     $request = new \Cubex\Http\Request();
-    $server  = array('REMOTE_ADDR' => $remoteAddr);
-    $request->initialize(array(), array(), array(), array(), array(), $server);
+    $server  = ['REMOTE_ADDR' => $remoteAddr];
+    $request->initialize([], [], [], [], [], $server);
     $this->assertEquals($isPrivate, $request->isPrivateNetwork());
     $this->assertEquals($isPrivate, $request->isPrivateNetwork($remoteAddr));
   }

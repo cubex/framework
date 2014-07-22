@@ -1,14 +1,17 @@
 <?php
 namespace Cubex\Http;
 
+/**
+ * @method static Request createFromGlobals
+ */
 class Request extends \Symfony\Component\HttpFoundation\Request
 {
   protected $_domain;
   protected $_subdomain;
   protected $_tld;
 
-  protected $_definedTlds = array();
-  protected $_knownTlds = array(
+  protected $_definedTlds = [];
+  protected $_knownTlds = [
     'co'  => 'co',
     'com' => 'com',
     'org' => 'org',
@@ -16,15 +19,15 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     'gov' => 'gov',
     'net' => 'net',
     'edu' => 'edu'
-  );
+  ];
 
   /**
    * @inheritdoc
    */
   public function __construct(
-    array $query = array(), array $request = array(),
-    array $attributes = array(), array $cookies = array(),
-    array $files = array(), array $server = array(), $content = null
+    array $query = [], array $request = [],
+    array $attributes = [], array $cookies = [],
+    array $files = [], array $server = [], $content = null
   )
   {
     parent::__construct(
@@ -191,21 +194,25 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    * Returns a formatted string based on the url parts
    *
    * - %r = Port Number (no colon)
+   * - %o = Port Number (with colon) - only if non standard
    * - %i = Path (leading slash)
-   * - %p = Scheme with //: (Usually http:// or https://)
+   * - %p = Scheme with :// (Usually http:// or https://)
    * - %h = Host (Subdomain . Domain . Tld : Port [port may not be set])
    * - %d = Domain
    * - %s = Sub Domain
    * - %t = Tld
+   * - %a = Scheme Host (Subdomain . Domain . Tld : Port [port may not be set])
    *
    * @param string $format
    *
    * @return string mixed
    */
-  public function urlSprintf($format = "%p%h")
+  public function urlSprintf($format = "%a")
   {
     $formater = [
+      "%a" => $this->protocol() . $this->getHttpHost(),
       "%r" => $this->getPort(),
+      "%o" => $this->isStandardPort() ? '' : ':' . $this->getPort(),
       "%i" => $this->getPathInfo(),
       "%p" => $this->protocol(),
       "%h" => $this->getHttpHost(),
@@ -215,6 +222,20 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     ];
 
     return str_replace(array_keys($formater), $formater, $format);
+  }
+
+  /**
+   * Detect if the port is the standard based on the scheme e.g. http = 80
+   *
+   * @return bool
+   */
+  public function isStandardPort()
+  {
+    $scheme = $this->getScheme();
+    $port   = $this->getPort();
+
+    return ('http' == $scheme && $port == 80)
+    || ('https' == $scheme && $port == 443);
   }
 
   /**
@@ -299,9 +320,9 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     return self::create(
       'http://localhost',
       'GET',
-      array(),
-      array(),
-      array(),
+      [],
+      [],
+      [],
       $_SERVER,
       null
     );
