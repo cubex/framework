@@ -112,7 +112,7 @@ class VisitorTest extends \CubexTestCase
       'GEOIP_ADDR'         => '123.123.123.123',
       'GEOIP_COUNTRY_CODE' => 'US',
       'GEOIP_CITY'         => 'Mountain View',
-      'GEOIP_REGION'       => 'CA',
+      'GEOIP_REGION_NAME'  => 'CA',
     ];
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);

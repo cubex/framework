@@ -105,7 +105,7 @@ class Visitor implements IVisitorInfo, ICubexAware
     $params         = $this->_request->server;
     $this->_country = $params->get('GEOIP_COUNTRY_CODE', null);
     $this->_city    = $params->get('GEOIP_CITY', null);
-    $this->_region  = $params->get('GEOIP_REGION', null);
+    $this->_region  = $params->get('GEOIP_REGION_NAME', null);
   }
 
   protected function _fromWhois()
