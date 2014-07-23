@@ -51,6 +51,10 @@ class Visitor implements IVisitorInfo, ICubexAware
     {
       $this->_fromAppEngine();
     }
+    else if($request->server->get('GEOIP_ADDR', null) !== null)
+    {
+      $this->_fromModGeoIP();
+    }
   }
 
   /**
@@ -94,6 +98,14 @@ class Visitor implements IVisitorInfo, ICubexAware
     $this->_country = $params->get('X-AppEngine-Country', null);
     $this->_city    = $params->get('X-AppEngine-City', null);
     $this->_region  = $params->get('X-AppEngine-Region', null);
+  }
+
+  protected function _fromModGeoIP()
+  {
+    $params         = $this->_request->server;
+    $this->_country = $params->get('GEOIP_COUNTRY_CODE', null);
+    $this->_city    = $params->get('GEOIP_CITY', null);
+    $this->_region  = $params->get('GEOIP_REGION', null);
   }
 
   protected function _fromWhois()

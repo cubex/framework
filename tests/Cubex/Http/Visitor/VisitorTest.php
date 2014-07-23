@@ -17,8 +17,8 @@ class VisitorTest extends \CubexTestCase
   {
     $cubex   = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
-    $server  = array('REMOTE_ADDR' => $remoteAddr);
-    $request->initialize(array(), array(), array(), array(), array(), $server);
+    $server  = ['REMOTE_ADDR' => $remoteAddr];
+    $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
     if($config === null)
@@ -54,7 +54,7 @@ class VisitorTest extends \CubexTestCase
     $cubex   = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
     $server  = ['REMOTE_ADDR' => '123.123.123.123'];
-    $request->initialize(array(), array(), array(), array(), array(), $server);
+    $request->initialize([], [], [], [], [], $server);
     $cubex->getConfiguration()->addSection($config);
     $cubex->instance('request', $request);
     $cubex->instance('http.failover', $failover);
@@ -85,7 +85,7 @@ class VisitorTest extends \CubexTestCase
       'X-AppEngine-City'    => 'Mountain View',
       'X-AppEngine-Region'  => 'CA',
     ];
-    $request->initialize(array(), array(), array(), array(), array(), $server);
+    $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
     $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
@@ -101,6 +101,26 @@ class VisitorTest extends \CubexTestCase
     {
       $_SERVER['SERVER_SOFTWARE'] = $old;
     }
+  }
+
+  public function testFromModGeoIp()
+  {
+    $cubex   = $this->newCubexInstace();
+    $request = new \Cubex\Http\Request();
+    $server  = [
+      'REMOTE_ADDR'        => '123.123.123.123',
+      'GEOIP_ADDR'         => '123.123.123.123',
+      'GEOIP_COUNTRY_CODE' => 'US',
+      'GEOIP_CITY'         => 'Mountain View',
+      'GEOIP_REGION'       => 'CA',
+    ];
+    $request->initialize([], [], [], [], [], $server);
+    $cubex->instance('request', $request);
+
+    $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
+    $this->assertEquals('US', $visitor->getCountry());
+    $this->assertEquals('Mountain View', $visitor->getCity());
+    $this->assertEquals('CA', $visitor->getRegion());
   }
 
   public function visitorProvider()
