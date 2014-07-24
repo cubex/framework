@@ -140,10 +140,17 @@ class AuthService extends AbstractServiceProvider
   }
 
   /**
+   * @param bool $refresh do not use cached user
+   *
    * @return IAuthedUser
    */
-  public function getAuthedUser()
+  public function getAuthedUser($refresh = false)
   {
+    if($refresh === true)
+    {
+      $this->_authedUser = null;
+    }
+    
     if($this->_authedUser !== null)
     {
       return $this->_authedUser;
