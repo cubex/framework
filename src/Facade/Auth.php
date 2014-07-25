@@ -35,16 +35,14 @@ class Auth extends Facade
   }
 
   /**
-   * @param bool $refresh
-   *
    * @return \Cubex\Auth\IAuthedUser
    *
    * @throws \Exception
    * @throws \RuntimeException
    */
-  public static function getAuthedUser($refresh = false)
+  public static function getAuthedUser()
   {
-    return self::getFacadeRoot()->getAuthedUser($refresh);
+    return self::getFacadeRoot()->getAuthedUser();
   }
 
   /**
