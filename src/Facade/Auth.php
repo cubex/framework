@@ -60,7 +60,7 @@ class Auth extends Facade
    */
   public static function updateAuthedUser(IAuthedUser $user)
   {
-    return self::getFacadeRoot()->updateAuthUser($user);
+    return self::getFacadeRoot()->updateAuthedUser($user);
   }
 
   /**

@@ -113,7 +113,7 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('one', $auth->getCookieUser()->getProperty('test'));
 
     $usr->setProperty('test', 'three');
-    $auth->updateAuthUser($usr);
+    $auth->updateAuthedUser($usr);
     $this->assertEquals('three', $auth->getCookieUser()->getProperty('test'));
 
     $auth->logout();

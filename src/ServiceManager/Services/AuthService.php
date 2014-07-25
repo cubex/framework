@@ -211,7 +211,7 @@ class AuthService extends AbstractServiceProvider
    *
    * @return bool
    */
-  public function updateAuthUser(IAuthedUser $user)
+  public function updateAuthedUser(IAuthedUser $user)
   {
     $this->_authedUser = $user;
     $this->_setLoginCookie($user);
