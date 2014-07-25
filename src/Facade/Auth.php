@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Facade;
 
+use Cubex\Auth\IAuthedUser;
 use Cubex\ServiceManager\Services\AuthService;
 use Illuminate\Support\Facades\Facade;
 
@@ -43,6 +44,23 @@ class Auth extends Facade
   public static function getAuthedUser()
   {
     return self::getFacadeRoot()->getAuthedUser();
+  }
+
+  /**
+   * Update the cached authed user in cookie and auth service
+   *
+   * This will not make any changes to the source of your authed user e.g. db
+   *
+   * @param IAuthedUser $user
+   *
+   * @return bool
+   *
+   * @throws \Exception
+   * @throws \RuntimeException
+   */
+  public static function updateAuthedUser(IAuthedUser $user)
+  {
+    return self::getFacadeRoot()->updateAuthUser($user);
   }
 
   /**

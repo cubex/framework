@@ -150,7 +150,7 @@ class AuthService extends AbstractServiceProvider
     }
 
     //Check cookie
-    $cookieUser = $this->getCookieUser();
+    $cookieUser = $this->getCookieUser(false);
     if($cookieUser !== null)
     {
       $this->_authedUser = $cookieUser;
@@ -174,9 +174,16 @@ class AuthService extends AbstractServiceProvider
     return $this->_authedUser;
   }
 
-  public function getCookieUser()
+  /**
+   * Retrieve the user from the cookie
+   *
+   * @param bool $checkQueue
+   *
+   * @return IAuthedUser|null
+   */
+  public function getCookieUser($checkQueue = true)
   {
-    $cookied = Cookie::get($this->getCookieName());
+    $cookied = Cookie::get($this->getCookieName(), null, $checkQueue);
     if($cookied !== null)
     {
       $authedUser = $this->getCubex()->make('\Cubex\Auth\AuthedUser');
@@ -196,6 +203,22 @@ class AuthService extends AbstractServiceProvider
   }
 
   /**
+   * Update the cached authed user in cookie and auth service
+   *
+   * This will not make any changes to the source of your authed user e.g. db
+   *
+   * @param IAuthedUser $user
+   *
+   * @return bool
+   */
+  public function updateAuthUser(IAuthedUser $user)
+  {
+    $this->_authedUser = $user;
+    $this->_setLoginCookie($user);
+    return true;
+  }
+
+  /**
    * @return IAuthProvider|null
    */
   public function getAuthProvider()
@@ -203,6 +226,20 @@ class AuthService extends AbstractServiceProvider
     return $this->_authProvider;
   }
 
+  public function setAuthProvider(IAuthProvider $provider)
+  {
+    $this->_authProvider = $provider;
+    return $this;
+  }
+
+  /**
+   * Send forgotten password
+   *
+   * @param       $username
+   * @param array $options
+   *
+   * @return bool
+   */
   public function forgottenPassword($username, array $options = null)
   {
     return $this->_authProvider->forgottenPassword($username, $options);

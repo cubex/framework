@@ -93,14 +93,27 @@ class Cookie extends Facade
   /**
    * Retrieve a cookie
    *
-   * @param      $name
-   * @param null $default
+   * @param string $name
+   * @param null   $default
+   * @param bool   $checkQueued check the pending cookie queue
    *
    * @return mixed
    */
-  public static function get($name, $default = null)
+  public static function get($name, $default = null, $checkQueued = true)
   {
-    $cubex = self::getFacadeApplication();
-    return $cubex['request']->cookies->get($name, $default);
+    $cubex  = self::getFacadeApplication();
+    $cookie = $cubex['request']->cookies->get($name, null);
+    if($cookie === null && $checkQueued)
+    {
+      $queue = self::getJar()->getQueuedCookies();
+      if(isset($queue[$name]))
+      {
+        /**
+         * @var $queue \Symfony\Component\HttpFoundation\Cookie[]
+         */
+        $cookie = $queue[$name]->getValue();
+      }
+    }
+    return $cookie === null ? $default : $cookie;
   }
 }

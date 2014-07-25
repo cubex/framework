@@ -92,6 +92,32 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
       $request->cookies->remove('cubex_login');
     }
   }
+
+  public function testUpdateAuthedUser()
+  {
+    $auth = $this->getAuthService();
+    $usr  = new \Cubex\Auth\AuthedUser(
+      'brooke', 56, ['surname' => 'Bryan', 'test' => 'one']
+    );
+    //$request = \Cubex\Facade\Cookie::getFacadeApplication()->make('request');
+    /**
+     * @var $request \Cubex\Http\Request
+     */
+
+    $provider = new TestAuthProvider();
+    $provider->setRetrieve($usr);
+    $auth->setAuthProvider($provider);
+
+    $auth->login('valid', '');
+    $this->assertEquals('brooke', $auth->getCookieUser()->getUsername());
+    $this->assertEquals('one', $auth->getCookieUser()->getProperty('test'));
+
+    $usr->setProperty('test', 'three');
+    $auth->updateAuthUser($usr);
+    $this->assertEquals('three', $auth->getCookieUser()->getProperty('test'));
+
+    $auth->logout();
+  }
 }
 
 class TestAuthProvider implements \Cubex\Auth\IAuthProvider
@@ -109,6 +135,10 @@ class TestAuthProvider implements \Cubex\Auth\IAuthProvider
   {
     if($username == 'valid')
     {
+      if(isset($this->_retrieve))
+      {
+        return $this->_retrieve;
+      }
       return new \Cubex\Auth\AuthedUser('user', 1);
     }
     return null;
