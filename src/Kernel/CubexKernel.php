@@ -291,7 +291,7 @@ abstract class CubexKernel
         $method = $this->attemptMethod($value, $request);
         if($method !== null)
         {
-          if($params === null && $method === 'defaultAction')
+          if($params === null && $value === 'defaultAction')
           {
             $params = $this->_processParams;
           }
