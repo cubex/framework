@@ -14,6 +14,13 @@ abstract class LayoutController extends ControllerKernel
   protected $_layout;
 
   /**
+   * Disable rendering of the layout, and return the content only
+   *
+   * @var bool
+   */
+  protected $_disableLayout = false;
+
+  /**
    * Name of the area in your layout to insert the view model response
    *
    * @var string
@@ -53,6 +60,38 @@ abstract class LayoutController extends ControllerKernel
   }
 
   /**
+   * Check to see if the layout will be rendered
+   *
+   * @return bool
+   */
+  public function isLayoutDisabled()
+  {
+    return (bool)$this->_disableLayout;
+  }
+
+  /**
+   * Disable rendering of the layout
+   *
+   * @return $this
+   */
+  public function disableLayout()
+  {
+    $this->_disableLayout = true;
+    return $this;
+  }
+
+  /**
+   * Re-enable layout rendering
+   *
+   * @return $this
+   */
+  public function enableLayout()
+  {
+    $this->_disableLayout = false;
+    return $this;
+  }
+
+  /**
    * Capture and view model responses and insert them into the layout
    *
    * @param $response
@@ -69,6 +108,11 @@ abstract class LayoutController extends ControllerKernel
 
     if($response instanceof RenderableInterface)
     {
+      if($this->isLayoutDisabled())
+      {
+        return $response;
+      }
+
       $this->layout()->insert($this->_contentName, $response);
       return new Response($this->layout());
     }
@@ -76,6 +120,11 @@ abstract class LayoutController extends ControllerKernel
     //Convert captured responses into renderable content objects
     if($response === null)
     {
+      if($this->isLayoutDisabled())
+      {
+        return new Renderable($capturedOutput);
+      }
+
       $this->layout()->insert(
         $this->_contentName,
         new Renderable($capturedOutput)
@@ -86,6 +135,11 @@ abstract class LayoutController extends ControllerKernel
     //Scalars should be assumed as content, and converted to renderables
     if(is_scalar($response))
     {
+      if($this->isLayoutDisabled())
+      {
+        return new Renderable($response);
+      }
+
       $this->layout()->insert(
         $this->_contentName,
         new Renderable($response)

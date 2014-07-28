@@ -28,6 +28,21 @@ class LayoutControllerTest extends \PHPUnit_Framework_TestCase
     $this->assertContains($output, (string)$controller);
   }
 
+  public function testDisableLayout()
+  {
+    $controller = $this->getMockForAbstractClass(
+      '\Cubex\View\LayoutController'
+    );
+    /**
+     * @var $controller LayoutController
+     */
+    $this->assertFalse($controller->isLayoutDisabled());
+    $controller->disableLayout();
+    $this->assertTrue($controller->isLayoutDisabled());
+    $controller->enableLayout();
+    $this->assertFalse($controller->isLayoutDisabled());
+  }
+
   /**
    * @param $route
    * @param $expect
@@ -46,6 +61,27 @@ class LayoutControllerTest extends \PHPUnit_Framework_TestCase
     );
 
     $this->assertContains($expect, $response->getContent());
+  }
+
+  /**
+   * @param $route
+   * @param $expect
+   *
+   * @dataProvider responseProvider
+   */
+  public function testResponsesWithNoLayout($route, $expect)
+  {
+    $controller = new \namespaced\TestLayoutController();
+    $controller->setCubex(new Cubex());
+    $controller->disableLayout();
+    $response = $controller->executeRoute(
+      Route::create($route),
+      Request::createFromGlobals(),
+      HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+
+    $this->assertEquals($expect, $response->getContent());
   }
 
   public function responseProvider()
