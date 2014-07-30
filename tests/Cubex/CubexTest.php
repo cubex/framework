@@ -65,7 +65,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $exception = new Exception("Test Exception", 345);
     $resp      = $cubex->exceptionResponse($exception);
     $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $resp);
-    $this->assertContains('Uncaught Exception', (string)$resp);
+    $this->assertContains('An uncaught exception was thrown', (string)$resp);
     $this->assertContains('Test Exception', (string)$resp);
     $this->assertContains('345', (string)$resp);
 
@@ -105,7 +105,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $cubex   = $this->sampleProjectCubex();
 
     $resp = $cubex->handle($request);
-    $this->assertContains('Uncaught Exception', (string)$resp);
+    $this->assertContains('An uncaught exception was thrown', (string)$resp);
     $this->assertContains('You must use a \Cubex\Http\Request', (string)$resp);
 
     $this->setExpectedException(
@@ -214,5 +214,48 @@ class CubexTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('stage', $cubex->env());
 
     putenv('CUBEX_ENV');
+  }
+
+  /**
+   * @param Exception $e
+   * @param           $contains
+   *
+   * @dataProvider exceptionProvider
+   */
+  public function testExceptionAsString(Exception $e, $contains)
+  {
+    if(is_array($contains))
+    {
+      foreach($contains as $contain)
+      {
+        $this->assertContains($contain, \Cubex\Cubex::exceptionAsString($e));
+      }
+    }
+    else
+    {
+      $this->assertContains($contains, \Cubex\Cubex::exceptionAsString($e));
+    }
+  }
+
+  public function exceptionProvider()
+  {
+    return [
+      [
+        \Cubex\CubexException::debugException('Broken', 404, 'debug'),
+        ['Broken</h2>', '(404)', 'debug</div>']
+      ],
+      [
+        \Cubex\CubexException::debugException('', 0, ['a' => 'b']),
+        [print_r(['a' => 'b'], true)]
+      ],
+      [
+        \Cubex\CubexException::debugException('', 0, false),
+        ['>bool(false)']
+      ],
+      [
+        \Cubex\CubexException::debugException('', 0, 23),
+        ['int(23)']
+      ]
+    ];
   }
 }

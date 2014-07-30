@@ -253,24 +253,44 @@ class Cubex extends Container
 
   public static function exceptionAsString(\Exception $exception)
   {
-    $content = '<h1>Uncaught Exception</h1>';
-    $content .= '<h2>(' . $exception->getCode() . ') ';
+    $content = '<div style="font-family:calibri,arial; font-size:14px;">';
+    $content .= '<h1>An uncaught exception was thrown</h1>';
+    $content .= '<h2 style="color:#B20000;">(' . $exception->getCode() . ') ';
     $content .= $exception->getMessage() . '</h2>';
 
     //If we have a cubex exception, lets provide some debug data
-    if($exception instanceof CubexException)
+    if($exception instanceof CubexException && $exception->getDebug() !== null)
     {
-      $content .= '<h3>Debug Data</h3>';
-      ob_start();
-      var_dump($exception->getDebug());
-      $debugData = ob_get_clean();
+      $content .= '<h3 style="color:#B20000;">Cubex Debug Data</h3>';
+      $content .= '<div style="padding:10px;background:#dedede; ';
+      $content .= 'border:1px solid #333333;">';
 
-      $content .= '<pre>' . $debugData . '</pre>';
+      $debug = $exception->getDebug();
+      if(is_string($debug))
+      {
+        $debug = trim($debug);
+        $content .= nl2br($debug);
+      }
+      else if(is_array($debug) || is_object($debug))
+      {
+        $content .= print_r($debug, true);
+      }
+      else
+      {
+        ob_start();
+        var_dump($debug);
+        $content .= ob_get_clean();
+      }
+
+      $content .= '</div>';
       $content .= '<hr/>';
       $content .= '<h3>Stack Trace</h3>';
     }
 
-    $content .= '<pre>' . $exception->getTraceAsString() . '</pre>';
+    $content .= '<div style="padding:10px;background:#dedede; ';
+    $content .= 'border:1px solid #333333;">';
+    $content .= nl2br($exception->getTraceAsString()) . '</div>';
+    $content .= '</div>';
     return $content;
   }
 
@@ -384,7 +404,7 @@ class Cubex extends Container
    *
    * @return mixed
    */
-  public function makeWithCubex($abstract, $parameters = array())
+  public function makeWithCubex($abstract, $parameters = [])
   {
     $item = $this->make($abstract, $parameters);
     if($item instanceof ICubexAware)

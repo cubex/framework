@@ -51,8 +51,8 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
 
     $exception = 'Render Exception';
     $viewModel = new RenderableViewModel($exception);
-    $expect    = '<h1>Uncaught Exception</h1><h2>(0) ' . $exception . '</h2>';
-    $this->assertStringStartsWith($expect, (string)$viewModel);
+    $expect    = '<h1>An uncaught exception was thrown</h1>';
+    $this->assertContains($expect, (string)$viewModel);
   }
 }
 

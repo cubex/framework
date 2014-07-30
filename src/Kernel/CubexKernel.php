@@ -188,25 +188,15 @@ abstract class CubexKernel
         );
       }
     }
-    catch(CubexException $e)
-    {
-      //shutdown the kernel
-      $this->shutdown();
-
-      if($catch)
-      {
-        return $this->getCubex()->make('404');
-      }
-      else
-      {
-        throw $e;
-      }
-    }
     catch(\Exception $e)
     {
       //shutdown the kernel
       $this->shutdown();
-      if($catch)
+      if($catch && $e->getCode() == 404)
+      {
+        return $this->getCubex()->make('404');
+      }
+      else if($catch)
       {
         return $this->getCubex()->exceptionResponse($e);
       }

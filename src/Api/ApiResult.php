@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Api;
 
+use Cubex\CubexException;
 use GuzzleHttp\Message\ResponseInterface;
 
 class ApiResult
@@ -40,7 +41,11 @@ class ApiResult
 
     if(json_last_error() !== JSON_ERROR_NONE)
     {
-      throw new \RuntimeException("Unable to decode json string", 500);
+      throw CubexException::debugException(
+        "Unable to decode json string ",
+        500,
+        (string)$json
+      );
     }
 
     if(!isset(

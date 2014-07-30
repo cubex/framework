@@ -66,29 +66,25 @@ abstract class SubdomainKernel extends CubexKernel
       {
         throw CubexException::debugException(
           "The subdomain requested is not be supported",
-          500,
+          404,
           $response
         );
       }
     }
-    catch(CubexException $e)
-    {
-      $this->shutdown();
-      return $this->getCubex()->make('404');
-    }
     catch(\Exception $e)
     {
-      if($catch)
+      //shutdown the kernel
+      $this->shutdown();
+      if($catch && $e->getCode() == 404)
       {
-        //shutdown the kernel
-        $this->shutdown();
+        return $this->getCubex()->make('404');
+      }
+      else if($catch)
+      {
         return $this->getCubex()->exceptionResponse($e);
       }
       else
       {
-        //shutdown the kernel
-        $this->shutdown();
-
         throw $e;
       }
     }
