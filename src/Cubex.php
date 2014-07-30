@@ -262,8 +262,8 @@ class Cubex extends Container
     if($exception instanceof CubexException && $exception->getDebug() !== null)
     {
       $content .= '<h3 style="color:#B20000;">Cubex Debug Data</h3>';
-      $content .= '<div style="padding:10px;background:#dedede; ';
-      $content .= 'border:1px solid #E1E9F5;">';
+      $content .= '<div style="padding:10px;background:#E1E9F5; ';
+      $content .= 'border:1px solid #333333;">';
 
       $debug = $exception->getDebug();
       if(is_string($debug))
