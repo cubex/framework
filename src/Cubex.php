@@ -263,7 +263,7 @@ class Cubex extends Container
     {
       $content .= '<h3 style="color:#B20000;">Cubex Debug Data</h3>';
       $content .= '<div style="padding:10px;background:#dedede; ';
-      $content .= 'border:1px solid #333333;">';
+      $content .= 'border:1px solid #E1E9F5;">';
 
       $debug = $exception->getDebug();
       if(is_string($debug))
@@ -273,13 +273,17 @@ class Cubex extends Container
       }
       else if(is_array($debug) || is_object($debug))
       {
+        $content .= '<pre>';
         $content .= print_r($debug, true);
+        $content .= '</pre>';
       }
       else
       {
+        $content .= '<pre>';
         ob_start();
         var_dump($debug);
         $content .= ob_get_clean();
+        $content .= '</pre>';
       }
 
       $content .= '</div>';
@@ -287,8 +291,8 @@ class Cubex extends Container
       $content .= '<h3>Stack Trace</h3>';
     }
 
-    $content .= '<div style="padding:10px;background:#dedede; ';
-    $content .= 'border:1px solid #333333;">';
+    $content .= '<div style="padding:10px;background:#FAF7E7;';
+    $content .= 'border:1px solid #333333;line-height: 25px;">';
     $content .= nl2br($exception->getTraceAsString()) . '</div>';
     $content .= '</div>';
     return $content;
