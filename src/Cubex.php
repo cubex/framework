@@ -70,7 +70,7 @@ class Cubex extends Container
 
   public function setDefaultFlags()
   {
-    $isCli = php_sapi_name() === 'cli';
+    $isCli = function_exists('php_sapi_name') && php_sapi_name() === 'cli';
     $this->setFlag(self::FLAG_CLI, $isCli);
     $this->setFlag(self::FLAG_WEB, !$isCli);
     return $this;
