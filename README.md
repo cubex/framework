@@ -1,6 +1,10 @@
 Cubex Framework
 =========
-[![Latest Stable Version](https://poser.pugx.org/cubex/framework/version.png)](https://packagist.org/packages/cubex/framework) [![Total Downloads](https://poser.pugx.org/cubex/framework/d/total.png)](https://packagist.org/packages/cubex/framework) [![Build Status](https://travis-ci.org/cubex/framework.png)](https://travis-ci.org/cubex/framework) [![Dependency Status](https://www.versioneye.com/php/cubex:framework/badge.png)](https://www.versioneye.com/php/cubex:framework)
+[![Latest Stable Version](https://poser.pugx.org/cubex/framework/version.png)](https://packagist.org/packages/cubex/framework)
+[![Total Downloads](https://poser.pugx.org/cubex/framework/d/total.png)](https://packagist.org/packages/cubex/framework)
+[![Build Status](https://travis-ci.org/cubex/framework.png)](https://travis-ci.org/cubex/framework)
+[![Dependency Status](https://www.versioneye.com/php/cubex:framework/badge.png)](https://www.versioneye.com/php/cubex:framework)
+[![HHVM Status](http://hhvm.h4cc.de/badge/cubex/framework.png)](http://hhvm.h4cc.de/package/cubex/framework)
 
 > **Note:** This repository contains the Cubex Framework, if you wish to create an application, please review the [Skeleton Project](https://github.com/cubex/skeleton), which contains installation guides.
 
