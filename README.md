@@ -5,6 +5,7 @@ Cubex Framework
 [![Build Status](https://travis-ci.org/cubex/framework.png)](https://travis-ci.org/cubex/framework)
 [![Dependency Status](https://www.versioneye.com/php/cubex:framework/badge.png)](https://www.versioneye.com/php/cubex:framework)
 [![HHVM Status](http://hhvm.h4cc.de/badge/cubex/framework.png)](http://hhvm.h4cc.de/package/cubex/framework)
+[![Coverage Status](https://coveralls.io/repos/cubex/framework/badge.png)](https://coveralls.io/r/cubex/framework)
 
 > **Note:** This repository contains the Cubex Framework, if you wish to create an application, please review the [Skeleton Project](https://github.com/cubex/skeleton), which contains installation guides.
 
