@@ -18,6 +18,35 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
     return $cubex['auth'];
   }
 
+  public function testAuthFacade()
+  {
+    $provider = new TestAuthProvider();
+    $authy    = new \Cubex\Auth\AuthedUser('brooke', 1);
+    $provider->setRetrieve($authy);
+
+    $cubex = new \Cubex\Cubex();
+    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $cubex->processConfiguration($cubex->getConfiguration());
+    $cubex->instance('request', \Cubex\Http\Request::createFromGlobals());
+    $cubex->instance('\Cubex\Auth\IAuthProvider', $provider);
+    $sm = new \Cubex\ServiceManager\ServiceManager();
+    $sm->setCubex($cubex);
+    $sm->boot();
+    \Cubex\Facade\Auth::setFacadeApplication($cubex);
+
+    $username = 'valid';
+    $this->assertTrue(\Cubex\Facade\Auth::forgottenPassword($username));
+    $authUser = \Cubex\Facade\Auth::login($username, 'password');
+    $this->assertEquals("brooke", $authUser->getUsername());
+
+    $autho = \Cubex\Facade\Auth::getAuthedUser();
+    $this->assertEquals("brooke", $autho->getUsername());
+    \Cubex\Facade\Auth::updateAuthedUser($autho);
+    $this->assertTrue(\Cubex\Facade\Auth::isLoggedIn());
+    $this->assertTrue(\Cubex\Facade\Auth::logout());
+    $this->assertFalse(\Cubex\Facade\Auth::isLoggedIn());
+  }
+
   public function testInvalidLoginException()
   {
     $this->setExpectedException('\RuntimeException', "Unable to login 'user'");

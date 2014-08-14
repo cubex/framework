@@ -230,8 +230,28 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
       'http://test.com/this-page-doesnt-exist.test', $guzzler
     );
 
-    $result = new \Cubex\Api\ApiResult($client->get('/'));
-    $this->assertEquals(400, $result->getStatusCode());
-    $this->assertEquals(1050, $result->getResult()->status);
+    $client->get('/');
+  }
+
+  public function testNoException()
+  {
+    $json = '{"status":{"message":"Oops","code":1050},"result":""}';
+
+    $response = new \GuzzleHttp\Message\Response(
+      400,
+      [],
+      \GuzzleHttp\Stream\Stream::factory($json)
+    );
+
+    $adapter = new \GuzzleHttp\Adapter\MockAdapter();
+    $adapter->setResponse($response);
+    $guzzler = new \GuzzleHttp\Client(['adapter' => $adapter]);
+    $client  = new \Cubex\Api\ApiClient(
+      'http://test.com/this-page-doesnt-exist.test', $guzzler
+    );
+    $client->shouldThrowExceptions(false);
+
+    $result = $client->get('/');
+    $this->assertEquals(1050, $result->getStatusCode());
   }
 }

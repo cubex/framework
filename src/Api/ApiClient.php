@@ -25,6 +25,8 @@ class ApiClient
 
   protected $_headers;
 
+  protected $_throwExceptions = true;
+
   public function __construct($baseUri, ClientInterface $guzzle = null)
   {
     $this->_baseUri = $baseUri;
@@ -156,6 +158,19 @@ class ApiClient
   }
 
   /**
+   * Specify if the API result should throw exceptions when received
+   *
+   * @param bool $throw
+   *
+   * @return $this
+   */
+  public function shouldThrowExceptions($throw = true)
+  {
+    $this->_throwExceptions = $throw;
+    return $this;
+  }
+
+  /**
    * Process the raw guzzle response
    *
    * @param ResponseInterface $response
@@ -165,7 +180,7 @@ class ApiClient
    */
   protected function _processResponse(ResponseInterface $response, $time)
   {
-    $apiResult = new ApiResult($response, true);
+    $apiResult = new ApiResult($response, $this->_throwExceptions);
     $apiResult->setTotalTime(
       number_format((microtime(true) - $time) * 1000, 3)
     );
