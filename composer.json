@@ -1,7 +1,10 @@
 {
   "name":        "cubex/framework",
   "description": "Cubex Framework",
-  "keywords":    ["framework", "cubex"],
+  "keywords":    [
+    "framework",
+    "cubex"
+  ],
   "homepage":    "http://cubex.io",
   "license":     "BSD-3-Clause",
   "authors":     [
@@ -30,6 +33,7 @@
   },
   "require-dev": {
     "stack/builder":     "1.0.*",
+    "mustache/mustache": "*",
     "mockery/mockery":   "*",
     "guzzlehttp/guzzle": "*",
     "geoip2/geoip2":     "0.6.*",
