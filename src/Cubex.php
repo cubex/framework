@@ -8,6 +8,7 @@ use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Facade;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
+use Packaged\Helpers\System;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -70,7 +71,8 @@ class Cubex extends Container
 
   public function setDefaultFlags()
   {
-    $isCli = function_exists('php_sapi_name') && php_sapi_name() === 'cli';
+    $isCli = !System::isFunctionDisabled('php_sapi_name')
+      && php_sapi_name() === 'cli';
     $this->setFlag(self::FLAG_CLI, $isCli);
     $this->setFlag(self::FLAG_WEB, !$isCli);
     return $this;
