@@ -2,6 +2,8 @@
 namespace Cubex\Console\Commands;
 
 use Cubex\Console\ConsoleCommand;
+use Cubex\CubexAwareTrait;
+use Cubex\ICubexAware;
 use Packaged\Figlet\Figlet;
 use Packaged\Helpers\System;
 use Symfony\Component\Console\Input\InputInterface;

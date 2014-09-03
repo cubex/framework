@@ -81,6 +81,16 @@ Middle(s): Anthony James',
     $this->setExpectedException('RuntimeException');
     $this->getCommandOutput($command, []);
   }
+
+  public function testSetCubex()
+  {
+    $command = new TestProcessConsoleCommand();
+    $this->setExpectedException(
+      'Exception',
+      'Cubex is controlled by the application'
+    );
+    $command->setCubex(new \Cubex\Cubex());
+  }
 }
 
 class NoDocBlockTestConsoleCommand extends \Cubex\Console\ConsoleCommand

@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Console;
 
+use Cubex\Cubex;
+use Cubex\ICubexAware;
 use phpDocumentor\Reflection\DocBlock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Extended Command to support public properties for arguments
  */
-abstract class ConsoleCommand extends Command
+abstract class ConsoleCommand extends Command implements ICubexAware
 {
   /**
    * @var InputInterface
@@ -284,5 +286,17 @@ abstract class ConsoleCommand extends Command
   public function getCubex()
   {
     return $this->getApplication()->getCubex();
+  }
+
+  /**
+   * Set the cubex application
+   *
+   * @param Cubex $app
+   *
+   * @throws \Exception
+   */
+  public function setCubex(Cubex $app)
+  {
+    throw new \Exception("Cubex is controlled by the application");
   }
 }
