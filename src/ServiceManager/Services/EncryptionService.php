@@ -23,7 +23,7 @@ class EncryptionService extends AbstractServiceProvider
           $cubex->getConfiguration()->getItem(
             'security',
             'encryption_key',
-            'CtP&s8p\vzNnW{4@S0yKdfXQ%'
+            'BµlÇe.8)æ<¤§¬FòÊ¼&ø\'ð'
           )
         );
       }
