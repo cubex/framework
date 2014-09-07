@@ -66,6 +66,7 @@ class Router implements IRouter
 
     foreach($routes as $pattern => $route)
     {
+      $pattern = ltrim($pattern, '/');
       if($this->matchPattern($url, $pattern))
       {
         if(is_array($route))
@@ -91,13 +92,18 @@ class Router implements IRouter
 
   public function matchPattern($url, $pattern)
   {
+    if($pattern == '' && $url == '')
+    {
+      return true;
+    }
+
     //We need a pattern to match, null or empty are too vague
     if($pattern === null || empty($pattern))
     {
       return false;
     }
 
-    $matches = array();
+    $matches = [];
     $pattern = self::convertSimpleRoute($pattern);
     $match   = preg_match("#^$pattern#", $url, $matches);
 

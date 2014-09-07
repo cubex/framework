@@ -594,6 +594,56 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $kernel->bindCubex($boiler);
     $this->assertSame($cubex, $boiler->getCubex());
   }
+
+  /**
+   * @param $uri
+   * @param $route
+   *
+   * @dataProvider baseRoutesProvider
+   *
+   * @link         https://github.com/cubex/framework/issues/2
+   */
+  public function testBaseRoutes($uri, $route)
+  {
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', $uri);
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+    $kernel = $this->getMock(
+      '\Cubex\Kernel\CubexKernel',
+      ['getRoutes', 'resp']
+    );
+    $kernel->expects($this->any())->method("getRoutes")->will(
+      $this->returnValue(
+        [
+          $route => 'resp'
+        ]
+      )
+    );
+    $kernel->expects($this->any())->method("resp")->will(
+      $this->returnValue("respdata")
+    );
+    $kernel->setCubex($cubex);
+    $resp = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $this->assertInstanceOf(
+      '\Symfony\Component\HttpFoundation\Response',
+      $resp
+    );
+    $this->assertContains("respdata", (string)$resp);
+  }
+
+  public function baseRoutesProvider()
+  {
+    return [
+      ['', ''],
+      ['/', '/'],
+      ['', '/'],
+      ['/', ''],
+      ['/r', 'r'],
+      ['r', '/r'],
+    ];
+  }
 }
 
 class BoilerTest implements \Cubex\ICubexAware
