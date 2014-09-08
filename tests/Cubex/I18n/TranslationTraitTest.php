@@ -1,11 +1,12 @@
 <?php
-namespace Cubex\I18n;
+namespace CubexTest\Cubex\I18n;
 
 use Cubex\CubexAwareTrait;
+use Cubex\I18n\TranslationTrait;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
 
-class TranslationTraitTest extends \CubexTestCase
+class TranslationTraitTestInternal extends \InternalCubexTestCase
 {
   protected function _createInstance($locale = 'en_EN')
   {
@@ -21,18 +22,18 @@ class TranslationTraitTest extends \CubexTestCase
     $translator->addLoader('array', new ArrayLoader());
     $translator->addResource(
       'array',
-      array(
+      [
         'Hello World!' => 'Hello World!',
         'Hello %s!'    => 'Hello %s!',
-      ),
+      ],
       'en_EN'
     );
     $translator->addResource(
       'array',
-      array(
+      [
         'Hello World!' => 'Bonjour!',
         'Hello %s!'    => 'Bonjour %s!',
-      ),
+      ],
       'fr_FR'
     );
     $instance->setTranslator($translator);
@@ -102,9 +103,9 @@ class TranslationTraitTest extends \CubexTestCase
     $translator->addLoader('array', new ArrayLoader());
     $translator->addResource(
       'array',
-      array(
+      [
         'Hello World!' => 'Hello World!',
-      ),
+      ],
       'en_EN'
     );
 

@@ -1,5 +1,5 @@
 <?php
-abstract class CubexTestCase extends PHPUnit_Framework_TestCase
+abstract class InternalCubexTestCase extends PHPUnit_Framework_TestCase
 {
   /**
    * @return \Cubex\Cubex

@@ -1,6 +1,7 @@
 <?php
+namespace CubexTest\Auth\Providers;
 
-class IPAuthProviderTest extends PHPUnit_Framework_TestCase
+class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
 {
   public function testLogout()
   {

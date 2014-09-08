@@ -1,6 +1,6 @@
 <?php
 
-class MaxmindVisitorTest extends \CubexTestCase
+class MaxmindVisitorTestInternal extends \InternalCubexTestCase
 {
   protected $_geoipdb;
 

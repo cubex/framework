@@ -1,5 +1,7 @@
 <?php
-namespace Cubex\View;
+namespace CubexTest\Cubex\View;
+
+use Cubex\View\TemplatedViewModel;
 
 class TemplatedViewModelTest extends \PHPUnit_Framework_TestCase
 {

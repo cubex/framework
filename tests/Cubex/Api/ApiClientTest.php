@@ -1,6 +1,7 @@
 <?php
+namespace CubexTest\Api;
 
-class ApiClientTest extends PHPUnit_Framework_TestCase
+class ApiClientTest extends \PHPUnit_Framework_TestCase
 {
   public function testGet()
   {
@@ -31,7 +32,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
       $body = $transaction->getRequest()->getBody();
       if($body instanceof \GuzzleHttp\Post\PostBody)
       {
-        $resp          = new stdClass();
+        $resp          = new \stdClass();
         $resp->status  = ['message' => '', 'code' => 200];
         $resp->result  = $body->getFields();
         $resp->profile = ['callTime' => '2', 'executionTime' => 34];
@@ -62,7 +63,7 @@ class ApiClientTest extends PHPUnit_Framework_TestCase
     $response = function (\GuzzleHttp\Adapter\TransactionInterface $transaction)
     {
       $headers       = $transaction->getRequest()->getHeaders();
-      $resp          = new stdClass();
+      $resp          = new \stdClass();
       $resp->status  = ['message' => '', 'code' => 200];
       $resp->result  = $headers;
       $resp->profile = ['callTime' => '2', 'executionTime' => 34];

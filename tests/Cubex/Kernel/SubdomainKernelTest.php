@@ -1,6 +1,6 @@
 <?php
 
-class SubdomainKernelTest extends CubexTestCase
+class SubdomainKernelTestInternal extends InternalCubexTestCase
 {
   /**
    * @return \Cubex\Kernel\CubexKernel

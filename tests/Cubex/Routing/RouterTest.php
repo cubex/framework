@@ -1,6 +1,6 @@
 <?php
 
-class RouterTest extends CubexTestCase
+class RouterTestInternal extends InternalCubexTestCase
 {
   public function testCreateRoute()
   {

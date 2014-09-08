@@ -1,6 +1,6 @@
 <?php
 
-class VisitorTest extends \CubexTestCase
+class VisitorTestInternal extends \InternalCubexTestCase
 {
   /**
    * @param      $remoteAddr

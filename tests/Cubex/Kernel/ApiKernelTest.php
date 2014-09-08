@@ -1,6 +1,6 @@
 <?php
 
-class ApiKernelTest extends CubexTestCase
+class ApiKernelTestInternal extends InternalCubexTestCase
 {
   /**
    * @param $path
