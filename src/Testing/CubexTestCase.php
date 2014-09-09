@@ -4,6 +4,7 @@ namespace Cubex\Testing;
 use Cubex\Cubex;
 use Cubex\Http\Request;
 use Cubex\ICubexAware;
+use Cubex\View\Layout;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 abstract class CubexTestCase extends \PHPUnit_Framework_TestCase
@@ -169,6 +170,46 @@ abstract class CubexTestCase extends \PHPUnit_Framework_TestCase
       $response = $this->_lastResponse;
     }
     $this->assertReturnsInstanceOf('\Cubex\View\ViewModel', $response);
+  }
+
+  /**
+   * Assert a layout was returned from the request
+   *
+   * @param TestResponse $response
+   */
+  public function assertReturnsLayout(TestResponse $response = null)
+  {
+    if($response == null)
+    {
+      $response = $this->_lastResponse;
+    }
+    $this->assertReturnsInstanceOf('\Cubex\View\Layout', $response);
+  }
+
+  /**
+   * Retrieve layout section
+   *
+   * @param string       $name
+   * @param TestResponse $response
+   *
+   * @return \Illuminate\Support\Contracts\RenderableInterface
+   * @throws \Exception
+   */
+  public function getLayoutSection(
+    $name = 'content', TestResponse $response = null
+  )
+  {
+    if($response == null)
+    {
+      $response = $this->_lastResponse;
+    }
+    $this->assertReturnsCubexResponse($response);
+    $this->assertReturnsLayout($response);
+    $layout = $response->getOriginal();
+    /**
+     * @var $layout Layout
+     */
+    return $layout->get($name);
   }
 
   /**

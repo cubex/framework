@@ -4,7 +4,10 @@ namespace CubexTest\Cubex\Testing;
 use Cubex\Http\Response;
 use Cubex\Testing\CubexTestCase;
 use Cubex\Testing\TestResponse;
+use Cubex\View\Layout;
 use Cubex\View\Renderable;
+use namespaced\sub\TestView;
+use namespaced\TestLayoutController;
 use namespaced\TestViewModel;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -86,6 +89,28 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
     $test->setLastResponse($response);
     $test->assertReturnsInstanceOf('\Cubex\View\Renderable', $response);
     $test->assertReturnsInstanceOf('\Cubex\View\Renderable');
+  }
+
+  public function testAssertReturnsLayout()
+  {
+    $response = new TestResponse(
+      Response::create(new Layout(new TestLayoutController()))
+    );
+    $test     = new MockCubexTestCase();
+    $test->setLastResponse($response);
+    $test->assertReturnsLayout($response);
+    $test->assertReturnsLayout();
+  }
+
+  public function testGetLayoutSection()
+  {
+    $layout = new Layout(new TestLayoutController());
+    $view   = new TestView();
+    $layout->insert('content', $view);
+    $response = new TestResponse(Response::create($layout));
+    $test     = new MockCubexTestCase();
+    $test->setLastResponse($response);
+    $this->assertSame($view, $test->getLayoutSection());
   }
 }
 
