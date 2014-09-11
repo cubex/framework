@@ -425,10 +425,8 @@ abstract class CubexKernel
       $attempts[] = 'ajax' . $callMethod;
     }
 
-    if($request->isMethod('POST'))
-    {
-      $attempts[] = 'post' . $callMethod;
-    }
+    //Support all HTTP Verbs
+    $attempts[] = strtolower($request->getMethod()) . $callMethod;
 
     $attempts[] = 'render' . $callMethod;
     $attempts[] = 'action' . $callMethod;
