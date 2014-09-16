@@ -10,6 +10,7 @@ use GuzzleHttp\Message\ResponseInterface;
 
 /**
  * You must require "guzzlehttp/guzzle" within your composer.json file
+ * @deprecated
  */
 class ApiClient
 {

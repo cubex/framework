@@ -5,6 +5,9 @@ use Cubex\Http\Response;
 use Cubex\Responses\ApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated
+ */
 abstract class ApiKernel extends CubexKernel
 {
   public function subRouteTo()
@@ -95,7 +98,7 @@ abstract class ApiKernel extends CubexKernel
    * @return ApiResponse
    */
   protected function _createApiResponse(
-    $content = '', $status = 200, $headers = array()
+    $content = '', $status = 200, $headers = []
   )
   {
     return new ApiResponse($content, $status, $headers);

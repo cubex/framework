@@ -4,6 +4,9 @@ namespace Cubex\Api;
 use Cubex\CubexException;
 use GuzzleHttp\Message\ResponseInterface;
 
+/**
+ * @deprecated
+ */
 class ApiResult
 {
   protected $_statusMessage;
