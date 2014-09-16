@@ -5,10 +5,25 @@ use Illuminate\Support\Contracts\RenderableInterface;
 
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
-  public function __construct($content = '', $status = 200, $headers = array())
+  protected $_callTime;
+
+  public function __construct($content = '', $status = 200, $headers = [])
   {
     parent::__construct('', $status, $headers);
     $this->from($content);
+  }
+
+  /**
+   * Set the microtime(true) value when the call started
+   *
+   * @param $time
+   *
+   * @return $this
+   */
+  public function setCallStartTime($time)
+  {
+    $this->_callTime = $time;
+    return $this;
   }
 
   protected $_originalSource;
@@ -66,8 +81,8 @@ class Response extends \Symfony\Component\HttpFoundation\Response
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
     $response = \str_replace(
-      array('<', '>'),
-      array('\u003c', '\u003e'),
+      ['<', '>'],
+      ['\u003c', '\u003e'],
       $response
     );
 
@@ -95,8 +110,8 @@ class Response extends \Symfony\Component\HttpFoundation\Response
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
     $response = \str_replace(
-      array('<', '>'),
-      array('\u003c', '\u003e'),
+      ['<', '>'],
+      ['\u003c', '\u003e'],
       $response
     );
 
@@ -148,6 +163,14 @@ class Response extends \Symfony\Component\HttpFoundation\Response
       $this->headers->set(
         "X-Execution-Time",
         number_format((microtime(true) - PHP_START) * 1000, 3) . ' ms'
+      );
+    }
+
+    if($this->_callTime > 0)
+    {
+      $this->headers->set(
+        'X-Call-Time',
+        number_format((microtime(true) - $this->_callTime) * 1000, 3) . ' ms'
       );
     }
   }

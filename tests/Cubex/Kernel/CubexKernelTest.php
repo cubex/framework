@@ -77,6 +77,19 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     );
   }
 
+  public function testHeaders()
+  {
+    $request = \Cubex\Http\Request::createFromGlobals();
+    $kernel  = $this->getKernel(\Cubex\Http\Response::create('abc'));
+    $resp    = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    if($resp instanceof \Cubex\Http\Response)
+    {
+      $resp->setCubexHeaders();
+    }
+    $this->assertTrue($resp->headers->has('X-Execution-Time'));
+    $this->assertTrue($resp->headers->has('X-Call-Time'));
+  }
+
   public function test404Handle()
   {
     $this->setExpectedException(

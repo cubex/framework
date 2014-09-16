@@ -114,6 +114,7 @@ abstract class CubexKernel
     Request $request, $type = self::MASTER_REQUEST, $catch = true
   )
   {
+    $calltime = microtime(true);
     //Initialise the kernel
     $this->_init();
 
@@ -208,6 +209,11 @@ abstract class CubexKernel
 
     //shutdown the kernel
     $this->shutdown();
+
+    if($response instanceof CubexResponse)
+    {
+      $response->setCallStartTime($calltime);
+    }
 
     return $response;
   }
