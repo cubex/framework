@@ -32,8 +32,19 @@ abstract class CubexKernel
    */
   protected $_processParams;
 
+  /**
+   * @var bool stop re-initialise of the class
+   */
   protected $_initialised = false;
 
+  /**
+   * @var array method names which are not allowed through attemptMethod
+   */
+  protected $_restrictedMethods;
+
+  /**
+   * Initialise a class, stopping multiple calls to init()
+   */
   protected function _init()
   {
     if(!$this->_initialised)
@@ -193,13 +204,9 @@ abstract class CubexKernel
     {
       //shutdown the kernel
       $this->shutdown();
-      if($catch && $e->getCode() == 404)
+      if($catch)
       {
-        return $this->getCubex()->make('404');
-      }
-      else if($catch)
-      {
-        return $this->getCubex()->exceptionResponse($e);
+        return $this->handleException($e);
       }
       else
       {
@@ -218,6 +225,17 @@ abstract class CubexKernel
     return $response;
   }
 
+  /**
+   * Execute a route and attempt to generate a response
+   *
+   * @param IRoute  $route
+   * @param Request $request
+   * @param int     $type
+   * @param bool    $catch
+   *
+   * @return CubexResponse|null|Response
+   * @throws \Exception
+   */
   public function executeRoute(
     IRoute $route, Request $request, $type = self::MASTER_REQUEST,
     $catch = true
@@ -305,6 +323,17 @@ abstract class CubexKernel
     return $this->_processResponse($value, $request, $type, $catch, $params);
   }
 
+  /**
+   * Process the response from the route
+   *
+   * @param         $value
+   * @param Request $request
+   * @param int     $type
+   * @param bool    $catch
+   * @param array   $params
+   *
+   * @return CubexResponse|null|Response
+   */
   protected function _processResponse(
     $value, Request $request, $type = self::MASTER_REQUEST, $catch = true,
     $params = []
@@ -361,6 +390,8 @@ abstract class CubexKernel
    * @param null|array $params Parameters to send into the method
    *
    * @return \Cubex\Http\Response|null
+   *
+   * @throws \Exception
    */
   protected function _getMethodResult($method, $params = null)
   {
@@ -440,12 +471,62 @@ abstract class CubexKernel
 
     foreach($attempts as $attempt)
     {
-      if(method_exists($this, $attempt))
+      if($this->_isMethodRestricted($attempt))
       {
-        return $attempt;
+        continue;
+      }
+      try
+      {
+        //Ensure the method is public
+        $method = new \ReflectionMethod($this, $attempt);
+        if($method->isPublic())
+        {
+          return $attempt;
+        }
+      }
+      catch(\Exception $e)
+      {
       }
     }
+
     return null;
+  }
+
+  /**
+   * Check to see if a method has been restricted for execution
+   *
+   * @param $method
+   *
+   * @return bool
+   */
+  protected function _isMethodRestricted($method)
+  {
+    if($this->_restrictedMethods === null)
+    {
+      $this->_restrictedMethods = [
+        'init',
+        'shutdown',
+        'getRoutes',
+        'canProcess',
+        'handle',
+        'executeRoute',
+        'attemptCallable',
+        'attemptMethod',
+        'attemptUrl',
+        'handleResponse',
+        'autoRoute',
+        'attemptSubClass',
+        'getConfigItem',
+        'subRouteTo',
+        'bindCubex',
+        'setCubex',
+        'getCubex',
+        'isCubexAvailable'
+      ];
+    }
+
+    //Do not allow methods listed within the restricted methods array
+    return in_array($method, $this->_restrictedMethods);
   }
 
   /**
@@ -486,6 +567,14 @@ abstract class CubexKernel
     return null;
   }
 
+  /**
+   * Handle the response from a method or callable
+   *
+   * @param $response
+   * @param $capturedOutput
+   *
+   * @return CubexResponse|null
+   */
   public function handleResponse($response, $capturedOutput)
   {
     if(is_object($response))
@@ -504,6 +593,25 @@ abstract class CubexKernel
     }
 
     return null;
+  }
+
+  /**
+   * Generate a response for Exceptions
+   *
+   * @param \Exception $exception
+   *
+   * @return CubexResponse|mixed
+   */
+  public function handleException(\Exception $exception)
+  {
+    if($exception->getCode() == 404)
+    {
+      return $this->getCubex()->make('404');
+    }
+    else
+    {
+      return $this->getCubex()->exceptionResponse($exception);
+    }
   }
 
   /**
@@ -641,6 +749,12 @@ abstract class CubexKernel
     );
   }
 
+  /**
+   * Return an array of sub classes to attempt to route to, using %s as a
+   * replacement for the current route part
+   *
+   * @return null|string[]
+   */
   public function subRouteTo()
   {
     return null;
