@@ -456,6 +456,13 @@ abstract class CubexKernel
     $callMethod = str_replace(' ', '', $callMethod);
 
     $attempts = [];
+
+    //If a specific underscored method has been requested, we should attempt it
+    if(stristr($method, '_'))
+    {
+      $attempts[] = $method;
+    }
+
     //Handle Ajax Requests
     if($request->isXmlHttpRequest())
     {
