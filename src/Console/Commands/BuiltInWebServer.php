@@ -6,6 +6,7 @@ use Cubex\CubexAwareTrait;
 use Cubex\ICubexAware;
 use Packaged\Figlet\Figlet;
 use Packaged\Helpers\System;
+use Packaged\Helpers\ValueAs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,6 +14,7 @@ class BuiltInWebServer extends ConsoleCommand
 {
   public $host = '0.0.0.0';
   public $port = 8080;
+  public $showfig = true;
   public $router = 'public/index.php';
 
   protected $_executeMethod = 'passthru';
@@ -33,8 +35,11 @@ class BuiltInWebServer extends ConsoleCommand
    */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    $output->write(Figlet::create('PHP WEB', 'ivrit'));
-    $output->write(Figlet::create('SERVER', 'ivrit'));
+    if(ValueAs::bool($this->showfig))
+    {
+      $output->write(Figlet::create('PHP WEB', 'ivrit'));
+      $output->write(Figlet::create('SERVER', 'ivrit'));
+    }
 
     $output->writeln("");
     $output->write("\tStarting on ");

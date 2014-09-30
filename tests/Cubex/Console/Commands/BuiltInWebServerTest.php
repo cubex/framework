@@ -7,22 +7,33 @@ class BuiltInWebServerTest extends CommandTestCase
    *
    * @param array $options
    * @param       $passthru
+   * @param bool  $negate
    */
-  public function testCommand(array $options, $passthru)
+  public function testCommand(array $options, $passthru, $negate = false)
   {
     $command = new TestableBuiltInWebServer();
     $this->assertEquals('serve', $command->getName());
     $bufferOut = $this->getCommandOutput($command, $options);
-    $this->assertContains('Raw Command: php -S ' . $passthru, $bufferOut);
+    if($negate)
+    {
+      $this->assertNotContains($passthru, $bufferOut);
+    }
+    else
+    {
+      $this->assertContains($passthru, $bufferOut);
+    }
   }
 
   public function optionsProvider()
   {
+    $pre = 'Raw Command: php -S ';
     return [
-      [[], '0.0.0.0:8080 -t public/index.php'],
-      [['--port' => '8090'], '0.0.0.0:8090 -t public/index.php'],
-      [['--host' => 'localhost'], 'localhost:8080 -t public/index.php'],
-      [['--router' => 'index.exec'], '0.0.0.0:8080 -t index.exec'],
+      [[], $pre . '0.0.0.0:8080 -t public/index.php'],
+      [[], '|__'],
+      [['--showfig' => 'false'], '|__', true],
+      [['--port' => '8090'], $pre . '0.0.0.0:8090 -t public/index.php'],
+      [['--host' => 'localhost'], $pre . 'localhost:8080 -t public/index.php'],
+      [['--router' => 'index.exec'], $pre . '0.0.0.0:8080 -t index.exec'],
     ];
   }
 }
