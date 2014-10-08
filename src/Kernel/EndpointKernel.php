@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Kernel;
 
-use Cubex\Http\Request;
+use Symfony\Component\HttpFoundation\Request;
 use Cubex\Http\Response;
 use Packaged\Api\Exceptions\ApiException;
 use Packaged\Api\Format\JsonFormat;
