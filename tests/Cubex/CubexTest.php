@@ -199,6 +199,8 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function testEnv()
   {
+    putenv('CUBEX_ENV');
+
     $cubex = new \Cubex\Cubex();
     $this->assertEquals('local', $cubex->env());
 
