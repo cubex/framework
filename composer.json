@@ -1,46 +1,46 @@
 {
-  "name":        "cubex/framework",
+  "name": "cubex/framework",
   "description": "Cubex Framework",
-  "keywords":    [
+  "keywords": [
     "framework",
     "cubex"
   ],
-  "homepage":    "http://cubex.io",
-  "license":     "BSD-3-Clause",
-  "authors":     [
+  "homepage": "http://cubex.io",
+  "license": "BSD-3-Clause",
+  "authors": [
     {
-      "name":     "Brooke Bryan",
-      "email":    "brooke@bajb.net",
+      "name": "Brooke Bryan",
+      "email": "brooke@bajb.net",
       "homepage": "http://www.bajb.net"
     }
   ],
-  "require":     {
-    "php":                               ">=5.4.0",
-    "psr/log":                           "1.0.*",
-    "illuminate/container":              "4.2.*",
-    "illuminate/support":                "4.2.*",
-    "illuminate/cookie":                 "4.2.*",
-    "illuminate/encryption":             "4.2.*",
-    "monolog/monolog":                   "1.10.*",
-    "packaged/figlet":                   "0.*",
-    "packaged/config":                   "0.*",
-    "packaged/helpers":                  "0.*",
-    "packaged/api":                      "0.*",
-    "symfony/http-foundation":           "2.5.*",
-    "symfony/http-kernel":               "2.5.*",
-    "symfony/console":                   "2.5.*",
-    "symfony/translation":               "2.5.*",
-    "phpdocumentor/reflection-docblock": "2.0.*"
+  "require": {
+    "php": ">=5.4.0",
+    "psr/log": "~1.0",
+    "illuminate/container": "~4.2",
+    "illuminate/support": "~4.2",
+    "illuminate/cookie": "~4.2",
+    "illuminate/encryption": "~4.2",
+    "monolog/monolog": "~1.10",
+    "packaged/figlet": "~0",
+    "packaged/config": "~0",
+    "packaged/helpers": "~0",
+    "packaged/api": "~0",
+    "symfony/http-foundation": "~2.5",
+    "symfony/http-kernel": "~2.5",
+    "symfony/console": "~2.5",
+    "symfony/translation": "~2.5",
+    "phpdocumentor/reflection-docblock": "~2.0"
   },
   "require-dev": {
-    "stack/builder":     "1.0.*",
+    "stack/builder": "~1.0",
     "mustache/mustache": "*",
-    "mockery/mockery":   "*",
-    "guzzlehttp/guzzle": "*",
-    "geoip2/geoip2":     "0.6.*",
-    "phpunit/phpunit":   "4.1"
+    "mockery/mockery": "*",
+    "guzzlehttp/guzzle": "~4.2",
+    "geoip2/geoip2": "~0.6",
+    "phpunit/phpunit": "4.1"
   },
-  "autoload":    {
+  "autoload": {
     "psr-4": {
       "Cubex\\": "src/"
     }
