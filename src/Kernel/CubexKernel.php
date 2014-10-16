@@ -339,14 +339,11 @@ abstract class CubexKernel
     $params = []
   )
   {
+    $value = $this->_sanitizeResponse($value);
+
     if(!is_array($params))
     {
       $params = [];
-    }
-
-    if($value instanceof ICubexAware)
-    {
-      $value->setCubex($this->getCubex());
     }
 
     if($value instanceof Response)
@@ -706,10 +703,7 @@ abstract class CubexKernel
       {
         $manager = new $attempt;
 
-        if($manager instanceof ICubexAware)
-        {
-          $manager->setCubex($this->getCubex());
-        }
+        $manager = $this->_sanitizeResponse($manager);
 
         if($manager instanceof CubexKernel)
         {
@@ -727,6 +721,16 @@ abstract class CubexKernel
     }
 
     return null;
+  }
+
+  protected function _sanitizeResponse($value)
+  {
+    if($value instanceof ICubexAware)
+    {
+      $value->setCubex($this->getCubex());
+    }
+
+    return $value;
   }
 
   /**
