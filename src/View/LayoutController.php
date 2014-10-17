@@ -101,10 +101,7 @@ abstract class LayoutController extends ControllerKernel
    */
   public function handleResponse($response, $capturedOutput)
   {
-    if($response instanceof ICubexAware)
-    {
-      $this->bindCubex($response);
-    }
+    $response = $this->_sanitizeResponse($response);
 
     if($response instanceof RenderableInterface)
     {
