@@ -184,16 +184,6 @@ abstract class ConsoleCommand extends Command implements ICubexAware
         )->getDescription();
       }
 
-      if($propBlock->hasTag('required') && $argsAdded !== true)
-      {
-        $this->addArgument(
-          $property->getName(),
-          InputArgument::REQUIRED,
-          $description
-        );
-        continue;
-      }
-
       if($propBlock->hasTag('valuerequired'))
       {
         $mode = InputOption::VALUE_REQUIRED;

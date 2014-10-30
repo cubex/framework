@@ -31,7 +31,7 @@ class ConsoleCommandTest extends CommandTestCase
     $def     = $command->getDefinition();
     $this->assertEquals(
       'This should become a named parameter',
-      $def->getArgument('demand')->getDescription()
+      $def->getOption('demand')->getDescription()
     );
     $this->assertFalse($def->getOption('on')->acceptValue());
 
