@@ -14,7 +14,17 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
 
     if(!file_exists($this->_geoipdb))
     {
-      file_put_contents($filename, file_get_contents($dbgz));
+      $opts = [
+        'http' => [
+          'method' => "GET",
+          'header' => "Accept-language: en\r\n"
+            . "User-Agent: CURL (Cubex Framework; en-us)\r\n"
+        ]
+      ];
+
+      $context = stream_context_create($opts);
+
+      file_put_contents($filename, file_get_contents($dbgz, false, $context));
 
       $file = gzopen($filename, 'rb');
       $out  = fopen($this->_geoipdb, 'wb');
@@ -49,8 +59,8 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
 
     $cubex   = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
-    $server  = array('REMOTE_ADDR' => $remoteAddr);
-    $request->initialize(array(), array(), array(), array(), array(), $server);
+    $server  = ['REMOTE_ADDR' => $remoteAddr];
+    $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
     if($config === null)
