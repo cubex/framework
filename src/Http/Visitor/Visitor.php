@@ -161,7 +161,7 @@ class Visitor implements IVisitorInfo, ICubexAware
 
     if($this->_country === null)
     {
-      $this->_country = $this->_config->getItem("country", "sada");
+      $this->_country = $this->_config->getItem("country", "GB");
     }
 
     return $this->_country;
