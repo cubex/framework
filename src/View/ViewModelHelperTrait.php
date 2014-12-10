@@ -32,6 +32,7 @@ trait ViewModelHelperTrait
     {
       return count($this->{'_' . $key});
     }
+    return 0;
   }
 
   /**

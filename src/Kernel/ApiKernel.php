@@ -4,6 +4,7 @@ namespace Cubex\Kernel;
 use Cubex\Http\Response;
 use Cubex\Responses\ApiResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * @deprecated
@@ -24,7 +25,7 @@ abstract class ApiKernel extends CubexKernel
    * @inheritdoc
    */
   public function handle(
-    Request $request, $type = self::MASTER_REQUEST, $catch = true
+    Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true
   )
   {
     //Call start time to track performance

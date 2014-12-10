@@ -162,7 +162,7 @@ class Cubex extends Container
     if(!$this->bound("ConfigProvider"))
     {
       $config = new IniConfigProvider();
-      $files  = ['defaults.ini', $this->env() . '.ini'];
+      $files = ['defaults.ini', $this->env() . '.ini'];
 
       foreach($files as $fileName)
       {
@@ -301,7 +301,12 @@ class Cubex extends Container
   }
 
   /**
-   * @inhreitdoc
+   * @param Request $request
+   * @param int     $type
+   * @param bool    $catch
+   *
+   * @return CubexResponse|BinaryFileResponse|Response
+   * @throws \Exception
    */
   public function handle(
     Request $request, $type = self::MASTER_REQUEST, $catch = true
@@ -378,7 +383,8 @@ class Cubex extends Container
   }
 
   /**
-   * @inhreitdoc
+   * @param Request  $request
+   * @param Response $response
    */
   public function terminate(Request $request, Response $response)
   {

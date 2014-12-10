@@ -2,7 +2,6 @@
 namespace Cubex\View;
 
 use Cubex\Http\Response;
-use Cubex\ICubexAware;
 use Cubex\Kernel\ControllerKernel;
 use Illuminate\Support\Contracts\RenderableInterface;
 

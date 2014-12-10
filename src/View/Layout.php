@@ -136,6 +136,7 @@ class Layout extends TemplatedViewModel
     {
       return $this->_sections[$method]->render($args);
     }
+    return null;
   }
 
   /**

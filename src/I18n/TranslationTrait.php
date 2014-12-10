@@ -52,7 +52,7 @@ trait TranslationTrait
     if($this->_translator === null && !$this->_attemptedBuild)
     {
       $this->_attemptedBuild = true;
-      $translator            = $this->getCubex()->make('i18n.translator');
+      $translator = $this->getCubex()->make('i18n.translator');
       if($translator instanceof Translator)
       {
         $this->setTranslator($translator);
@@ -137,6 +137,11 @@ trait TranslationTrait
    *
    * Translate plural, converting (s) to '' or 's'
    *
+   * @param string $text   Text to translate
+   * @param int    $number Quantity to work with
+   *
+   * @return string Translated text
+   *
    */
   public function tp($text, $number)
   {
@@ -145,7 +150,7 @@ trait TranslationTrait
       $args = func_get_args();
       array_shift($args);
       $singular = str_replace('(s)', '', $text);
-      $plural   = str_replace('(s)', 's', $text);
+      $plural = str_replace('(s)', 's', $text);
       array_unshift($args, $singular, $plural);
       return call_user_func_array([$this, 'p'], $args);
     }
@@ -178,7 +183,7 @@ trait TranslationTrait
     catch(\Exception $e)
     {
       $selector = new MessageSelector();
-      $result   = $selector->choose($messageTemplate, $number, 'en_EN');
+      $result = $selector->choose($messageTemplate, $number, 'en_EN');
     }
 
     if(func_num_args() > 2)
