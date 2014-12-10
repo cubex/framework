@@ -71,7 +71,7 @@ class Router implements IRouter
       {
         if(is_array($route))
         {
-          $subUrl   = $this->stripUrlWithPattern($url, $pattern);
+          $subUrl = $this->stripUrlWithPattern($url, $pattern);
           $subMatch = $this->_processRoutes($subUrl, $route);
           if($subMatch !== null)
           {
@@ -105,7 +105,7 @@ class Router implements IRouter
 
     $matches = [];
     $pattern = self::convertSimpleRoute($pattern);
-    $match   = preg_match("#^$pattern#", $url, $matches);
+    $match = preg_match("#^$pattern#", $url, $matches);
 
     if($match)
     {
@@ -149,23 +149,23 @@ class Router implements IRouter
   public static function convertSimpleRoute($route)
   {
     $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
-    $repl  = [];
+    $repl = [];
     /* Allow Simple Routes */
 
     if(strstr($route, '{'))
     {
       $repl["/{" . "$idPat\@alpha}/"] = "(?P<$1>\w+)";
-      $repl["/{" . "$idPat\@all}/"]   = "(?P<$1>.+)";
-      $repl["/{" . "$idPat\@num}/"]   = "(?P<$1>\d+)";
-      $repl["/{" . "$idPat}/"]        = "(?P<$1>[^\/]+)";
+      $repl["/{" . "$idPat\@all}/"] = "(?P<$1>.+)";
+      $repl["/{" . "$idPat\@num}/"] = "(?P<$1>\d+)";
+      $repl["/{" . "$idPat}/"] = "(?P<$1>[^\/]+)";
     }
 
     if(strstr($route, ':'))
     {
       $repl["/\:$idPat\@alpha/"] = "(?P<$1>\w+)";
-      $repl["/\:$idPat\@all/"]   = "(?P<$1>.+)";
-      $repl["/\:$idPat\@num/"]   = "(?P<$1>\d+)";
-      $repl["/\:$idPat/"]        = "(?P<$1>[^\/]+)";
+      $repl["/\:$idPat\@all/"] = "(?P<$1>.+)";
+      $repl["/\:$idPat\@num/"] = "(?P<$1>\d+)";
+      $repl["/\:$idPat/"] = "(?P<$1>[^\/]+)";
     }
 
     if(!empty($repl))
@@ -173,7 +173,6 @@ class Router implements IRouter
       $route = preg_replace(array_keys($repl), array_values($repl), $route);
     }
 
-    $route = str_replace('//', '/', $route);
-    return $route;
+    return str_replace('//', '/', $route);
   }
 }

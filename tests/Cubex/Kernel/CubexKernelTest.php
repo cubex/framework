@@ -49,8 +49,8 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
   public function testGetRequest()
   {
-    $kernel  = new RequestGetTest();
-    $cubex   = new \Cubex\Cubex();
+    $kernel = new RequestGetTest();
+    $cubex = new \Cubex\Cubex();
     $request = \Cubex\Http\Request::createFromGlobals();
     $cubex->instance('request', $request);
     $kernel->setCubex($cubex);
@@ -61,7 +61,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   public function testCubexAwareSetGet()
   {
     $kernel = $this->getKernel();
-    $cubex  = new \Cubex\Cubex();
+    $cubex = new \Cubex\Cubex();
     $kernel->setCubex($cubex);
     $this->assertSame($kernel->getCubex(), $cubex);
   }
@@ -69,8 +69,8 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   public function testHandle()
   {
     $request = \Cubex\Http\Request::createFromGlobals();
-    $kernel  = $this->getKernel();
-    $resp    = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $kernel = $this->getKernel();
+    $resp = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
     $this->assertInstanceOf(
       '\Symfony\Component\HttpFoundation\Response',
       $resp
@@ -80,8 +80,8 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   public function testHeaders()
   {
     $request = \Cubex\Http\Request::createFromGlobals();
-    $kernel  = $this->getKernel(\Cubex\Http\Response::create('abc'));
-    $resp    = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $kernel = $this->getKernel(\Cubex\Http\Response::create('abc'));
+    $resp = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
     if($resp instanceof \Cubex\Http\Response)
     {
       $resp->setCubexHeaders();
@@ -99,7 +99,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     );
 
     $request = \Cubex\Http\Request::createFromGlobals();
-    $kernel  = new ResultNotFoundTest();
+    $kernel = new ResultNotFoundTest();
     $kernel->setCubex($this->getKernel()->getCubex());
     $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
   }
@@ -167,8 +167,8 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   public function testHandleInvalidResponse()
   {
     $request = \Cubex\Http\Request::createFromGlobals();
-    $kernel  = $this->getKernel(null);
-    $resp    = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, true);
+    $kernel = $this->getKernel(null);
+    $resp = $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, true);
     $this->assertInstanceOf(
       '\Symfony\Component\HttpFoundation\Response',
       $resp
@@ -179,7 +179,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   {
     $this->setExpectedException("RuntimeException", "No IRouter located");
     $request = \Cubex\Http\Request::createFromGlobals();
-    $kernel  = $this->getKernel();
+    $kernel = $this->getKernel();
     $kernel->getCubex()->instance('\Cubex\Routing\IRouter', new stdClass());
     $kernel->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
   }
@@ -336,7 +336,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   public function testHandleResponse($response, $captured, $expected)
   {
     $kernel = $this->getKernel();
-    $final  = $kernel->handleResponse($response, $captured);
+    $final = $kernel->handleResponse($response, $captured);
     $this->assertInstanceOf('\Cubex\Http\Response', $final);
     $this->assertEquals($expected, $final->getContent());
   }
@@ -402,7 +402,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $route->createFromRaw($routeData);
 
     $request = \Cubex\Http\Request::createFromGlobals();
-    $type    = \Cubex\Cubex::MASTER_REQUEST;
+    $type = \Cubex\Cubex::MASTER_REQUEST;
 
     $catch = $exception === null;
 
@@ -441,7 +441,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
   public function executeRouteProvider()
   {
-    $cubex    = new \Cubex\Cubex();
+    $cubex = new \Cubex\Cubex();
     $response = new \Cubex\Http\Response("hey");
 
     $toString = $this->getMock('stdClass', ['__toString']);
@@ -469,7 +469,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $namespaceKernel = new \namespaced\CubexProject();
     $namespaceKernel->setCubex($cubex);
 
-    $dataO       = new stdClass();
+    $dataO = new stdClass();
     $dataO->name = "Brooke";
 
     return [
@@ -617,7 +617,7 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
   {
     $boiler = new BoilerTest();
     $kernel = $this->getKernel();
-    $cubex  = $kernel->getCubex();
+    $cubex = $kernel->getCubex();
     $kernel->bindCubex($boiler);
     $this->assertSame($cubex, $boiler->getCubex());
   }
@@ -670,6 +670,18 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       ['/r', 'r'],
       ['r', '/r'],
     ];
+  }
+
+  public function testRouteData()
+  {
+    $kernel = new RouteDataTest();
+    $this->assertInternalType('array', $kernel->getRouteData());
+    $this->assertArrayHasKey('one', $kernel->getRouteData());
+    $this->assertCount(2, $kernel->getRouteData());
+    $this->assertNull($kernel->getRouteData('three'));
+    $this->assertEquals('test', $kernel->getRouteData('three', 'test'));
+    $this->assertEquals('two', $kernel->getRouteData('one'));
+    $this->assertEquals('b', $kernel->getRouteData('a', 'b'));
   }
 }
 
@@ -736,5 +748,18 @@ class ResultNotFoundTest extends \Cubex\Kernel\CubexKernel
   public function defaultAction()
   {
     return null;
+  }
+}
+
+class RouteDataTest extends \Cubex\Kernel\CubexKernel
+{
+  protected $_processParams = [
+    'one' => 'two',
+    'a'   => 'b'
+  ];
+
+  public function getRouteData($key = null, $default = null)
+  {
+    return $this->_getRouteData($key, $default);
   }
 }

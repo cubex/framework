@@ -241,7 +241,7 @@ abstract class CubexKernel
     $catch = true
   )
   {
-    $value  = $route->getValue();
+    $value = $route->getValue();
     $params = $route->getRouteData();
 
     //If the action has returned a valid response, lets send that back
@@ -256,7 +256,7 @@ abstract class CubexKernel
       $match = '/^(\\\?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)+$/';
       if(stripos($value, '\\') !== false && preg_match($match, $value))
       {
-        $class   = $value;
+        $class = $value;
         $nsClass = build_path_win(get_namespace($this), $value);
 
         try
@@ -448,7 +448,7 @@ abstract class CubexKernel
    */
   public function attemptMethod($routeValue, Request $request)
   {
-    $method     = trim($routeValue);
+    $method = trim($routeValue);
     $callMethod = ucwords(str_replace(['-', '_'], ' ', $method));
     $callMethod = str_replace(' ', '', $callMethod);
 
@@ -631,7 +631,7 @@ abstract class CubexKernel
     Request $request, $type = self::MASTER_REQUEST, $catch = true
   )
   {
-    $params      = null;
+    $params = null;
     $paramString = trim($request->getPathInfo(), '/');
     if(!$paramString)
     {
@@ -640,7 +640,7 @@ abstract class CubexKernel
 
     $params = explode('/', $paramString);
     $params = array_slice($params, $this->_routeLevel);
-    $path   = array_shift($params);
+    $path = array_shift($params);
 
     if(empty($params))
     {
@@ -707,7 +707,7 @@ abstract class CubexKernel
 
         if($manager instanceof CubexKernel)
         {
-          $manager->_routeLevel    = $this->_routeLevel + 1;
+          $manager->_routeLevel = $this->_routeLevel + 1;
           $manager->_processParams = $params;
         }
 
@@ -783,5 +783,15 @@ abstract class CubexKernel
   {
     $instance->setCubex($this->getCubex());
     return $instance;
+  }
+
+  protected function _getRouteData($key = null, $default = null)
+  {
+    if($key === null)
+    {
+      return $this->_processParams;
+    }
+
+    return idx($this->_processParams, $key, $default);
   }
 }
