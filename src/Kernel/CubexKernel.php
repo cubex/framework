@@ -137,7 +137,7 @@ abstract class CubexKernel
       //If can process returns a response, use that to send back to the user
       if($authed instanceof Response)
       {
-        return $authed;
+        return $this->_sanitizeResponse($authed);
       }
       else if($authed !== true)
       {
