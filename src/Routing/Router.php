@@ -87,7 +87,8 @@ class Router implements IRouter
 
   public function stripUrlWithPattern($url, $pattern)
   {
-    return substr($url, strlen($pattern));
+    $regex = self::convertSimpleRoute($pattern);
+    return preg_replace("#^$regex#", '', $url);
   }
 
   public function matchPattern($url, $pattern)
