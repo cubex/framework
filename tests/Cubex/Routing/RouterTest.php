@@ -4,7 +4,7 @@ class RouterTestInternal extends InternalCubexTestCase
 {
   public function testCreateRoute()
   {
-    $route  = \Cubex\Routing\Route::create("my route");
+    $route = \Cubex\Routing\Route::create("my route");
     $router = new \Cubex\Routing\Router();
     $this->assertSame($route, $router->createRoute($route));
     $this->assertInstanceOf('\Cubex\Routing\Route', $router->createRoute("ab"));
@@ -24,8 +24,10 @@ class RouterTestInternal extends InternalCubexTestCase
     return [
       ["hello/world", "hello", true],
       ["hello/world", "hello/world", true],
+      ["hello/world", "hello(.*)", true],
       ["hello/world", "world", false],
       ["hello/world", null, false],
+      ["helloworld", "hello", false],
     ];
   }
 
@@ -43,6 +45,9 @@ class RouterTestInternal extends InternalCubexTestCase
     return [
       ["hello/world", 'hello/world', ''],
       ["hello/world", 'hello', '/world'],
+      ["hello/world/this/is/long", 'hello/world.*', '/this/is/long'],
+      ["hello/worldsend/this/is/long", 'hello/world.*', '/this/is/long'],
+      ["hello/world/this/is/long", 'hello/world.*$', ''],
     ];
   }
 
@@ -101,6 +106,16 @@ class RouterTestInternal extends InternalCubexTestCase
         ['hello' => ['world' => ['test' => 'pass']]],
         'pass'
       ],
+      [
+        '/hello/world/this/is/long',
+        ['hello' => ['world' => ['.*' => 'pass']]],
+        'pass'
+      ],
+      [
+        '/hello/world/this/is/long',
+        ['hello' => ['world' => 'pass']],
+        'pass'
+      ]
     ];
   }
 
@@ -137,7 +152,7 @@ class RouterTestInternal extends InternalCubexTestCase
     $subject->expects($this->any())->method("getRoutes")
       ->will($this->returnValue([':test/:number@num' => 'test']));
     $router->setSubject($subject);
-    $route  = $router->process('hello/23');
+    $route = $router->process('hello/23');
     $expect = ["test" => "hello", "number" => 23];
     $this->assertEquals($expect, $route->getRouteData());
   }
