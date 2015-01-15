@@ -7,7 +7,13 @@ class RouterTestInternal extends InternalCubexTestCase
     $route = \Cubex\Routing\Route::create("my route");
     $router = new \Cubex\Routing\Router();
     $this->assertSame($route, $router->createRoute($route));
-    $this->assertInstanceOf('\Cubex\Routing\Route', $router->createRoute("ab"));
+    $this->assertInstanceOf(
+      '\Cubex\Routing\Route',
+      $router->createRoute(
+        "ab",
+        ''
+      )
+    );
   }
 
   /**
@@ -22,32 +28,12 @@ class RouterTestInternal extends InternalCubexTestCase
   public function patternMatches()
   {
     return [
-      ["hello/world", "hello", true],
-      ["hello/world", "hello/world", true],
-      ["hello/world", "hello(.*)", true],
+      ["hello/world", "hello", 'hello/'],
+      ["hello/world", "hello/world", 'hello/world'],
+      ["hello/world", "hello(.*)", 'hello/'],
       ["hello/world", "world", false],
       ["hello/world", null, false],
       ["helloworld", "hello", false],
-    ];
-  }
-
-  /**
-   * @dataProvider stripPatterns
-   */
-  public function testStripUrlWithPattern($url, $pattern, $expect)
-  {
-    $router = new \Cubex\Routing\Router();
-    $this->assertEquals($expect, $router->stripUrlWithPattern($url, $pattern));
-  }
-
-  public function stripPatterns()
-  {
-    return [
-      ["hello/world", 'hello/world', ''],
-      ["hello/world", 'hello', '/world'],
-      ["hello/world/this/is/long", 'hello/world.*', '/this/is/long'],
-      ["hello/worldsend/this/is/long", 'hello/world.*', '/this/is/long'],
-      ["hello/world/this/is/long", 'hello/world.*$', ''],
     ];
   }
 
@@ -99,7 +85,7 @@ class RouterTestInternal extends InternalCubexTestCase
       [
         "/hello/world",
         ['hello' => ['world' => ['test', 'array']]],
-        ['test', 'array']
+        null,true
       ],
       [
         "/hello/world/test",

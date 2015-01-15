@@ -56,7 +56,7 @@ abstract class SubdomainKernel extends CubexKernel
       }
 
       $response = $this->_processResponse(
-        $this->_getMethodResult($sub),
+        $this->_getCallableResult([$this,$sub]),
         $request,
         $type,
         $catch

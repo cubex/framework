@@ -10,7 +10,6 @@ use Cubex\Routing\IRoutable;
 use Cubex\Routing\IRoute;
 use Cubex\Routing\IRouter;
 use Cubex\Routing\Route;
-use Cubex\Routing\RouteNotFoundException;
 use Illuminate\Support\Contracts\RenderableInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +40,11 @@ abstract class CubexKernel
    * @var array method names which are not allowed through attemptMethod
    */
   protected $_restrictedMethods;
+
+  /**
+   * @var string path which has already been processed by previous kernels
+   */
+  protected $_pathProcessed;
 
   /**
    * Initialise a class, stopping multiple calls to init()
@@ -144,47 +148,14 @@ abstract class CubexKernel
         return new Error403Response();
       }
 
-      //Get the default router
-      $router = $this->getCubex()->makeWithCubex('\Cubex\Routing\IRouter');
-      if(!($router instanceof IRouter))
-      {
-        throw new \RuntimeException("No IRouter located");
-      }
-      //Tell the router who its working for
-      $router->setSubject($this);
       $response = null;
-      try
+      $route = $this->findRoute($request);
+
+      if($route)
       {
         //Process the route to get the response
         $response = $this->executeRoute(
-          $router->process($request->getPathInfo()),
-          $request,
-          $type,
-          $catch
-        );
-      }
-      catch(RouteNotFoundException $e)
-      {
-        $response = $this->autoRoute($request, $type, $catch);
-      }
-
-      if(!($response instanceof Response))
-      {
-        $parts = null;
-        if(empty($this->_processParams) && $this->_processParams !== null)
-        {
-          $trimmed = trim($request->getPathInfo(), '/');
-          if(!empty($trimmed))
-          {
-            $parts = explode('/', $trimmed);
-          }
-        }
-        if(empty($parts))
-        {
-          $parts = null;
-        }
-        $response = $this->executeRoute(
-          Route::create('defaultAction', $parts),
+          $route,
           $request,
           $type,
           $catch
@@ -225,6 +196,107 @@ abstract class CubexKernel
     return $response;
   }
 
+  public function findRoute(Request $request)
+  {
+    $path = ltrim($request->getPathInfo(), '/');
+    if($this->_pathProcessed)
+    {
+      $path = ltrim(
+        preg_replace(
+          '/^' . preg_quote($this->_pathProcessed, '/') . '/',
+          '',
+          $path
+        ),
+        '/'
+      );
+    }
+    $pathParts = null;
+    if($path)
+    {
+      $pathParts = explode('/', $path);
+    }
+
+    //Get the default router
+    $router = $this->getCubex()->makeWithCubex('\Cubex\Routing\IRouter');
+    if(!($router instanceof IRouter))
+    {
+      throw new \RuntimeException("No IRouter located");
+    }
+    //Tell the router who its working for
+    $router->setSubject($this);
+    $route = null;
+    try
+    {
+      $route = $router->process($path);
+    }
+    catch(\Exception $e)
+    {
+    }
+    if(!$route)
+    {
+      try
+      {
+        $route = $router->process(
+          build_path_unix($this->_pathProcessed, $path)
+        );
+      }
+      catch(\Exception $e)
+      {
+      }
+    }
+    if((!$route) && $pathParts)
+    {
+      $route = $this->autoRoute($request, $pathParts);
+    }
+    if(!$route)
+    {
+      $route = Route::create('defaultAction', $this->_processParams);
+    }
+    return $route;
+  }
+
+  public function autoRoute(Request $request, $pathParts)
+  {
+    // check auto-routing
+    $method = $this->attemptMethod(head($pathParts), $request);
+    if($method)
+    {
+      // remove path upto and including $method
+      return Route::create($method, array_slice($pathParts, 1));
+    }
+
+    // sub routing
+    $classPath = ucfirst(head($pathParts));
+    $classPath = ucwords(str_replace(['-', '_'], ' ', $classPath));
+    $classPath = str_replace(' ', '', $classPath);
+
+    $namespace = get_namespace(get_called_class());
+    $subRoutes = $this->subRouteTo();
+
+    //No subroutes available
+    if($subRoutes !== null && !empty($subRoutes))
+    {
+      foreach($subRoutes as $subRoute)
+      {
+        //Half sprintf style, but changed to str_replace for multiple instances
+        $attempt = build_path_win(
+          $namespace,
+          str_replace('%s', $classPath, $subRoute)
+        );
+
+        if(class_exists($attempt))
+        {
+          return Route::create(
+            $attempt,
+            array_slice($pathParts, 1),
+            head($pathParts)
+          );
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Execute a route and attempt to generate a response
    *
@@ -250,7 +322,12 @@ abstract class CubexKernel
       return $value;
     }
 
-    if(is_scalar($value))
+    //Attempt to see if the route is a callable
+    if(is_callable($value))
+    {
+      $value = $this->_getCallableResult($value, $params);
+    }
+    else if(is_scalar($value))
     {
       //If is fully qualified class, create class
       $match = '/^(\\\?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)+$/';
@@ -269,6 +346,11 @@ abstract class CubexKernel
           {
             $value = $this->getCubex()->make($class);
           }
+          $value->_pathProcessed = build_path_unix(
+            $this->_pathProcessed,
+            $route->getMatchedPath()
+          );
+          $value->_processParams = $params;
         }
         catch(\Exception $e)
         {
@@ -286,37 +368,29 @@ abstract class CubexKernel
       }
       else
       {
-        //Attempt to see if the route is a callable
         $call = $this->attemptCallable($value);
         if($call !== null)
         {
-          return $call();
+          $value = $this->_getCallableResult($call, $params);
         }
-
-        //Attempt to see if the route is a redirect
-        $url = $this->attemptUrl($value, $request);
-        if($url !== null)
+        else
         {
-          //Redirect to url
-          return new RedirectResponse($url['url'], $url['code']);
-        }
-
-        //look for method names
-        $method = $this->attemptMethod($value, $request);
-        if($method !== null)
-        {
-          if($params === null && $value === 'defaultAction')
+          //Attempt to see if the route is a redirect
+          $url = $this->attemptUrl($value, $request);
+          if($url !== null)
           {
-            $params = $this->_processParams;
+            //Redirect to url
+            return new RedirectResponse($url['url'], $url['code']);
           }
-          /*
-           * TODO: Find a use case for this, or if its fixed upstream
-          else if($params === null && count($this->_processParams) > 0)
+          else
           {
-            $params = array_slice($this->_processParams, 1);
-          }*/
-
-          $value = $this->_getMethodResult($method, $params);
+            //look for method names
+            $method = $this->attemptMethod($value, $request);
+            if($method !== null)
+            {
+              $value = $this->_getCallableResult([$this, $method], $params);
+            }
+          }
         }
       }
     }
@@ -367,11 +441,6 @@ abstract class CubexKernel
       return new CubexResponse($value);
     }
 
-    if(is_callable($value))
-    {
-      return $value();
-    }
-
     if(is_object($value))
     {
       return new CubexResponse($value);
@@ -390,18 +459,18 @@ abstract class CubexKernel
    *
    * @throws \Exception
    */
-  protected function _getMethodResult($method, $params = null)
+  protected function _getCallableResult($method, $params = null)
   {
     ob_start();
     try
     {
       if($params === null)
       {
-        $response = $this->$method();
+        $response = $method();
       }
       else
       {
-        $response = call_user_func_array([$this, $method], $params);
+        $response = call_user_func_array($method, $params);
       }
     }
     catch(\Exception $e)
@@ -616,111 +685,6 @@ abstract class CubexKernel
     {
       return $this->getCubex()->exceptionResponse($exception);
     }
-  }
-
-  /**
-   * Auto build the result based on the URL
-   *
-   * @param Request $request
-   * @param int     $type
-   * @param bool    $catch
-   *
-   * @return \Cubex\Http\Response|null|Response
-   */
-  public function autoRoute(
-    Request $request, $type = self::MASTER_REQUEST, $catch = true
-  )
-  {
-    $params = null;
-    $paramString = trim($request->getPathInfo(), '/');
-    if(!$paramString)
-    {
-      return null;
-    }
-
-    $params = explode('/', $paramString);
-    $params = array_slice($params, $this->_routeLevel);
-    $path = array_shift($params);
-
-    if(empty($params))
-    {
-      $params = null;
-    }
-
-    //Does the method exist?
-    $method = $this->attemptMethod($path, $request);
-    if($method !== null)
-    {
-      return $this->_processResponse(
-        $this->_getMethodResult($method, $params),
-        $request,
-        $type,
-        $catch,
-        $params
-      );
-    }
-
-    return $this->attemptSubClass($path, $request, $type, $catch, $params);
-  }
-
-  /**
-   *
-   * @param         $part
-   * @param Request $request
-   * @param int     $type
-   * @param bool    $catch
-   * @param array   $params
-   *
-   * @return null|Response
-   */
-  public function attemptSubClass(
-    $part, Request $request, $type = self::MASTER_REQUEST, $catch = true,
-    array $params = null
-  )
-  {
-    $classPath = ucfirst($part);
-    $classPath = ucwords(str_replace(['-', '_'], ' ', $classPath));
-    $classPath = str_replace(' ', '', $classPath);
-
-    $namespace = get_namespace(get_called_class());
-    $subRoutes = $this->subRouteTo();
-
-    //No subroutes available
-    if($subRoutes === null || empty($subRoutes))
-    {
-      return null;
-    }
-
-    foreach($subRoutes as $subRoute)
-    {
-      //Half sprintf style, but changed to str_replace for multiple instances
-      $attempt = build_path_win(
-        $namespace,
-        str_replace('%s', $classPath, $subRoute)
-      );
-
-      if(class_exists($attempt))
-      {
-        $manager = new $attempt;
-
-        $manager = $this->_sanitizeResponse($manager);
-
-        if($manager instanceof CubexKernel)
-        {
-          $manager->_routeLevel = $this->_routeLevel + 1;
-          $manager->_processParams = $params;
-        }
-
-        if($manager instanceof HttpKernelInterface)
-        {
-          return $manager->handle($request, $type, $catch);
-        }
-
-        return $this->handleResponse($manager, null);
-      }
-    }
-
-    return null;
   }
 
   protected function _sanitizeResponse($value)

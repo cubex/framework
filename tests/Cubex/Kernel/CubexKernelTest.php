@@ -380,15 +380,18 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
 
     $request = \Cubex\Http\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/tester');
-    $this->assertNull($kernel->autoRoute($request));
+    $this->assertInstanceOf(
+      '\Cubex\Responses\Error404Response',
+      $kernel->handle($request)
+    );
 
     $request = \Cubex\Http\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/cubexed/tester');
-    $this->assertContains("cubexed", (string)$kernel->autoRoute($request));
+    $this->assertContains("cubexed", (string)$kernel->handle($request));
 
     $request = \Cubex\Http\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/cubex/tester');
-    $this->assertContains("cubex", (string)$kernel->autoRoute($request));
+    $this->assertContains("cubex", (string)$kernel->handle($request));
   }
 
   /**
@@ -522,35 +525,26 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
 
-    $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['subRouteTo']);
-    $kernel->expects($this->any())->method("subRouteTo")->will(
-      $this->returnValue(['%sTest'])
-    );
+    $kernel = new AppTest();
     $kernel->setCubex($cubex);
 
-    $result = $kernel->attemptSubClass(
-      'boiler',
-      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', 'boiler');
+    $result = $kernel->handle(
+      $request,
       \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
       false
     );
     $this->assertContains('boiled', (string)$result);
 
-    $result = $kernel->attemptSubClass(
-      'kernelBoiler',
-      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', 'kernelBoiler');
+    $result = $kernel->handle(
+      $request,
       \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
       false
     );
     $this->assertContains('Kernel Boiler Response', (string)$result);
-
-    $result = $kernel->attemptSubClass(
-      'failureClass',
-      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
-      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
-      false
-    );
-    $this->assertNull($result);
 
     $kernel = new \namespaced\CubexProject();
     $kernel->setCubex($cubex);
@@ -584,6 +578,15 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertContains('test extension', (string)$result);
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/random/arg/test');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('arg test', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test');
     $result = $kernel->handle(
       $request,
@@ -591,6 +594,76 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
       false
     );
     $this->assertContains('test application', (string)$result);
+  }
+
+  public function invalidRoute()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+
+    $kernel = new AppTest();
+    $kernel->setCubex($cubex);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', 'failureClass');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertNull($result);
+  }
+
+  public function testManualRouting()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+
+    $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['getRoutes']);
+    $kernel->expects($this->any())->method("getRoutes")->will(
+      $this->returnValue(
+        ['manual-route' => '\namespaced\sub\ManualRouteExtension']
+      )
+    );
+    $kernel->setCubex($cubex);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set(
+      'REQUEST_URI',
+      '/manual-route/cb/helloworld'
+    );
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('callback route', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set(
+      'REQUEST_URI',
+      '/manual-route/first-path/123/show/456'
+    );
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('showing manual route for 123 456', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set(
+      'REQUEST_URI',
+      '/manual-route/second-path/987/show/654'
+    );
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('showing manual route for 987 654', (string)$result);
   }
 
   public function testCanProcess()
@@ -682,6 +755,14 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('test', $kernel->getRouteData('three', 'test'));
     $this->assertEquals('two', $kernel->getRouteData('one'));
     $this->assertEquals('b', $kernel->getRouteData('a', 'b'));
+  }
+}
+
+class AppTest extends \Cubex\Kernel\CubexKernel
+{
+  public function subRouteTo()
+  {
+    return ['\%sTest'];
   }
 }
 

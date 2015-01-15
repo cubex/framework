@@ -28,7 +28,6 @@ class TestApplication extends ApplicationKernel
   }
 }
 
-
 class RandomExtension extends ApplicationKernel
 {
   public function renderTags($tagName)
@@ -39,6 +38,37 @@ class RandomExtension extends ApplicationKernel
   public function defaultAction($base = 'test', $type = 'extension')
   {
     return "$base $type";
+  }
+}
+
+class ManualRouteExtension extends ApplicationKernel
+{
+  public function defaultAction($base = 'test', $type = 'extension')
+  {
+    return "$base $type";
+  }
+
+  public function doShow($id1, $id2)
+  {
+    return 'showing manual route for ' . $id1 . ' ' . $id2;
+  }
+
+  public function myCallback()
+  {
+    return 'callback route';
+  }
+
+  public function getRoutes()
+  {
+    return [
+      'first-path/:id1@num'               => [
+        'show/:id2@num' => 'doShow'
+      ],
+      'manual-route/second-path/:id1@num' => [
+        'show/:id2@num' => 'doShow'
+      ],
+      'cb'                                => [$this, 'myCallback']
+    ];
   }
 }
 

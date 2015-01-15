@@ -67,35 +67,42 @@ class Router implements IRouter
     foreach($routes as $pattern => $route)
     {
       $pattern = ltrim($pattern, '/');
-      if($this->matchPattern($url, $pattern))
+      $matchedPath = $this->matchPattern($url, $pattern);
+      if($matchedPath !== false)
       {
+        $subUrl = preg_replace(
+          '#^' . preg_quote($matchedPath, '#') . '#',
+          '',
+          $url
+        );
+        if(is_callable($route))
+        {
+          return $this->createRoute($route, $matchedPath);
+        }
         if(is_array($route))
         {
-          $subUrl = $this->stripUrlWithPattern($url, $pattern);
           $subMatch = $this->_processRoutes($subUrl, $route);
           if($subMatch !== null)
           {
-            return $this->createRoute($subMatch);
+            return $this->createRoute(
+              $subMatch->getValue(),
+              build_path_unix($matchedPath, $subMatch->getMatchedPath())
+            );
           }
+          return null;
         }
-        return $this->createRoute($route);
+        return $this->createRoute($route, $matchedPath);
       }
     }
 
     return null;
   }
 
-  public function stripUrlWithPattern($url, $pattern)
-  {
-    $regex = self::convertSimpleRoute($pattern);
-    return preg_replace("#^$regex(/|$)#U", '$1', $url);
-  }
-
   public function matchPattern($url, $pattern)
   {
     if($pattern == '' && $url == '')
     {
-      return true;
+      return '';
     }
 
     //We need a pattern to match, null or empty are too vague
@@ -104,7 +111,6 @@ class Router implements IRouter
       return false;
     }
 
-    $matches = [];
     $pattern = self::convertSimpleRoute($pattern);
     $match = preg_match("#^$pattern(/|$)#U", $url, $matches);
 
@@ -118,7 +124,7 @@ class Router implements IRouter
           $this->_routeData[$k] = $v;
         }
       }
-      return true;
+      return $matches[0];
     }
     return false;
   }
@@ -127,17 +133,18 @@ class Router implements IRouter
    * Create a route from the raw data
    *
    * @param $data
+   * @param $matchedPath
    *
    * @return Route
    */
-  public function createRoute($data)
+  public function createRoute($data, $matchedPath = '')
   {
     if($data instanceof IRoute)
     {
       return $data;
     }
 
-    return Route::create($data, $this->_routeData);
+    return Route::create($data, $this->_routeData, $matchedPath);
   }
 
   /**

@@ -16,4 +16,11 @@ interface IRoute
    * @return array|null
    */
   public function getRouteData();
+
+  /**
+   * Get the parameters available within the route
+   *
+   * @return array|null
+   */
+  public function getMatchedPath();
 }
