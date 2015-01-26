@@ -623,6 +623,70 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertContains('test sub route', (string)$result);
   }
 
+  public function testRoutingParameters()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+
+    $kernel = new \namespaced\CubexProject();
+    $kernel->setCubex($cubex);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/pathnum/12345');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('12345', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/pathnum/abcdef');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test default action', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/pathalpha/abcdef');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('abcdef', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/pathalpha/12345');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test default action', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/pathall/123abc/more');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('123abc/more', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/path/123abc/more');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('123abc', (string)$result);
+  }
+
   public function invalidRoute()
   {
     $cubex = new \Cubex\Cubex();

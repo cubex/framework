@@ -119,14 +119,14 @@ class RouterTestInternal extends InternalCubexTestCase
   public function simpleRouteProvider()
   {
     return [
-      ['{var@alpha}', '(?P<var>\w+)'],
-      ['{var@all}', '(?P<var>.+)'],
+      ['{var@alpha}', '(?P<var>[a-zA-Z]+)'],
+      ['{var@all}', '(?P<var>.+?)'],
       ['{var@num}', '(?P<var>\d+)'],
-      ['{var}', '(?P<var>[^\/]+)'],
-      [':var@alpha', '(?P<var>\w+)'],
-      [':var@all', '(?P<var>.+)'],
+      ['{var}', '(?P<var>\w+)'],
+      [':var@alpha', '(?P<var>[a-zA-Z]+)'],
+      [':var@all', '(?P<var>.+?)'],
       [':var@num', '(?P<var>\d+)'],
-      [':var', '(?P<var>[^\/]+)'],
+      [':var', '(?P<var>\w+)'],
     ];
   }
 

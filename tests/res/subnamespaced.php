@@ -79,6 +79,21 @@ class DefaultExtension extends CubexKernel
   {
     return '\namespaced\sub\TestSubController';
   }
+
+  public function pathTest($arg)
+  {
+    return $arg;
+  }
+
+  public function getRoutes()
+  {
+    return [
+      'pathnum/:id@num'     => 'pathTest',
+      'pathalpha/:id@alpha' => 'pathTest',
+      'pathall/:id@all'     => 'pathTest',
+      'path/:id'            => 'pathTest',
+    ];
+  }
 }
 
 class TestSubController extends CubexKernel
