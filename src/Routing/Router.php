@@ -106,7 +106,7 @@ class Router implements IRouter
     }
 
     //We need a pattern to match, null or empty are too vague
-    if($pattern === null || empty($pattern))
+    if(empty($pattern))
     {
       return false;
     }

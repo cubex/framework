@@ -83,13 +83,23 @@ abstract class CubexKernel
   }
 
   /**
-   * If no route can be processed, run this action
+   * The default method to run if no route is found
    *
    * @return null
    */
   public function defaultAction()
   {
     return null;
+  }
+
+  /**
+   * If no route can be processed, use this route
+   *
+   * @return null
+   */
+  public function defaultRoute()
+  {
+    return 'defaultAction';
   }
 
   /**
@@ -250,7 +260,7 @@ abstract class CubexKernel
     }
     if(!$route)
     {
-      $route = Route::create('defaultAction', $this->_processParams);
+      $route = Route::create($this->defaultRoute(), $this->_processParams);
     }
     return $route;
   }

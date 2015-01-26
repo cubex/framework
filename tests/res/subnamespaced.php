@@ -3,6 +3,7 @@ namespace namespaced\sub;
 
 use Cubex\Console\ConsoleCommand;
 use Cubex\Kernel\ApplicationKernel;
+use Cubex\Kernel\CubexKernel;
 use Cubex\View\ViewModel;
 
 class SubRoutable
@@ -69,6 +70,27 @@ class ManualRouteExtension extends ApplicationKernel
       ],
       'cb'                                => [$this, 'myCallback']
     ];
+  }
+}
+
+class DefaultExtension extends CubexKernel
+{
+  public function defaultRoute()
+  {
+    return TestSubController::class;
+  }
+}
+
+class TestSubController extends CubexKernel
+{
+  public function defaultAction()
+  {
+    return 'test default action';
+  }
+
+  public function testSubRoute()
+  {
+    return 'test sub route';
   }
 }
 

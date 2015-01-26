@@ -596,6 +596,33 @@ class CubexKernelTest extends PHPUnit_Framework_TestCase
     $this->assertContains('test application', (string)$result);
   }
 
+  public function testDefaultRoute()
+  {
+    $cubex = new \Cubex\Cubex();
+    $cubex->prepareCubex();
+    $cubex->processConfiguration($cubex->getConfiguration());
+
+    $kernel = new \namespaced\CubexProject();
+    $kernel->setCubex($cubex);
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test default action', (string)$result);
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/test/default/test-sub-route');
+    $result = $kernel->handle(
+      $request,
+      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertContains('test sub route', (string)$result);
+  }
+
   public function invalidRoute()
   {
     $cubex = new \Cubex\Cubex();
