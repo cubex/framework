@@ -95,9 +95,9 @@ class Visitor implements IVisitorInfo, ICubexAware
   protected function _fromAppEngine()
   {
     $params         = $this->_request->server;
-    $this->_country = $params->get('X-AppEngine-Country', null);
-    $this->_city    = $params->get('X-AppEngine-City', null);
-    $this->_region  = $params->get('X-AppEngine-Region', null);
+    $this->_country = $params->get('HTTP_X_APPENGINE_COUNTRY', null);
+    $this->_city    = $params->get('HTTP_X_APPENGINE_CITY', null);
+    $this->_region  = $params->get('HTTP_X_APPENGINE_REGION', null);
   }
 
   protected function _fromModGeoIP()

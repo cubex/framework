@@ -80,7 +80,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
     $request                    = new \Cubex\Http\Request();
     $server                     = [
       'REMOTE_ADDR'         => '123.123.123.123',
-      'SERVER_SOFTWARE'     => 'Google App Engine/1.0',
+      'SERVER_SOFTWARE'     => 'Google App Engine/1.9.15',
       'X-AppEngine-Country' => 'US',
       'X-AppEngine-City'    => 'Mountain View',
       'X-AppEngine-Region'  => 'CA',
