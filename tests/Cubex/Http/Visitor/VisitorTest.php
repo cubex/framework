@@ -15,9 +15,9 @@ class VisitorTestInternal extends \InternalCubexTestCase
     $remoteAddr, $country, $city, $region, $config = null
   )
   {
-    $cubex   = $this->newCubexInstace();
+    $cubex = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
-    $server  = ['REMOTE_ADDR' => $remoteAddr];
+    $server = ['REMOTE_ADDR' => $remoteAddr];
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
@@ -51,9 +51,9 @@ class VisitorTestInternal extends \InternalCubexTestCase
     $failover->configure(
       $config
     );
-    $cubex   = $this->newCubexInstace();
+    $cubex = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
-    $server  = ['REMOTE_ADDR' => '123.123.123.123'];
+    $server = ['REMOTE_ADDR' => '123.123.123.123'];
     $request->initialize([], [], [], [], [], $server);
     $cubex->getConfiguration()->addSection($config);
     $cubex->instance('request', $request);
@@ -73,17 +73,14 @@ class VisitorTestInternal extends \InternalCubexTestCase
 
   public function testFromAppEngine()
   {
-    $old                        = isset($_SERVER['SERVER_SOFTWARE']) ?
-      $_SERVER['SERVER_SOFTWARE'] : null;
-    $_SERVER['SERVER_SOFTWARE'] = 'Google App Engine/1.0';
-    $cubex                      = $this->newCubexInstace();
-    $request                    = new \Cubex\Http\Request();
-    $server                     = [
-      'REMOTE_ADDR'         => '123.123.123.123',
-      'SERVER_SOFTWARE'     => 'Google App Engine/1.0',
-      'X-AppEngine-Country' => 'US',
-      'X-AppEngine-City'    => 'Mountain View',
-      'X-AppEngine-Region'  => 'CA',
+    $cubex = $this->newCubexInstace();
+    $request = new \Cubex\Http\Request();
+    $server = [
+      'REMOTE_ADDR'              => '123.123.123.123',
+      'SERVER_SOFTWARE'          => 'Google App Engine/1.0',
+      'HTTP_X_APPENGINE_COUNTRY' => 'US',
+      'HTTP_X_APPENGINE_CITY'    => 'Mountain View',
+      'HTTP_X_APPENGINE_REGION'  => 'CA',
     ];
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
@@ -92,22 +89,13 @@ class VisitorTestInternal extends \InternalCubexTestCase
     $this->assertEquals('US', $visitor->getCountry());
     $this->assertEquals('Mountain View', $visitor->getCity());
     $this->assertEquals('CA', $visitor->getRegion());
-
-    if($old === null)
-    {
-      unset($_SERVER['SERVER_SOFTWARE']);
-    }
-    else
-    {
-      $_SERVER['SERVER_SOFTWARE'] = $old;
-    }
   }
 
   public function testFromModGeoIp()
   {
-    $cubex   = $this->newCubexInstace();
+    $cubex = $this->newCubexInstace();
     $request = new \Cubex\Http\Request();
-    $server  = [
+    $server = [
       'REMOTE_ADDR'        => '123.123.123.123',
       'GEOIP_ADDR'         => '123.123.123.123',
       'GEOIP_COUNTRY_CODE' => 'US',

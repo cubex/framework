@@ -35,7 +35,7 @@ class Visitor implements IVisitorInfo, ICubexAware
   {
     $this->setCubex($cubex);
     $this->_request = $request;
-    $this->_ip      = $this->_request->getClientIp();
+    $this->_ip = $this->_request->getClientIp();
 
     try
     {
@@ -47,7 +47,7 @@ class Visitor implements IVisitorInfo, ICubexAware
     }
     $this->configure($this->_config);
 
-    if(System::isAppEngine())
+    if(System::isAppEngine($request->server->get('SERVER_SOFTWARE')))
     {
       $this->_fromAppEngine();
     }
@@ -94,18 +94,18 @@ class Visitor implements IVisitorInfo, ICubexAware
 
   protected function _fromAppEngine()
   {
-    $params         = $this->_request->server;
-    $this->_country = $params->get('X-AppEngine-Country', null);
-    $this->_city    = $params->get('X-AppEngine-City', null);
-    $this->_region  = $params->get('X-AppEngine-Region', null);
+    $params = $this->_request->server;
+    $this->_country = $params->get('HTTP_X_APPENGINE_COUNTRY', null);
+    $this->_city = $params->get('HTTP_X_APPENGINE_CITY', null);
+    $this->_region = $params->get('HTTP_X_APPENGINE_REGION', null);
   }
 
   protected function _fromModGeoIP()
   {
-    $params         = $this->_request->server;
+    $params = $this->_request->server;
     $this->_country = $params->get('GEOIP_COUNTRY_CODE', null);
-    $this->_city    = $params->get('GEOIP_CITY', null);
-    $this->_region  = $params->get('GEOIP_REGION_NAME', null);
+    $this->_city = $params->get('GEOIP_CITY', null);
+    $this->_region = $params->get('GEOIP_REGION_NAME', null);
   }
 
   protected function _fromWhois()
@@ -113,7 +113,7 @@ class Visitor implements IVisitorInfo, ICubexAware
     if(System::commandExists('whois'))
     {
       exec("whois " . $this->_ip, $whois);
-      $whois     = implode("\n", $whois);
+      $whois = implode("\n", $whois);
       $countries = $cities = $regions = [];
 
       preg_match_all('/^country:\s*([A-Z]{2})/mi', $whois, $countries);
