@@ -77,7 +77,7 @@ class DefaultExtension extends CubexKernel
 {
   public function defaultRoute()
   {
-    return TestSubController::class;
+    return '\namespaced\sub\TestSubController';
   }
 }
 
