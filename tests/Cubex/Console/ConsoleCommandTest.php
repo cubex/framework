@@ -1,4 +1,9 @@
 <?php
+namespace CubexTest\Cubex\Console;
+
+use Cubex\Console\ConsoleCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsoleCommandTest extends CommandTestCase
 {
@@ -28,7 +33,7 @@ class ConsoleCommandTest extends CommandTestCase
     $this->assertTrue($def->getOption('who')->isValueRequired());
 
     $command = new TestExecuteConsoleCommand();
-    $def     = $command->getDefinition();
+    $def = $command->getDefinition();
     $this->assertEquals(
       'This should become a named parameter',
       $def->getOption('demand')->getDescription()
@@ -93,7 +98,7 @@ Middle(s): Anthony James',
   }
 }
 
-class NoDocBlockTestConsoleCommand extends \Cubex\Console\ConsoleCommand
+class NoDocBlockTestConsoleCommand extends ConsoleCommand
 {
 }
 
@@ -102,7 +107,7 @@ class NoDocBlockTestConsoleCommand extends \Cubex\Console\ConsoleCommand
  * @description This is a test command
  * @name Tester
  */
-class TestConsoleCommand extends \Cubex\Console\ConsoleCommand
+class TestConsoleCommand extends ConsoleCommand
 {
   /**
    * @flag
@@ -131,15 +136,15 @@ class TestConsoleCommand extends \Cubex\Console\ConsoleCommand
   /**
    * This is what the execute command does
    *
-   * @param \Symfony\Component\Console\Input\InputInterface   $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param InputInterface                                    $input
+   * @param OutputInterface                                   $output
    * @param                                                   $name
    * @param string                                            $surname
    * @param array                                             $middleNames
    */
   protected function executeCommand(
-    \Symfony\Component\Console\Input\InputInterface $input,
-    \Symfony\Component\Console\Output\OutputInterface $output, $name = 'John',
+    InputInterface $input,
+    OutputInterface $output, $name = 'John',
     $surname = 'Smith',
     array $middleNames = ['Simon', 'Dennis']
   )
@@ -153,7 +158,7 @@ class TestConsoleCommand extends \Cubex\Console\ConsoleCommand
 /**
  * @name Tester
  */
-class TestProcessConsoleCommand extends \Cubex\Console\ConsoleCommand
+class TestProcessConsoleCommand extends ConsoleCommand
 {
   /**
    * @param        $name
@@ -175,7 +180,7 @@ class TestProcessConsoleCommand extends \Cubex\Console\ConsoleCommand
  * @description This is a test command
  * @name Tester
  */
-class TestExecuteConsoleCommand extends \Cubex\Console\ConsoleCommand
+class TestExecuteConsoleCommand extends ConsoleCommand
 {
   /**
    * @flag
@@ -194,15 +199,12 @@ class TestExecuteConsoleCommand extends \Cubex\Console\ConsoleCommand
   public $demand;
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface   $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param InputInterface  $input
+   * @param OutputInterface $output
    *
    * @return void
    */
-  protected function execute(
-    \Symfony\Component\Console\Input\InputInterface $input,
-    \Symfony\Component\Console\Output\OutputInterface $output
-  )
+  protected function execute(InputInterface $input, OutputInterface $output)
   {
   }
 }

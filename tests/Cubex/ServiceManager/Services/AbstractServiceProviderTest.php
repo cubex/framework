@@ -1,4 +1,9 @@
 <?php
+namespace CubexTest\Cubex\ServiceManager\Services;
+
+use Cubex\Cubex;
+use Cubex\ServiceManager\Services\AbstractServiceProvider;
+use Packaged\Config\Provider\ConfigSection;
 
 class AbstractServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,10 +18,10 @@ class AbstractServiceProviderTest extends \PHPUnit_Framework_TestCase
     );
     $this->assertInstanceOf('\Cubex\ICubexAware', $abstract);
     /**
-     * @var $abstract \Cubex\ServiceManager\Services\AbstractServiceProvider
+     * @var $abstract AbstractServiceProvider
      */
-    $cubex  = new \Cubex\Cubex();
-    $config = new \Packaged\Config\Provider\ConfigSection('ser', ['t' => '1']);
+    $cubex  = new Cubex();
+    $config = new ConfigSection('ser', ['t' => '1']);
 
     $abstract->boot($cubex, $config);
 

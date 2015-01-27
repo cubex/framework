@@ -1,5 +1,5 @@
 <?php
-namespace View;
+namespace CubexTest\Cubex\View;
 
 use Cubex\View\ArrayTemplate;
 

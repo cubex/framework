@@ -1,11 +1,13 @@
 <?php
 namespace CubexTest\Auth;
 
+use Cubex\Auth\AuthedUser;
+
 class AuthedUserTest extends \PHPUnit_Framework_TestCase
 {
   public function testBasics()
   {
-    $user = new \Cubex\Auth\AuthedUser('brooke', 1, ['surname' => 'bryan']);
+    $user = new AuthedUser('brooke', 1, ['surname' => 'bryan']);
 
     $this->assertEquals('brooke', $user->getUsername());
     $this->assertEquals(1, $user->getUserId());
@@ -19,13 +21,13 @@ class AuthedUserTest extends \PHPUnit_Framework_TestCase
 
   public function testSerialize()
   {
-    $user        = new \Cubex\Auth\AuthedUser(
+    $user = new AuthedUser(
       'Brooke',
       23,
       ['surname' => 'Bryan']
     );
-    $string      = $user->serialize();
-    $userCompare = \Cubex\Auth\AuthedUser::fromString($string);
+    $string = $user->serialize();
+    $userCompare = AuthedUser::fromString($string);
     $this->assertEquals($user->getUsername(), $userCompare->getUsername());
     $this->assertEquals($user->getUserId(), $userCompare->getUserId());
     $this->assertEquals(

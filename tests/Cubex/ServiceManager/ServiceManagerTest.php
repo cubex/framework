@@ -1,33 +1,57 @@
 <?php
+namespace CubexTest\Cubex\ServiceManager;
 
-class ServiceManagerTest extends PHPUnit_Framework_TestCase
+use Cubex\Cubex;
+use Cubex\ServiceManager\IServiceProvider;
+use Cubex\ServiceManager\ServiceManager;
+use Packaged\Config\ConfigSectionInterface;
+use Packaged\Config\Provider\Test\TestConfigProvider;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class ServiceManagerTest extends \PHPUnit_Framework_TestCase
 {
   public function testCanAddService()
   {
-    $cubex   = new \Cubex\Cubex();
-    $manager = new \Cubex\ServiceManager\ServiceManager();
+    $cubex = new Cubex();
+    $manager = new ServiceManager();
     $manager->setCubex($cubex);
     $manager->boot();
-    $manager->addService("smtester", "TestService", []);
+    $manager->addService(
+      "smtester",
+      'CubexTest\Cubex\ServiceManager\TestService',
+      []
+    );
 
     $tester = $cubex->make('smtester');
     $this->assertInstanceOf('\Cubex\ServiceManager\IServiceProvider', $tester);
-    $this->assertInstanceOf('TestService', $tester);
+    $this->assertInstanceOf(
+      'CubexTest\Cubex\ServiceManager\TestService',
+      $tester
+    );
 
     $this->setExpectedException(
       '\RuntimeException',
       "The service 'smtester' has already been registered."
     );
-    $manager->addService("smtester", "TestService", []);
+    $manager->addService(
+      "smtester",
+      'CubexTest\Cubex\ServiceManager\TestService',
+      []
+    );
   }
 
   public function testServicesShutDown()
   {
-    $cubex   = new \Cubex\Cubex();
-    $manager = new \Cubex\ServiceManager\ServiceManager();
+    $cubex = new Cubex();
+    $manager = new ServiceManager();
     $manager->setCubex($cubex);
     $manager->boot();
-    $manager->addService("smtester", "TestService", []);
+    $manager->addService(
+      "smtester",
+      'CubexTest\Cubex\ServiceManager\TestService',
+      []
+    );
 
     $tester = $cubex->make('smtester');
     $manager->shutdown();
@@ -36,18 +60,19 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 
   public function testServicesShutDownInCubex()
   {
-    $cubex   = new \Cubex\Cubex();
-    $manager = new \Cubex\ServiceManager\ServiceManager();
+    $cubex = new Cubex();
+    $manager = new ServiceManager();
     $manager->setCubex($cubex);
     $manager->boot();
-    $manager->addService("smtester", "TestService", []);
+    $manager->addService(
+      "smtester",
+      'CubexTest\Cubex\ServiceManager\TestService',
+      []
+    );
     $cubex->instance('service.manager', $manager);
 
     $tester = $cubex->make('smtester');
-    $cubex->terminate(
-      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
-      new \Symfony\Component\HttpFoundation\Response()
-    );
+    $cubex->terminate(Request::createFromGlobals(), new Response());
     $this->assertTrue($tester->shutdown);
   }
 
@@ -69,7 +94,7 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
       $service = 'service.test.' . md5($class);
     }
 
-    $cubex   = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $manager = new CorruptableServiceManager();
     $manager->setCubex($cubex);
     $manager->boot();
@@ -105,9 +130,9 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 
   public function testServiceAliases()
   {
-    $cubex = new \Cubex\Cubex();
-    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
-    $manager = new \Cubex\ServiceManager\ServiceManager();
+    $cubex = new Cubex();
+    $cubex->configure(new TestConfigProvider());
+    $manager = new ServiceManager();
     $manager->setCubex($cubex);
     $manager->boot();
     $encrypter = $cubex->make('encrypter');
@@ -115,7 +140,7 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
   }
 }
 
-class CorruptableServiceManager extends \Cubex\ServiceManager\ServiceManager
+class CorruptableServiceManager extends ServiceManager
 {
   public function destroyService($service)
   {
@@ -123,12 +148,12 @@ class CorruptableServiceManager extends \Cubex\ServiceManager\ServiceManager
   }
 }
 
-class TestService implements \Cubex\ServiceManager\IServiceProvider
+class TestService implements IServiceProvider
 {
   public $shutdown = false;
 
   public function boot(
-    \Cubex\Cubex $cubex, \Packaged\Config\ConfigSectionInterface $config
+    Cubex $cubex, ConfigSectionInterface $config
   )
   {
   }

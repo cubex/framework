@@ -1,10 +1,13 @@
 <?php
+namespace CubexTest\Cubex\Kernel;
 
-class ProjectKernelTest extends PHPUnit_Framework_TestCase
+use Cubex\Kernel\ProjectKernel;
+
+class ProjectKernelTest extends \PHPUnit_Framework_TestCase
 {
   public function testSubRoutesRetunsArray()
   {
-    $kernel = new \Cubex\Kernel\ProjectKernel();
+    $kernel = new ProjectKernel();
     $this->assertInternalType('array', $kernel->subRouteTo());
   }
 }

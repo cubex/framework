@@ -1,5 +1,5 @@
 <?php
-namespace View;
+namespace CubexTest\Cubex\View;
 
 use Cubex\Cubex;
 use Cubex\Http\Request;
@@ -8,6 +8,7 @@ use Cubex\View\Layout;
 use Cubex\View\LayoutController;
 use Cubex\View\Renderable;
 use namespaced\CubexProject;
+use namespaced\TestLayoutController;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class LayoutControllerTest extends \PHPUnit_Framework_TestCase
@@ -51,7 +52,7 @@ class LayoutControllerTest extends \PHPUnit_Framework_TestCase
    */
   public function testResponses($route, $expect)
   {
-    $controller = new \namespaced\TestLayoutController();
+    $controller = new TestLayoutController();
     $controller->setCubex(new Cubex());
     $response = $controller->executeRoute(
       Route::create($route),
@@ -71,7 +72,7 @@ class LayoutControllerTest extends \PHPUnit_Framework_TestCase
    */
   public function testResponsesWithNoLayout($route, $expect)
   {
-    $controller = new \namespaced\TestLayoutController();
+    $controller = new TestLayoutController();
     $controller->setCubex(new Cubex());
     $controller->disableLayout();
     $response = $controller->executeRoute(

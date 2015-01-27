@@ -1,18 +1,26 @@
 <?php
+namespace CubexTest\Cubex\Console;
 
-class ConsoleTest extends PHPUnit_Framework_TestCase
+use Cubex\Console\Commands\BuiltInWebServer;
+use Cubex\Console\Console;
+use Cubex\Cubex;
+use Packaged\Config\Provider\Test\TestConfigProvider;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+
+class ConsoleTest extends \PHPUnit_Framework_TestCase
 {
   public function getConsole()
   {
-    $cubex   = new \Cubex\Cubex();
-    $console = \Cubex\Console\Console::withCubex($cubex);
-    $config  = new \Packaged\Config\Provider\Test\TestConfigProvider();
+    $cubex = new Cubex();
+    $console = Console::withCubex($cubex);
+    $config = new TestConfigProvider();
     $config->addItem(
       'console',
       'commands',
       [
         '\namespaced\NamerCommand',
-        'phpserver' => 'PhpWebServer'
+        'phpserver' => 'CubexTest\Cubex\Console\PhpWebServer'
       ]
     );
     $config->addItem(
@@ -33,8 +41,8 @@ class ConsoleTest extends PHPUnit_Framework_TestCase
   {
     $console = $this->getConsole();
 
-    $output = new \Symfony\Component\Console\Output\BufferedOutput();
-    $input  = new \Symfony\Component\Console\Input\ArrayInput([]);
+    $output = new BufferedOutput();
+    $input = new ArrayInput([]);
 
     $console->doRun($input, $output);
     $buffered = $output->fetch();
@@ -44,6 +52,12 @@ class ConsoleTest extends PHPUnit_Framework_TestCase
   }
 
   /**
+   * @param      $instance
+   * @param      $string
+   * @param bool $exception
+   *
+   * @throws \Exception
+   *
    * @dataProvider findProvider
    */
   public function testFind($instance, $string, $exception = false)
@@ -68,6 +82,6 @@ class ConsoleTest extends PHPUnit_Framework_TestCase
   }
 }
 
-class PhpWebServer extends \Cubex\Console\Commands\BuiltInWebServer
+class PhpWebServer extends BuiltInWebServer
 {
 }

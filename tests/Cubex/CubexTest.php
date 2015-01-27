@@ -1,6 +1,13 @@
 <?php
+namespace CubexTest\Cubex;
 
-class CubexTest extends PHPUnit_Framework_TestCase
+use Cubex\Cubex;
+use Cubex\CubexException;
+use Cubex\Http\Request;
+use Cubex\Http\Response;
+use Packaged\Config\Provider\Test\TestConfigProvider;
+
+class CubexTest extends \PHPUnit_Framework_TestCase
 {
   public function sampleProjectPath()
   {
@@ -9,19 +16,19 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function sampleProjectCubex()
   {
-    return new \Cubex\Cubex($this->sampleProjectPath());
+    return new Cubex($this->sampleProjectPath());
   }
 
   public function testConstruct()
   {
-    $cubex = new \Cubex\Cubex(__DIR__);
+    $cubex = new Cubex(__DIR__);
     $this->assertEquals(__DIR__, $cubex->getDocRoot());
     $this->assertEquals(dirname(__DIR__), $cubex->getProjectRoot());
   }
 
   public function testDoubleBoot()
   {
-    $cubex = new \Cubex\Cubex(__DIR__);
+    $cubex = new Cubex(__DIR__);
     $cubex->boot();
     $sm = $cubex->make('service.manager');
     $cubex->boot();
@@ -30,16 +37,16 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function testExceptionWhenNoDocRootDefined()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
-    $cubex   = new \Cubex\Cubex();
+    $request = Request::createFromGlobals();
+    $cubex = new Cubex();
     $this->setExpectedException('RuntimeException');
-    $cubex->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $cubex->handle($request, Cubex::MASTER_REQUEST, false);
   }
 
   public function testConfiguration()
   {
-    $config = new \Packaged\Config\Provider\Test\TestConfigProvider();
-    $cubex  = new \Cubex\Cubex();
+    $config = new TestConfigProvider();
+    $cubex = new Cubex();
     $this->assertEquals(null, $cubex->getConfiguration());
     $this->assertEquals($cubex, $cubex->configure($config));
     $this->assertEquals($config, $cubex->getConfiguration());
@@ -47,7 +54,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function testFlags()
   {
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $this->assertFalse($cubex->hasFlag('test'));
     $cubex->setFlag('test');
     $this->assertTrue($cubex->hasFlag('test'));
@@ -61,16 +68,16 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function testExceptions()
   {
-    $cubex     = new \Cubex\Cubex();
-    $exception = new Exception("Test Exception", 345);
-    $resp      = $cubex->exceptionResponse($exception);
+    $cubex = new Cubex();
+    $exception = new \Exception("Test Exception", 345);
+    $resp = $cubex->exceptionResponse($exception);
     $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $resp);
     $this->assertContains('An uncaught exception was thrown', (string)$resp);
     $this->assertContains('Test Exception', (string)$resp);
     $this->assertContains('345', (string)$resp);
 
-    $exception = \Cubex\CubexException::debugException("msg", 123, 'solution');
-    $resp      = $cubex->exceptionResponse($exception);
+    $exception = CubexException::debugException("msg", 123, 'solution');
+    $resp = $cubex->exceptionResponse($exception);
     $this->assertContains('msg', (string)$resp);
     $this->assertContains('123', (string)$resp);
     $this->assertContains('solution', (string)$resp);
@@ -78,9 +85,9 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function testHandle()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
-    $cubex   = $this->sampleProjectCubex();
-    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $request = Request::createFromGlobals();
+    $cubex = $this->sampleProjectCubex();
+    $cubex->configure(new TestConfigProvider());
     $resp = $cubex->handle($request);
     $this->assertTrue($cubex->bound('request'));
     $this->assertInstanceOf('\Cubex\Http\Request', $cubex->make('request'));
@@ -89,9 +96,9 @@ class CubexTest extends PHPUnit_Framework_TestCase
 
   public function testFavicon()
   {
-    $request = \Cubex\Http\Request::create('/favicon.ico');
-    $cubex   = $this->sampleProjectCubex();
-    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $request = Request::create('/favicon.ico');
+    $cubex = $this->sampleProjectCubex();
+    $cubex->configure(new TestConfigProvider());
     $resp = $cubex->handle($request);
     $this->assertInstanceOf(
       '\Symfony\Component\HttpFoundation\BinaryFileResponse',
@@ -102,7 +109,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
   public function testInvalidRequest()
   {
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
-    $cubex   = $this->sampleProjectCubex();
+    $cubex = $this->sampleProjectCubex();
 
     $resp = $cubex->handle($request);
     $this->assertContains('An uncaught exception was thrown', (string)$resp);
@@ -114,7 +121,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
     );
     $cubex->handle(
       $request,
-      \Cubex\Cubex::MASTER_REQUEST,
+      Cubex::MASTER_REQUEST,
       false
     );
 
@@ -139,22 +146,22 @@ class CubexTest extends PHPUnit_Framework_TestCase
       "RuntimeException",
       "No Cubex Kernel has been configured"
     );
-    $cubex = new \Cubex\Cubex(__DIR__);
-    $cubex->instance('\Cubex\Kernel\CubexKernel', new stdClass());
-    $request = \Cubex\Http\Request::createFromGlobals();
-    $cubex->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $cubex = new Cubex(__DIR__);
+    $cubex->instance('\Cubex\Kernel\CubexKernel', new \stdClass());
+    $request = Request::createFromGlobals();
+    $cubex->handle($request, Cubex::MASTER_REQUEST, false);
   }
 
   public function testBrokenKernelProvidedException()
   {
-    $cubex  = $this->sampleProjectCubex();
+    $cubex = $this->sampleProjectCubex();
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel');
     $kernel->expects($this->any())
       ->method("handle")
       ->will($this->returnValue((null)));
     $kernel->setCubex($cubex);
 
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
     $cubex->instance('\Cubex\Kernel\CubexKernel', $kernel);
     $this->assertNull($kernel->handle($request));
     $this->setExpectedException(
@@ -162,7 +169,7 @@ class CubexTest extends PHPUnit_Framework_TestCase
       "A valid response was not generated by the default kernel",
       500
     );
-    $cubex->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $cubex->handle($request, Cubex::MASTER_REQUEST, false);
   }
 
   /**
@@ -170,29 +177,29 @@ class CubexTest extends PHPUnit_Framework_TestCase
    */
   public function testResponse()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
 
-    $config = new \Packaged\Config\Provider\Test\TestConfigProvider();
+    $config = new TestConfigProvider();
 
-    $cubex = new \Cubex\Cubex(__DIR__);
+    $cubex = new Cubex(__DIR__);
     $cubex->configure($config);
 
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel');
     $kernel->expects($this->any())
       ->method("handle")
-      ->will($this->returnValue((new \Cubex\Http\Response("Good Data"))));
+      ->will($this->returnValue((new Response("Good Data"))));
     $kernel->setCubex($cubex);
 
     $cubex->instance('\Cubex\Kernel\CubexKernel', $kernel);
-    $cubex->handle($request, \Cubex\Cubex::MASTER_REQUEST, false);
+    $cubex->handle($request, Cubex::MASTER_REQUEST, false);
   }
 
   public function testConfigure()
   {
-    $config = new \Packaged\Config\Provider\Test\TestConfigProvider();
+    $config = new TestConfigProvider();
     $config->addItem("kernel", "project", 'Project');
 
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $cubex->configure($config);
     $this->assertSame($config, $cubex->getConfiguration());
   }
@@ -201,41 +208,41 @@ class CubexTest extends PHPUnit_Framework_TestCase
   {
     putenv('CUBEX_ENV');
 
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $this->assertEquals('local', $cubex->env());
 
     $cubex->setEnv('rand');
     $this->assertEquals('rand', $cubex->env());
 
     $_ENV['CUBEX_ENV'] = 'prod';
-    $cubex             = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $this->assertEquals('prod', $cubex->env());
 
     putenv('CUBEX_ENV=stage');
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $this->assertEquals('stage', $cubex->env());
 
     putenv('CUBEX_ENV');
   }
 
   /**
-   * @param Exception $e
-   * @param           $contains
+   * @param \Exception $e
+   * @param            $contains
    *
    * @dataProvider exceptionProvider
    */
-  public function testExceptionAsString(Exception $e, $contains)
+  public function testExceptionAsString(\Exception $e, $contains)
   {
     if(is_array($contains))
     {
       foreach($contains as $contain)
       {
-        $this->assertContains($contain, \Cubex\Cubex::exceptionAsString($e));
+        $this->assertContains($contain, Cubex::exceptionAsString($e));
       }
     }
     else
     {
-      $this->assertContains($contains, \Cubex\Cubex::exceptionAsString($e));
+      $this->assertContains($contains, Cubex::exceptionAsString($e));
     }
   }
 
@@ -243,19 +250,19 @@ class CubexTest extends PHPUnit_Framework_TestCase
   {
     return [
       [
-        \Cubex\CubexException::debugException('Broken', 404, 'debug'),
+        CubexException::debugException('Broken', 404, 'debug'),
         ['Broken</h2>', '(404)', 'debug</div>']
       ],
       [
-        \Cubex\CubexException::debugException('', 0, ['a' => 'b']),
+        CubexException::debugException('', 0, ['a' => 'b']),
         [print_r(['a' => 'b'], true)]
       ],
       [
-        \Cubex\CubexException::debugException('', 0, false),
+        CubexException::debugException('', 0, false),
         ['>bool(false)']
       ],
       [
-        \Cubex\CubexException::debugException('', 0, 23),
+        CubexException::debugException('', 0, 23),
         ['int(23)']
       ]
     ];

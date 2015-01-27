@@ -1,6 +1,12 @@
 <?php
+namespace CubexTest\Cubex\Http\Visitor;
 
-class MaxmindVisitorTestInternal extends \InternalCubexTestCase
+use Cubex\Http\Request;
+use Cubex\Http\Visitor\MaxmindVisitor;
+use CubexTest\InternalCubexTestCase;
+use Packaged\Config\Provider\ConfigSection;
+
+class MaxmindVisitorTestInternal extends InternalCubexTestCase
 {
   protected $_geoipdb;
 
@@ -9,7 +15,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
     $dbgz = 'http://geolite.maxmind.com/download/'
       . 'geoip/database/GeoLite2-City.mmdb.gz';
 
-    $filename       = build_path(sys_get_temp_dir(), 'GeoLite2-City.mmdb.gz');
+    $filename = build_path(sys_get_temp_dir(), 'GeoLite2-City.mmdb.gz');
     $this->_geoipdb = substr($filename, 0, -3);
 
     if(!file_exists($this->_geoipdb))
@@ -27,7 +33,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
       file_put_contents($filename, file_get_contents($dbgz, false, $context));
 
       $file = gzopen($filename, 'rb');
-      $out  = fopen($this->_geoipdb, 'wb');
+      $out = fopen($this->_geoipdb, 'wb');
       while(!gzeof($file))
       {
         fwrite($out, gzread($file, 4096));
@@ -57,15 +63,15 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
       return;
     }
 
-    $cubex   = $this->newCubexInstace();
-    $request = new \Cubex\Http\Request();
-    $server  = ['REMOTE_ADDR' => $remoteAddr];
+    $cubex = $this->newCubexInstace();
+    $request = new Request();
+    $server = ['REMOTE_ADDR' => $remoteAddr];
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
     if($config === null)
     {
-      $config = new \Packaged\Config\Provider\ConfigSection(
+      $config = new ConfigSection(
         'http_visitor',
         ['database' => $this->_geoipdb]
       );
@@ -75,7 +81,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
 
     $cubex->getConfiguration()->addSection($config);
 
-    $visitor = new \Cubex\Http\Visitor\MaxmindVisitor();
+    $visitor = new MaxmindVisitor();
     $visitor->configure($config);
     $visitor->setClientIp($remoteAddr);
     $this->assertEquals($country, $visitor->getCountry());
@@ -89,7 +95,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
       "Exception",
       "You must configure the MaxMindVisitor class"
     );
-    $visitor = new \Cubex\Http\Visitor\MaxmindVisitor();
+    $visitor = new MaxmindVisitor();
     $visitor->getCountry();
   }
 
@@ -99,9 +105,9 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
       "Exception",
       "No maxmind licence key specified"
     );
-    $visitor = new \Cubex\Http\Visitor\MaxmindVisitor();
+    $visitor = new MaxmindVisitor();
     $visitor->configure(
-      new \Packaged\Config\Provider\ConfigSection(
+      new ConfigSection(
         'http_visitor',
         [
           'mode'    => 'client',
@@ -118,9 +124,9 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
       "Exception",
       "No maxmind user id specified"
     );
-    $visitor = new \Cubex\Http\Visitor\MaxmindVisitor();
+    $visitor = new MaxmindVisitor();
     $visitor->configure(
-      new \Packaged\Config\Provider\ConfigSection(
+      new ConfigSection(
         'http_visitor',
         [
           'mode'        => 'client',
@@ -133,9 +139,9 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
 
   public function testClientCreates()
   {
-    $visitor = new \Cubex\Http\Visitor\MaxmindVisitor();
+    $visitor = new MaxmindVisitor();
     $visitor->configure(
-      new \Packaged\Config\Provider\ConfigSection(
+      new ConfigSection(
         'http_visitor',
         [
           'mode'        => 'client',
@@ -155,7 +161,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
         'CN',
         'Beijing',
         '11',
-        new \Packaged\Config\Provider\ConfigSection(
+        new ConfigSection(
           'http_visitor',
           [
             'mode'     => 'reader',
@@ -168,7 +174,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
         'US',
         'San Francisco',
         'CA',
-        new \Packaged\Config\Provider\ConfigSection(
+        new ConfigSection(
           'http_visitor',
           [
             'mode'     => 'reader',
@@ -182,7 +188,7 @@ class MaxmindVisitorTestInternal extends \InternalCubexTestCase
         'UK',
         'Portsmouth',
         'england',
-        new \Packaged\Config\Provider\ConfigSection(
+        new ConfigSection(
           'http_visitor',
           ['city' => 'Portsmouth', 'country' => 'UK', 'region' => 'england']
         )

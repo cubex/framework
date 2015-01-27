@@ -1,17 +1,23 @@
 <?php
 namespace CubexTest\Auth\Providers;
 
+use Cubex\Auth\Providers\IPAuthProvider;
+use Cubex\Cubex;
+use Cubex\Http\Request;
+use Packaged\Config\Provider\ConfigSection;
+use Packaged\Config\Provider\Test\TestConfigProvider;
+
 class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
 {
   public function testLogout()
   {
-    $auth = new \Cubex\Auth\Providers\IPAuthProvider();
+    $auth = new IPAuthProvider();
     $this->assertFalse($auth->logout());
   }
 
   public function testForgottenPassword()
   {
-    $auth = new \Cubex\Auth\Providers\IPAuthProvider();
+    $auth = new IPAuthProvider();
     $this->setExpectedException(
       '\Exception',
       'Forgotten Password is not available'
@@ -24,8 +30,10 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
    * @param $username
    * @param $userid
    * @param $display
+   * @param $exception
+   * @param $corruptRequest
    *
-   * @throws Exception
+   * @throws \Exception
    *
    * @dataProvider ipOptions
    */
@@ -39,7 +47,7 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
       $this->setExpectedException('\Exception', $exception);
     }
 
-    $cnf                 = [];
+    $cnf = [];
     $cnf['192.168.0.10'] = [
       'username' => 'bob',
       'userid'   => 3,
@@ -53,22 +61,20 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
       'username' => 'bob',
       'display'  => 'Bobby'
     ];
-    $cnf['tester']       = [
+    $cnf['tester'] = [
       'username' => 'pet',
       'userid'   => 2,
       'display'  => 'Dog'
     ];
     $cnf['192.168.0.20'] = ['alias' => 'tester'];
 
-    $configProvider = new \Packaged\Config\Provider\Test\TestConfigProvider();
-    $authSection    = new \Packaged\Config\Provider\ConfigSection(
-      'ipauth', $cnf
-    );
+    $configProvider = new TestConfigProvider();
+    $authSection = new ConfigSection('ipauth', $cnf);
     $configProvider->addSection($authSection);
 
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $cubex->configure($configProvider);
-    $request = new \Cubex\Http\Request();
+    $request = new Request();
 
     $request->server->set('REMOTE_ADDR', $ip);
     if($corruptRequest)
@@ -79,7 +85,7 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
     {
       $cubex->instance('request', $request);
     }
-    $auth = new \Cubex\Auth\Providers\IPAuthProvider();
+    $auth = new IPAuthProvider();
     $auth->setCubex($cubex);
     $user = $auth->login('test', 'test');
 

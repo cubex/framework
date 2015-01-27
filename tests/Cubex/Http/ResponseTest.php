@@ -1,10 +1,14 @@
 <?php
+namespace CubexTest\Cubex\Http;
 
-class ResponseTest extends PHPUnit_Framework_TestCase
+use Cubex\Http\Response;
+use Illuminate\Support\Contracts\RenderableInterface;
+
+class ResponseTest extends \PHPUnit_Framework_TestCase
 {
   public function testExtendsSymfonyResponse()
   {
-    $response = new \Cubex\Http\Response();
+    $response = new Response();
     $this->assertInstanceOf(
       '\Symfony\Component\HttpFoundation\Response',
       $response
@@ -13,7 +17,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
   public function testSend()
   {
-    $response     = new \Cubex\Http\Response();
+    $response = new Response();
     $responseSend = $response->send();
     $this->assertObjectHasAttribute('headers', $responseSend);
     $this->assertObjectHasAttribute('content', $responseSend);
@@ -25,14 +29,14 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
   public function testFromText()
   {
-    $response = new \Cubex\Http\Response();
+    $response = new Response();
     $response->fromText("Hello World");
     $this->assertContains('Content-Type:  text/plain', (string)$response);
   }
 
   public function testFromJson()
   {
-    $response = new \Cubex\Http\Response();
+    $response = new Response();
     $response->from(["a" => "b"]);
     $this->assertStringEndsWith('{"a":"b"}', (string)$response);
     $response->fromJson(["a" => "b", "c" => "d"]);
@@ -41,7 +45,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
   public function testFromJsonP()
   {
-    $response = new \Cubex\Http\Response();
+    $response = new Response();
     $response->fromJsonp("phpunit", (object)["a" => "b"]);
     $this->assertStringEndsWith('phpunit({"a":"b"})', (string)$response);
   }
@@ -49,7 +53,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
   public function testRenderable()
   {
     $renderable = new RenderableClass();
-    $response   = new \Cubex\Http\Response();
+    $response = new Response();
     $response->from($renderable);
     $this->assertContains('rendered content', (string)$response);
   }
@@ -60,14 +64,13 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     {
       define('PHP_START', microtime(true));
     }
-    $response = new \Cubex\Http\Response();
+    $response = new Response();
     $response->setCubexHeaders();
     $this->assertContains('X-Execution-Time', (string)$response);
   }
 }
 
-class RenderableClass
-  implements \Illuminate\Support\Contracts\RenderableInterface
+class RenderableClass implements RenderableInterface
 {
   public function render()
   {

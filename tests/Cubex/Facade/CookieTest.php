@@ -1,10 +1,15 @@
 <?php
+namespace CubexTest\Cubex\Facade;
 
-class CookieTest extends PHPUnit_Framework_TestCase
+use Cubex\Cubex;
+use Cubex\Facade\Cookie;
+use Cubex\Http\Request;
+
+class CookieTest extends \PHPUnit_Framework_TestCase
 {
   public function testMake()
   {
-    $cookie = \Cubex\Facade\Cookie::make('tester', 'values');
+    $cookie = Cookie::make('tester', 'values');
     $this->assertInstanceOf(
       '\Symfony\Component\HttpFoundation\Cookie',
       $cookie
@@ -15,32 +20,32 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
   public function testGet()
   {
-    $cubex   = new \Cubex\Cubex();
-    $request = new \Cubex\Http\Request([], [], [], ['ckey' => 'cookie']);
+    $cubex = new Cubex();
+    $request = new Request([], [], [], ['ckey' => 'cookie']);
     $cubex->instance('request', $request);
-    $app = \Cubex\Facade\Cookie::getFacadeApplication();
-    \Cubex\Facade\Cookie::setFacadeApplication($cubex);
-    $this->assertEquals('cookie', \Cubex\Facade\Cookie::get('ckey'));
-    $this->assertEquals('default', \Cubex\Facade\Cookie::get('cs', 'default'));
-    \Cubex\Facade\Cookie::setFacadeApplication($app);
+    $app = Cookie::getFacadeApplication();
+    Cookie::setFacadeApplication($cubex);
+    $this->assertEquals('cookie', Cookie::get('ckey'));
+    $this->assertEquals('default', Cookie::get('cs', 'default'));
+    Cookie::setFacadeApplication($app);
   }
 
   public function testQueue()
   {
     $cookie = new \Symfony\Component\HttpFoundation\Cookie('test', 'val');
-    \Cubex\Facade\Cookie::queue($cookie);
-    $this->assertTrue(\Cubex\Facade\Cookie::getJar()->hasQueued('test'));
+    Cookie::queue($cookie);
+    $this->assertTrue(Cookie::getJar()->hasQueued('test'));
   }
 
   public function testDelete()
   {
-    \Cubex\Facade\Cookie::delete('deletetest');
-    $this->assertTrue(\Cubex\Facade\Cookie::getJar()->hasQueued('deletetest'));
+    Cookie::delete('deletetest');
+    $this->assertTrue(Cookie::getJar()->hasQueued('deletetest'));
   }
 
   public function testForget()
   {
-    $cookie = \Cubex\Facade\Cookie::forget('testforget');
+    $cookie = Cookie::forget('testforget');
     $this->assertTrue($cookie->getExpiresTime() < time());
     $this->assertEquals('testforget', $cookie->getName());
   }

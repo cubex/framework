@@ -1,16 +1,18 @@
 <?php
 namespace CubexTest\Cubex\Kernel;
 
+use Cubex\Cubex;
 use Cubex\Http\Request;
 use Cubex\Kernel\EndpointKernel;
+use CubexTest\InternalCubexTestCase;
 use Packaged\Api\Abstracts\AbstractApiResponse;
 use Packaged\Api\Exceptions\ApiException;
 
-class EndpointKernelTest extends \InternalCubexTestCase
+class EndpointKernelTest extends InternalCubexTestCase
 {
   protected function getCubex()
   {
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
     return $cubex;
@@ -54,7 +56,7 @@ class MockEndpointKernel extends EndpointKernel
 
   public function getResult()
   {
-    $result       = new MockEndpointResult();
+    $result = new MockEndpointResult();
     $result->name = 'Test';
     return $result;
   }

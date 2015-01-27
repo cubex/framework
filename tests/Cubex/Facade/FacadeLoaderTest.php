@@ -1,5 +1,5 @@
 <?php
-namespace Facade;
+namespace CubexTest\Cubex\Facade;
 
 use Cubex\Facade\FacadeLoader;
 

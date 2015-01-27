@@ -1,4 +1,8 @@
 <?php
+namespace CubexTest\Cubex\Console\Commands;
+
+use Cubex\Console\Commands\BuiltInWebServer;
+use CubexTest\Cubex\Console\CommandTestCase;
 
 class BuiltInWebServerTest extends CommandTestCase
 {
@@ -38,7 +42,7 @@ class BuiltInWebServerTest extends CommandTestCase
   }
 }
 
-class TestableBuiltInWebServer extends \Cubex\Console\Commands\BuiltInWebServer
+class TestableBuiltInWebServer extends BuiltInWebServer
 {
   public function __construct($name = null)
   {

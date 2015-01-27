@@ -1,18 +1,29 @@
 <?php
+namespace CubexTest\Cubex\ServiceManager\Services;
 
-class AuthServiceTest extends PHPUnit_Framework_TestCase
+use Cubex\Auth\AuthedUser;
+use Cubex\Auth\IAuthProvider;
+use Cubex\Cubex;
+use Cubex\Facade\Auth;
+use Cubex\Facade\Cookie;
+use Cubex\Http\Request;
+use Cubex\ServiceManager\ServiceManager;
+use Illuminate\Cookie\CookieJar;
+use Packaged\Config\Provider\Test\TestConfigProvider;
+
+class AuthServiceTest extends \PHPUnit_Framework_TestCase
 {
   /**
    * @return \Cubex\ServiceManager\Services\AuthService
    */
   public function getAuthService()
   {
-    $cubex = new \Cubex\Cubex();
-    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $cubex = new Cubex();
+    $cubex->configure(new TestConfigProvider());
     $cubex->processConfiguration($cubex->getConfiguration());
-    $cubex->instance('request', \Cubex\Http\Request::createFromGlobals());
+    $cubex->instance('request', Request::createFromGlobals());
     $cubex->instance('\Cubex\Auth\IAuthProvider', new TestAuthProvider());
-    $sm = new \Cubex\ServiceManager\ServiceManager();
+    $sm = new ServiceManager();
     $sm->setCubex($cubex);
     $sm->boot();
     return $cubex['auth'];
@@ -21,30 +32,30 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
   public function testAuthFacade()
   {
     $provider = new TestAuthProvider();
-    $authy    = new \Cubex\Auth\AuthedUser('brooke', 1);
+    $authy = new AuthedUser('brooke', 1);
     $provider->setRetrieve($authy);
 
-    $cubex = new \Cubex\Cubex();
-    $cubex->configure(new \Packaged\Config\Provider\Test\TestConfigProvider());
+    $cubex = new Cubex();
+    $cubex->configure(new TestConfigProvider());
     $cubex->processConfiguration($cubex->getConfiguration());
-    $cubex->instance('request', \Cubex\Http\Request::createFromGlobals());
+    $cubex->instance('request', Request::createFromGlobals());
     $cubex->instance('\Cubex\Auth\IAuthProvider', $provider);
-    $sm = new \Cubex\ServiceManager\ServiceManager();
+    $sm = new ServiceManager();
     $sm->setCubex($cubex);
     $sm->boot();
-    \Cubex\Facade\Auth::setFacadeApplication($cubex);
+    Auth::setFacadeApplication($cubex);
 
     $username = 'valid';
-    $this->assertTrue(\Cubex\Facade\Auth::forgottenPassword($username));
-    $authUser = \Cubex\Facade\Auth::login($username, 'password');
+    $this->assertTrue(Auth::forgottenPassword($username));
+    $authUser = Auth::login($username, 'password');
     $this->assertEquals("brooke", $authUser->getUsername());
 
-    $autho = \Cubex\Facade\Auth::getAuthedUser();
+    $autho = Auth::getAuthedUser();
     $this->assertEquals("brooke", $autho->getUsername());
-    \Cubex\Facade\Auth::updateAuthedUser($autho);
-    $this->assertTrue(\Cubex\Facade\Auth::isLoggedIn());
-    $this->assertTrue(\Cubex\Facade\Auth::logout());
-    $this->assertFalse(\Cubex\Facade\Auth::isLoggedIn());
+    Auth::updateAuthedUser($autho);
+    $this->assertTrue(Auth::isLoggedIn());
+    $this->assertTrue(Auth::logout());
+    $this->assertFalse(Auth::isLoggedIn());
   }
 
   public function testInvalidLoginException()
@@ -63,9 +74,9 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
 
   public function testAuthService()
   {
-    $app  = \Cubex\Facade\Cookie::getFacadeApplication();
+    $app = Cookie::getFacadeApplication();
     $auth = $this->getAuthService();
-    \Cubex\Facade\Cookie::setFacadeApplication($auth->getCubex());
+    Cookie::setFacadeApplication($auth->getCubex());
     $this->assertInstanceOf(
       '\Cubex\ServiceManager\Services\AuthService',
       $auth
@@ -84,19 +95,19 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($auth->isLoggedIn());
 
     $this->assertEquals('cubex_login', $auth->getCookieName());
-    $cookies = \Cubex\Facade\Cookie::getJar();
+    $cookies = Cookie::getJar();
     /**
-     * @var $cookies Illuminate\Cookie\CookieJar
+     * @var $cookies CookieJar
      */
     $this->assertTrue($cookies->hasQueued('cubex_login'));
-    \Cubex\Facade\Cookie::setFacadeApplication($app);
+    Cookie::setFacadeApplication($app);
   }
 
   public function testGetAuthedUser()
   {
-    $auth     = $this->getAuthService();
+    $auth = $this->getAuthService();
     $provider = $auth->getAuthProvider();
-    $usr      = new \Cubex\Auth\AuthedUser(
+    $usr = new AuthedUser(
       'brooke', 56, ['surname' => 'Bryan']
     );
 
@@ -107,8 +118,8 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
       $auth->logout();
     }
 
-    $request = \Cubex\Facade\Cookie::getFacadeApplication()->make('request');
-    if($request instanceof \Cubex\Http\Request)
+    $request = Cookie::getFacadeApplication()->make('request');
+    if($request instanceof Request)
     {
       $request->cookies->set('cubex_login', 'InvalidCookie');
       $this->assertFalse($auth->isLoggedIn());
@@ -125,10 +136,10 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
   public function testUpdateAuthedUser()
   {
     $auth = $this->getAuthService();
-    $usr  = new \Cubex\Auth\AuthedUser(
+    $usr = new AuthedUser(
       'brooke', 56, ['surname' => 'Bryan', 'test' => 'one']
     );
-    //$request = \Cubex\Facade\Cookie::getFacadeApplication()->make('request');
+    //$request = Cookie::getFacadeApplication()->make('request');
     /**
      * @var $request \Cubex\Http\Request
      */
@@ -149,7 +160,7 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
   }
 }
 
-class TestAuthProvider implements \Cubex\Auth\IAuthProvider
+class TestAuthProvider implements IAuthProvider
 {
   protected $_retrieve;
 
@@ -168,7 +179,7 @@ class TestAuthProvider implements \Cubex\Auth\IAuthProvider
       {
         return $this->_retrieve;
       }
-      return new \Cubex\Auth\AuthedUser('user', 1);
+      return new AuthedUser('user', 1);
     }
     return null;
   }
@@ -191,13 +202,13 @@ class TestAuthProvider implements \Cubex\Auth\IAuthProvider
    *
    * @return \Cubex\Auth\IAuthedUser
    *
-   * @throws Exception
+   * @throws \Exception
    */
   public function retrieveUser()
   {
     if($this->_retrieve === null)
     {
-      throw new Exception('Unable to auth user');
+      throw new \Exception('Unable to auth user');
     }
     return $this->_retrieve;
   }
@@ -214,6 +225,6 @@ class TestAuthProvider implements \Cubex\Auth\IAuthProvider
     {
       return true;
     }
-    throw new Exception('User not found');
+    throw new \Exception('User not found');
   }
 }

@@ -1,6 +1,9 @@
 <?php
+namespace CubexTest\Cubex\View;
 
-class ViewModelHelperTraitTest extends PHPUnit_Framework_TestCase
+use Cubex\View\ViewModelHelperTrait;
+
+class ViewModelHelperTraitTest extends \PHPUnit_Framework_TestCase
 {
   public function testBasics()
   {
@@ -43,7 +46,7 @@ class ViewModelHelperTraitTest extends PHPUnit_Framework_TestCase
  */
 class TestableViewModelHelperTrait
 {
-  use \Cubex\View\ViewModelHelperTrait;
+  use ViewModelHelperTrait;
 
   protected $_banners;
 

@@ -1,6 +1,14 @@
 <?php
+namespace CubexTest\Cubex\Http\Visitor;
 
-class VisitorTestInternal extends \InternalCubexTestCase
+use Cubex\Http\Request;
+use Cubex\Http\Visitor\MockVisitorInfo;
+use Cubex\Http\Visitor\Visitor;
+use CubexTest\InternalCubexTestCase;
+use Packaged\Config\Provider\ConfigSection;
+use Packaged\Helpers\System;
+
+class VisitorTestInternal extends InternalCubexTestCase
 {
   /**
    * @param      $remoteAddr
@@ -16,19 +24,19 @@ class VisitorTestInternal extends \InternalCubexTestCase
   )
   {
     $cubex = $this->newCubexInstace();
-    $request = new \Cubex\Http\Request();
+    $request = new Request();
     $server = ['REMOTE_ADDR' => $remoteAddr];
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
     if($config === null)
     {
-      $config = new \Packaged\Config\Provider\ConfigSection('http_visitor', []);
+      $config = new ConfigSection('http_visitor', []);
     }
 
     $cubex->getConfiguration()->addSection($config);
 
-    $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
+    $visitor = new Visitor($request, $cubex);
     $visitor->setClientIp($remoteAddr);
     $this->assertEquals($country, $visitor->getCountry());
     $this->assertEquals($city, $visitor->getCity());
@@ -37,12 +45,12 @@ class VisitorTestInternal extends \InternalCubexTestCase
 
   public function testFailover()
   {
-    $config = new \Packaged\Config\Provider\ConfigSection(
+    $config = new ConfigSection(
       'http_visitor',
       ['failover' => 'http.failover']
     );
 
-    $failover = new \Cubex\Http\Visitor\MockVisitorInfo(
+    $failover = new MockVisitorInfo(
       'IE',
       'Killarney',
       'Kerry'
@@ -52,19 +60,19 @@ class VisitorTestInternal extends \InternalCubexTestCase
       $config
     );
     $cubex = $this->newCubexInstace();
-    $request = new \Cubex\Http\Request();
+    $request = new Request();
     $server = ['REMOTE_ADDR' => '123.123.123.123'];
     $request->initialize([], [], [], [], [], $server);
     $cubex->getConfiguration()->addSection($config);
     $cubex->instance('request', $request);
     $cubex->instance('http.failover', $failover);
 
-    $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
+    $visitor = new Visitor($request, $cubex);
     $this->assertEquals('IE', $visitor->getCountry());
     $this->assertEquals('Killarney', $visitor->getCity());
     $this->assertEquals('Kerry', $visitor->getRegion());
 
-    $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
+    $visitor = new Visitor($request, $cubex);
     $visitor->setFailoverLookup($failover);
     $this->assertEquals('IE', $visitor->getCountry());
     $this->assertEquals('Killarney', $visitor->getCity());
@@ -74,7 +82,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
   public function testFromAppEngine()
   {
     $cubex = $this->newCubexInstace();
-    $request = new \Cubex\Http\Request();
+    $request = new Request();
     $server = [
       'REMOTE_ADDR'              => '123.123.123.123',
       'SERVER_SOFTWARE'          => 'Google App Engine/1.0',
@@ -85,7 +93,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
-    $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
+    $visitor = new Visitor($request, $cubex);
     $this->assertEquals('US', $visitor->getCountry());
     $this->assertEquals('Mountain View', $visitor->getCity());
     $this->assertEquals('CA', $visitor->getRegion());
@@ -94,7 +102,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
   public function testFromModGeoIp()
   {
     $cubex = $this->newCubexInstace();
-    $request = new \Cubex\Http\Request();
+    $request = new Request();
     $server = [
       'REMOTE_ADDR'        => '123.123.123.123',
       'GEOIP_ADDR'         => '123.123.123.123',
@@ -105,7 +113,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
     $request->initialize([], [], [], [], [], $server);
     $cubex->instance('request', $request);
 
-    $visitor = new \Cubex\Http\Visitor\Visitor($request, $cubex);
+    $visitor = new Visitor($request, $cubex);
     $this->assertEquals('US', $visitor->getCountry());
     $this->assertEquals('Mountain View', $visitor->getCity());
     $this->assertEquals('CA', $visitor->getRegion());
@@ -113,7 +121,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
 
   public function visitorProvider()
   {
-    $whois = \Packaged\Helpers\System::commandExists('whois');
+    $whois = System::commandExists('whois');
     return [
       ['127.0.0.1', 'GB', 'London', 'eng'],
       [
@@ -121,7 +129,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
         'UK',
         'Portsmouth',
         'england',
-        new \Packaged\Config\Provider\ConfigSection(
+        new ConfigSection(
           'http_visitor',
           ['city' => 'Portsmouth', 'country' => 'UK', 'region' => 'england']
         )
@@ -131,7 +139,7 @@ class VisitorTestInternal extends \InternalCubexTestCase
         $whois ? 'US' : 'GB',
         $whois ? 'San Francisco' : 'London',
         $whois ? 'CA' : 'eng',
-        new \Packaged\Config\Provider\ConfigSection(
+        new ConfigSection(
           'http_visitor',
           ['whois' => true]
         )

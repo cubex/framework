@@ -1,10 +1,13 @@
 <?php
+namespace CubexTest\Cubex\Http;
 
-class RequestTest extends PHPUnit_Framework_TestCase
+use Cubex\Http\Request;
+
+class RequestTest extends \PHPUnit_Framework_TestCase
 {
   public function testExtendsSymfonyRequest()
   {
-    $request = new \Cubex\Http\Request();
+    $request = new Request();
     $this->assertInstanceOf(
       '\Symfony\Component\HttpFoundation\Request',
       $request
@@ -13,7 +16,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
   public function testPort()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
     $request->headers->set('HOST', 'localhost:8080');
     $this->assertEquals(8080, $request->port());
   }
@@ -25,8 +28,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
     $subDomain = null, $domain = null, $tld = null
   )
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
-    $host    = trim(implode('.', func_get_args()), '.');
+    $request = Request::createFromGlobals();
+    $host = trim(implode('.', func_get_args()), '.');
     $request->headers->set('HOST', $host);
 
     $this->assertEquals($subDomain, $request->subDomain());
@@ -50,7 +53,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
   public function testUrlSprintf()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
     $request->headers->set('HOST', 'www.cubex.local:81');
     $request->server->set('REQUEST_URI', '/path');
 
@@ -70,7 +73,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
   public function testStandardPort()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
     $request->headers->set('HOST', 'www.cubex.local:81');
     $request->server->set('REQUEST_URI', '/path');
     $this->assertFalse($request->isStandardPort());
@@ -82,7 +85,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
   public function testMatchDomain()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
 
     $request->headers->set('HOST', 'www.cubex.local');
     $this->assertTrue($request->matchDomain("cubex", null, null));
@@ -95,7 +98,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
   public function testDefinedTlds()
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
     $this->assertEmpty($request->getDefinedTlds());
     $request->defineTlds(['replace']);
     $request->defineTlds(['dev', 'cubex'], false);
@@ -114,7 +117,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
    */
   public function testPaths($path, $expect, $depth = 1, $offset = -1)
   {
-    $request = \Cubex\Http\Request::createFromGlobals();
+    $request = Request::createFromGlobals();
     /**
      * @var \Cubex\Http\Request $request
      */
@@ -141,7 +144,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
   public function testCreateConsoleRequest()
   {
     $_SERVER['consoletest'] = 'tested';
-    $request                = \Cubex\Http\Request::createConsoleRequest();
+    $request = Request::createConsoleRequest();
     $this->assertEquals('localhost', $request->getHost());
     $this->assertEquals('GET', $request->getMethod());
     $this->assertEquals('http', $request->getScheme());
@@ -157,8 +160,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
    */
   public function testIsPrivateNetwork($remoteAddr, $isPrivate)
   {
-    $request = new \Cubex\Http\Request();
-    $server  = ['REMOTE_ADDR' => $remoteAddr];
+    $request = new Request();
+    $server = ['REMOTE_ADDR' => $remoteAddr];
     $request->initialize([], [], [], [], [], $server);
     $this->assertEquals($isPrivate, $request->isPrivateNetwork());
     $this->assertEquals($isPrivate, $request->isPrivateNetwork($remoteAddr));

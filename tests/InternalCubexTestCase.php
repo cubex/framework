@@ -1,25 +1,31 @@
 <?php
-abstract class InternalCubexTestCase extends PHPUnit_Framework_TestCase
+namespace CubexTest;
+
+use Cubex\Cubex;
+use Packaged\Config\Provider\Test\TestConfigProvider;
+use Packaged\Config\Provider\Test\TestConfigSection;
+
+abstract class InternalCubexTestCase extends \PHPUnit_Framework_TestCase
 {
   /**
    * @return \Cubex\Cubex
    */
   public function newCubexInstace()
   {
-    return (new \Cubex\Cubex(__DIR__))
+    return (new Cubex(__DIR__))
       ->configure(
-        (new \Packaged\Config\Provider\Test\TestConfigProvider())
+        (new TestConfigProvider())
           ->addSection(
-            new \Packaged\Config\Provider\Test\TestConfigSection("kernel")
+            new TestConfigSection("kernel")
           )
           ->addSection(
-            new \Packaged\Config\Provider\Test\TestConfigSection("routing")
+            new TestConfigSection("routing")
           )
           ->addSection(
-            new \Packaged\Config\Provider\Test\TestConfigSection("response")
+            new TestConfigSection("response")
           )
           ->addSection(
-            new \Packaged\Config\Provider\Test\TestConfigSection("errors")
+            new TestConfigSection("errors")
           )
       );
   }

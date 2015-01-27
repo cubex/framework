@@ -1,11 +1,16 @@
 <?php
+namespace CubexTest\Cubex\Routing;
+
+use Cubex\Routing\Route;
+use Cubex\Routing\Router;
+use CubexTest\InternalCubexTestCase;
 
 class RouterTestInternal extends InternalCubexTestCase
 {
   public function testCreateRoute()
   {
-    $route = \Cubex\Routing\Route::create("my route");
-    $router = new \Cubex\Routing\Router();
+    $route = Route::create("my route");
+    $router = new Router();
     $this->assertSame($route, $router->createRoute($route));
     $this->assertInstanceOf(
       '\Cubex\Routing\Route',
@@ -21,7 +26,7 @@ class RouterTestInternal extends InternalCubexTestCase
    */
   public function testMatchPattern($url, $pattern, $expect)
   {
-    $router = new \Cubex\Routing\Router();
+    $router = new Router();
     $this->assertEquals($expect, $router->matchPattern($url, $pattern));
   }
 
@@ -43,7 +48,7 @@ class RouterTestInternal extends InternalCubexTestCase
       "RuntimeException",
       "No routable subject has been defined"
     );
-    $router = new \Cubex\Routing\Router();
+    $router = new Router();
     $router->process("/hello");
   }
 
@@ -59,7 +64,7 @@ class RouterTestInternal extends InternalCubexTestCase
         "Unable to locate a suitable route"
       );
     }
-    $router = new \Cubex\Routing\Router();
+    $router = new Router();
     $router->setCubex($this->newCubexInstace());
     $subject = $this->getMock('\Cubex\Routing\IRoutable', ['getRoutes']);
     $subject->expects($this->any())->method("getRoutes")
@@ -85,7 +90,8 @@ class RouterTestInternal extends InternalCubexTestCase
       [
         "/hello/world",
         ['hello' => ['world' => ['test', 'array']]],
-        null,true
+        null,
+        true
       ],
       [
         "/hello/world/test",
@@ -112,7 +118,7 @@ class RouterTestInternal extends InternalCubexTestCase
   {
     $this->assertEquals(
       $expect,
-      \Cubex\Routing\Router::convertSimpleRoute($route)
+      Router::convertSimpleRoute($route)
     );
   }
 
@@ -132,7 +138,7 @@ class RouterTestInternal extends InternalCubexTestCase
 
   public function testRouteData()
   {
-    $router = new \Cubex\Routing\Router();
+    $router = new Router();
     $router->setCubex($this->newCubexInstace());
     $subject = $this->getMock('\Cubex\Routing\IRoutable', ['getRoutes']);
     $subject->expects($this->any())->method("getRoutes")

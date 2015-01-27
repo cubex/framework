@@ -1,13 +1,20 @@
 <?php
 
+namespace CubexTest\Cubex\Kernel;
+
+use Cubex\Cubex;
+use Cubex\Http\Request as CubexRequest;
+use Cubex\Http\Response;
+use Cubex\Kernel\SubdomainKernel;
+use CubexTest\InternalCubexTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+
 class SubdomainKernelTestInternal extends InternalCubexTestCase
 {
-  /**
-   * @return \Cubex\Kernel\CubexKernel
-   */
   public function getKernel($defaultAction = 'abc')
   {
-    $cubex = new \Cubex\Cubex();
+    $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
     $kernel = new SubDomainTester();
@@ -21,8 +28,8 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
     $this->setExpectedException('RuntimeException');
     $kernel = $this->getKernel();
     $kernel->handle(
-      \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
-      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      Request::createFromGlobals(),
+      HttpKernelInterface::MASTER_REQUEST,
       false
     );
   }
@@ -32,12 +39,13 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
    *
    * @param $subdomain
    * @param $expect
+   * @param $catch
    *
-   * @throws Exception
+   * @throws \Exception
    */
   public function testMethodCalls($subdomain, $expect, $catch = true)
   {
-    $request = \Cubex\Http\Request::createConsoleRequest();
+    $request = CubexRequest::createConsoleRequest();
     $request->headers->set('HOST', $subdomain . '.domain.tld');
     $class = $this->getKernel();
 
@@ -48,7 +56,7 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
 
     $response = $class->handle(
       $request,
-      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      HttpKernelInterface::MASTER_REQUEST,
       $catch
     );
 
@@ -58,7 +66,7 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
     }
     else
     {
-      if($response instanceof \Cubex\Http\Response)
+      if($response instanceof Response)
       {
         $actual = $response->getOriginalResponse();
       }
@@ -87,15 +95,15 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
   {
     $kernel = new SubDomainKernelAuthTest();
     $result = $kernel->handle(
-      \Cubex\Http\Request::createFromGlobals(),
-      \Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+      CubexRequest::createFromGlobals(),
+      HttpKernelInterface::MASTER_REQUEST,
       false
     );
     $this->assertContains('Please Login', (string)$result);
   }
 }
 
-class SubDomainTester extends \Cubex\Kernel\SubdomainKernel
+class SubDomainTester extends SubdomainKernel
 {
   protected $_default;
 
@@ -130,11 +138,11 @@ class SubDomainTester extends \Cubex\Kernel\SubdomainKernel
   }
 }
 
-class SubDomainKernelAuthTest extends \Cubex\Kernel\SubdomainKernel
+class SubDomainKernelAuthTest extends SubdomainKernel
 {
   public function canProcess()
   {
-    return new \Cubex\Http\Response('Please Login', 200);
+    return new Response('Please Login', 200);
   }
 }
 

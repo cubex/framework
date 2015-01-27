@@ -1,4 +1,9 @@
 <?php
+namespace CubexTest\Cubex\View;
+
+use Cubex\View\ViewModel;
+use namespaced\sub\TestView;
+use namespaced\Views\TestableView;
 
 class ViewModelTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,7 +28,7 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
 
   public function testCalculateLocation()
   {
-    $view = new namespaced\Views\TestableView();
+    $view = new TestableView();
     /**
      * @var $view \Cubex\View\ViewModel
      */
@@ -33,7 +38,7 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
     $this->assertStringEndsWith('Templates', $view->getTemplateDir());
     $this->assertEquals('TestableView', $view->getTemplateFile());
 
-    $view = new namespaced\sub\TestView();
+    $view = new TestView();
     /**
      * @var $view \Cubex\View\ViewModel
      */
@@ -51,12 +56,12 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
 
     $exception = 'Render Exception';
     $viewModel = new RenderableViewModel($exception);
-    $expect    = '<h1>An uncaught exception was thrown</h1>';
+    $expect = '<h1>An uncaught exception was thrown</h1>';
     $this->assertContains($expect, (string)$viewModel);
   }
 }
 
-class RenderableViewModel extends \Cubex\View\ViewModel
+class RenderableViewModel extends ViewModel
 {
   protected $_exception;
 
@@ -69,7 +74,7 @@ class RenderableViewModel extends \Cubex\View\ViewModel
   {
     if($this->_exception !== null)
     {
-      throw new Exception($this->_exception);
+      throw new \Exception($this->_exception);
     }
     return 'rendered';
   }

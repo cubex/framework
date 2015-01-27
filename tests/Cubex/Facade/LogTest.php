@@ -1,24 +1,29 @@
 <?php
+namespace CubexTest\Cubex\Facade;
+
 use Cubex\Cubex;
 use Cubex\Facade\Log;
+use Cubex\ServiceManager\Services\LogService;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 class LogTest extends \PHPUnit_Framework_TestCase
 {
   public function testAvailablePsrLevels()
   {
-    $this->assertContains(\Psr\Log\LogLevel::EMERGENCY, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::ALERT, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::CRITICAL, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::ERROR, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::WARNING, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::NOTICE, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::INFO, Log::$logLevels);
-    $this->assertContains(\Psr\Log\LogLevel::DEBUG, Log::$logLevels);
+    $this->assertContains(LogLevel::EMERGENCY, Log::$logLevels);
+    $this->assertContains(LogLevel::ALERT, Log::$logLevels);
+    $this->assertContains(LogLevel::CRITICAL, Log::$logLevels);
+    $this->assertContains(LogLevel::ERROR, Log::$logLevels);
+    $this->assertContains(LogLevel::WARNING, Log::$logLevels);
+    $this->assertContains(LogLevel::NOTICE, Log::$logLevels);
+    $this->assertContains(LogLevel::INFO, Log::$logLevels);
+    $this->assertContains(LogLevel::DEBUG, Log::$logLevels);
   }
 
   public function testLogger()
   {
-    $cubex      = Log::getFacadeApplication();
+    $cubex = Log::getFacadeApplication();
     $logService = $cubex->make('log');
     $this->assertInstanceOf(
       '\Cubex\ServiceManager\Services\LogService',
@@ -26,9 +31,9 @@ class LogTest extends \PHPUnit_Framework_TestCase
     );
 
     /**
-     * @var \Cubex\ServiceManager\Services\LogService $logService
+     * @var LogService $logService
      */
-    if($logService instanceof \Cubex\ServiceManager\Services\LogService)
+    if($logService instanceof LogService)
     {
       $this->assertInstanceOf(
         'Psr\Log\LoggerInterface',
@@ -39,14 +44,14 @@ class LogTest extends \PHPUnit_Framework_TestCase
 
   public function testStatics()
   {
-    $cubex       = Log::getFacadeApplication();
-    $logger      = new TestLogger();
+    $cubex = Log::getFacadeApplication();
+    $logger = new TestLogger();
     $oldInstance = $logService = null;
     if($cubex instanceof Cubex)
     {
       $logService = $cubex->make('log');
       /**
-       * @var $logService \Cubex\ServiceManager\Services\LogService
+       * @var $logService LogService
        */
       $oldInstance = $logService->getLogger();
       $logService->setLogger($logger);
@@ -98,86 +103,68 @@ class LogTest extends \PHPUnit_Framework_TestCase
   }
 }
 
-class TestLogger implements \Psr\Log\LoggerInterface
+class TestLogger implements LoggerInterface
 {
   public $level;
   public $message;
   public $context;
 
-  public function alert(
-    $message, array $context = array()
-  )
+  public function alert($message, array $context = [])
   {
     $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function critical(
-    $message, array $context = array()
-  )
+  public function critical($message, array $context = [])
   {
     $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function emergency(
-    $message, array $context = array()
-  )
+  public function emergency($message, array $context = [])
   {
     $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function error(
-    $message, array $context = array()
-  )
+  public function error($message, array $context = [])
   {
     $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function warning(
-    $message, array $context = array()
-  )
+  public function warning($message, array $context = [])
   {
     $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function notice(
-    $message, array $context = array()
-  )
+  public function notice($message, array $context = [])
   {
     $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function debug(
-    $message, array $context = array()
-  )
+  public function debug($message, array $context = [])
   {
-    return $this->__call(__FUNCTION__, func_get_args());
+    $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function info(
-    $message, array $context = array()
-  )
+  public function info($message, array $context = [])
   {
-    return $this->__call(__FUNCTION__, func_get_args());
+    $this->__call(__FUNCTION__, func_get_args());
   }
 
-  public function log(
-    $level, $message, array $context = array()
-  )
+  public function log($level, $message, array $context = [])
   {
-    return $this->__call(__FUNCTION__, func_get_args());
+    $this->__call(__FUNCTION__, func_get_args());
   }
 
   public function __call($method, $args)
   {
     if($method === 'log')
     {
-      $this->level   = $args[0];
+      $this->level = $args[0];
       $this->message = $args[1];
       $this->context = $args[2];
     }
     else
     {
-      $this->level   = $method;
+      $this->level = $method;
       $this->message = $args[0];
       $this->context = $args[1];
     }

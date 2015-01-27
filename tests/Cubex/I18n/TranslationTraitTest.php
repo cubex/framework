@@ -3,10 +3,11 @@ namespace CubexTest\Cubex\I18n;
 
 use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationTrait;
+use CubexTest\InternalCubexTestCase;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
 
-class TranslationTraitTestInternal extends \InternalCubexTestCase
+class TranslationTraitTestInternal extends InternalCubexTestCase
 {
   protected function _createInstance($locale = 'en_EN')
   {
