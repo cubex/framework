@@ -162,7 +162,12 @@ class Cubex extends Container
     if(!$this->bound("ConfigProvider"))
     {
       $config = new IniConfigProvider();
-      $files = ['defaults.ini', $this->env() . '.ini'];
+      $files = [
+        'defaults.ini',
+        'defaults' . DS . 'config.ini',
+        $this->env() . '.ini',
+        $this->env() . DS . 'config.ini',
+      ];
 
       foreach($files as $fileName)
       {
