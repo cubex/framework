@@ -128,11 +128,15 @@ class RouterTestInternal extends InternalCubexTestCase
       ['{var@alpha}', '(?P<var>[a-zA-Z]+)'],
       ['{var@all}', '(?P<var>.+?)'],
       ['{var@num}', '(?P<var>\d+)'],
-      ['{var}', '(?P<var>\w+)'],
+      ['{var@alphanum}', '(?P<var>\w+)'],
+      ['{var@alnum}', '(?P<var>\w+)'],
+      ['{var}', '(?P<var>.+)'],
       [':var@alpha', '(?P<var>[a-zA-Z]+)'],
       [':var@all', '(?P<var>.+?)'],
       [':var@num', '(?P<var>\d+)'],
-      [':var', '(?P<var>\w+)'],
+      [':var@alphanum', '(?P<var>\w+)'],
+      [':var@alnum', '(?P<var>\w+)'],
+      [':var', '(?P<var>.+)'],
     ];
   }
 

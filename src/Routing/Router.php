@@ -162,18 +162,22 @@ class Router implements IRouter
 
     if(strstr($route, '{'))
     {
+      $repl["/{" . "$idPat\@alphanum}/"] = "(?P<$1>\w+)";
+      $repl["/{" . "$idPat\@alnum}/"] = "(?P<$1>\w+)";
       $repl["/{" . "$idPat\@alpha}/"] = "(?P<$1>[a-zA-Z]+)";
       $repl["/{" . "$idPat\@all}/"] = "(?P<$1>.+?)";
       $repl["/{" . "$idPat\@num}/"] = "(?P<$1>\d+)";
-      $repl["/{" . "$idPat}/"] = "(?P<$1>\w+)";
+      $repl["/{" . "$idPat}/"] = "(?P<$1>.+)";
     }
 
     if(strstr($route, ':'))
     {
+      $repl["/\:$idPat\@alphanum/"] = "(?P<$1>\w+)";
+      $repl["/\:$idPat\@alnum/"] = "(?P<$1>\w+)";
       $repl["/\:$idPat\@alpha/"] = "(?P<$1>[a-zA-Z]+)";
       $repl["/\:$idPat\@all/"] = "(?P<$1>.+?)";
       $repl["/\:$idPat\@num/"] = "(?P<$1>\d+)";
-      $repl["/\:$idPat/"] = "(?P<$1>\w+)";
+      $repl["/\:$idPat/"] = "(?P<$1>.+)";
     }
 
     if(!empty($repl))
