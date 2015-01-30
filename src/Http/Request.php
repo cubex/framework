@@ -1,25 +1,17 @@
 <?php
 namespace Cubex\Http;
 
+use Packaged\Helpers\FQDN;
+
 /**
  * @method static Request createFromGlobals
  */
 class Request extends \Symfony\Component\HttpFoundation\Request
 {
+  /**
+   * @var FQDN
+   */
   protected $_domain;
-  protected $_subdomain;
-  protected $_tld;
-
-  protected $_definedTlds = [];
-  protected $_knownTlds = [
-    'co'  => 'co',
-    'com' => 'com',
-    'org' => 'org',
-    'me'  => 'me',
-    'gov' => 'gov',
-    'net' => 'net',
-    'edu' => 'edu'
-  ];
 
   /**
    * @inheritdoc
@@ -42,23 +34,27 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     $this->setLocale($this->getPreferredLanguage());
   }
 
+  public function getFqdn()
+  {
+    if($this->_domain === null)
+    {
+      $this->_domain = new FQDN($this->getHost());
+    }
+    return $this->_domain;
+  }
+
   /**
    * Define accepted TLDs for use when determining tlds
    *
    * @param array $tlds
    * @param bool  $append
+   *
+   * @return self
    */
   public function defineTlds(array $tlds, $append = false)
   {
-    $tlds = array_combine($tlds, $tlds);
-    if($append)
-    {
-      $this->_definedTlds = array_merge($this->_definedTlds, $tlds);
-    }
-    else
-    {
-      $this->_definedTlds = $tlds;
-    }
+    $this->getFqdn()->defineTlds($tlds, $append);
+    return $this;
   }
 
   /**
@@ -68,61 +64,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function getDefinedTlds()
   {
-    return array_keys($this->_definedTlds);
-  }
-
-  /**
-   * Take the host string and split into subdomain , domain & tld
-   *
-   * @return $this
-   */
-  protected function _prepareHost()
-  {
-    $parts = array_reverse(explode('.', strtolower($this->getHost())));
-
-    if(count($parts) == 1)
-    {
-      $this->_domain = $parts[0];
-      return $this;
-    }
-
-    foreach($parts as $i => $part)
-    {
-      if(empty($this->_tld))
-      {
-        $this->_tld = $part;
-        continue;
-      }
-
-      if(empty($this->_domain))
-      {
-        if($i < 2
-          && (strlen($part) == 2
-            || isset($this->_definedTlds[$part . '.' . $this->_tld])
-            || isset($this->_knownTlds[$part])
-          )
-        )
-        {
-          $this->_tld = $part . '.' . $this->_tld;
-        }
-        else
-        {
-          $this->_domain = $part;
-        }
-        continue;
-      }
-
-      if(empty($this->_subdomain))
-      {
-        $this->_subdomain = $part;
-      }
-      else
-      {
-        $this->_subdomain = $part . '.' . $this->_subdomain;
-      }
-    }
-
-    return $this;
+    return $this->getFqdn()->getDefinedTlds();
   }
 
   /**
@@ -142,12 +84,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function subDomain()
   {
-    if($this->_subdomain === null)
-    {
-      $this->_prepareHost();
-    }
-
-    return $this->_subdomain;
+    return $this->getFqdn()->subDomain();
   }
 
   /**
@@ -157,12 +94,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function domain()
   {
-    if($this->_domain === null)
-    {
-      $this->_prepareHost();
-    }
-
-    return $this->_domain;
+    return $this->getFqdn()->domain();
   }
 
   /**
@@ -172,12 +104,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function tld()
   {
-    if($this->_tld === null)
-    {
-      $this->_prepareHost();
-    }
-
-    return $this->_tld;
+    return $this->getFqdn()->tld();
   }
 
   /**
@@ -232,7 +159,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   public function isStandardPort()
   {
     $scheme = $this->getScheme();
-    $port   = $this->getPort();
+    $port = $this->getPort();
 
     return ('http' == $scheme && $port == 80)
     || ('https' == $scheme && $port == 443);
@@ -301,7 +228,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function offsetPath($offset = 0, $limit = null)
   {
-    $path  = $this->path($limit === null ? null : $offset + $limit);
+    $path = $this->path($limit === null ? null : $offset + $limit);
     $parts = explode("/", $path);
     for($i = 0; $i <= $offset; $i++)
     {
