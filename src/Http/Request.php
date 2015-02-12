@@ -273,4 +273,31 @@ class Request extends \Symfony\Component\HttpFoundation\Request
       ['192.168.', '10.', '172.16.', '127.']
     );
   }
+
+  /**
+   * Retrieve the user agent for the request
+   *
+   * @param null $default
+   *
+   * @return mixed
+   */
+  public function userAgent($default = null)
+  {
+    return $this->server->get('HTTP_USER_AGENT', $default);
+  }
+
+  /**
+   * Retrieve the referrer for the request
+   *
+   * @param null $default
+   *
+   * @return mixed
+   */
+  public function referrer($default = null)
+  {
+    return $this->server->get(
+      'REFERER',
+      $this->server->get('HTTP_REFERER', $default)
+    );
+  }
 }
