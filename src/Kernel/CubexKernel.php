@@ -49,11 +49,11 @@ abstract class CubexKernel
   /**
    * Initialise a class, stopping multiple calls to init()
    */
-  protected function _init()
+  final public function init()
   {
     if(!$this->_initialised)
     {
-      $this->init();
+      $this->_init();
       $this->_initialised = true;
     }
   }
@@ -61,7 +61,7 @@ abstract class CubexKernel
   /**
    * Initialise component
    */
-  public function init()
+  protected function _init()
   {
   }
 
@@ -141,7 +141,7 @@ abstract class CubexKernel
   {
     $calltime = microtime(true);
     //Initialise the kernel
-    $this->_init();
+    $this->init();
 
     try
     {

@@ -2,8 +2,8 @@
 namespace Cubex\Kernel;
 
 use Cubex\CubexException;
+use Cubex\Http\Request as CubexRequest;
 use Symfony\Component\HttpFoundation\Request;
-use \Cubex\Http\Request as CubexRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class SubdomainKernel extends CubexKernel
@@ -36,7 +36,7 @@ abstract class SubdomainKernel extends CubexKernel
     }
 
     //Initialise the kernel
-    $this->_init();
+    $this->init();
 
     try
     {
@@ -56,7 +56,7 @@ abstract class SubdomainKernel extends CubexKernel
       }
 
       $response = $this->_processResponse(
-        $this->_getCallableResult([$this,$sub]),
+        $this->_getCallableResult([$this, $sub]),
         $request,
         $type,
         $catch
