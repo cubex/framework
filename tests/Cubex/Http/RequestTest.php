@@ -177,4 +177,32 @@ class RequestTest extends \PHPUnit_Framework_TestCase
       ['123.123.123.123', false]
     ];
   }
+
+  public function testUserAgent()
+  {
+    $request = new Request();
+    $this->assertNull($request->userAgent());
+
+    $request = new Request();
+    $this->assertEquals('MY_UA', $request->userAgent('MY_UA'));
+
+    $request = new Request();
+    $server = ['HTTP_USER_AGENT' => 'Cubex Browser'];
+    $request->initialize([], [], [], [], [], $server);
+    $this->assertEquals('Cubex Browser', $request->userAgent());
+  }
+
+  public function testReferrer()
+  {
+    $request = new Request();
+    $this->assertNull($request->referrer());
+
+    $request = new Request();
+    $this->assertEquals('MY_REF', $request->userAgent('MY_REF'));
+
+    $request = new Request();
+    $server = ['HTTP_REFERER' => 'http://www.cubex.io'];
+    $request->initialize([], [], [], [], [], $server);
+    $this->assertEquals('http://www.cubex.io', $request->referrer());
+  }
 }
