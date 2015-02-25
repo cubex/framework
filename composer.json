@@ -37,7 +37,7 @@
     "mustache/mustache": "*",
     "mockery/mockery": "*",
     "guzzlehttp/guzzle": "~4.2",
-    "geoip2/geoip2": "~0.6",
+    "geoip2/geoip2": "~2.1",
     "phpunit/phpunit": "4.1"
   },
   "autoload": {
