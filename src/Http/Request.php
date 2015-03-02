@@ -228,13 +228,8 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function offsetPath($offset = 0, $limit = null)
   {
-    $path = $this->path($limit === null ? null : $offset + $limit);
-    $parts = explode("/", $path);
-    for($i = 0; $i <= $offset; $i++)
-    {
-      array_shift($parts);
-    }
-    return '/' . implode('/', $parts);
+    $parts = explode("/", substr($this->path(), 1));
+    return '/' . implode('/', array_slice($parts, $offset, $limit));
   }
 
   /**

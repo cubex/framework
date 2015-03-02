@@ -135,9 +135,40 @@ class RequestTest extends \PHPUnit_Framework_TestCase
   public function pathProvider()
   {
     return [
-      ['/hello/world', '/hello', 1],
-      ['/hello/world', '/hello/world', 2],
-      ['/hello/world', '/world', 1, 1],
+      ['/hello/world/hi', '/hello', 1],
+      ['/hello/world/hi', '/hello/world', 2],
+      ['/hello/world/hi', '/hello/world/hi', 3],
+    ];
+  }
+
+  /**
+   * @dataProvider offsetPathProvider
+   *
+   * @param     $path
+   * @param     $expect
+   * @param int $offset
+   * @param int $limit
+   */
+  public function testOffsetPaths($path, $expect, $offset = 0, $limit = null)
+  {
+    $request = Request::createFromGlobals();
+    /**
+     * @var \Cubex\Http\Request $request
+     */
+    $request->server->set('REQUEST_URI', $path);
+    $this->assertEquals($expect, $request->offsetPath($offset, $limit));
+  }
+
+  public function offsetPathProvider()
+  {
+    $path = '/hello/world/how/are/you';
+    return [
+      [$path, '/hello', 0, 1],
+      [$path, '/world', 1, 1],
+      [$path, '/you', -1],
+      [$path, '/are/you', -2],
+      [$path, '/hello/world/how', 0, -2],
+      [$path, '/world/how', 1, -2],
     ];
   }
 
