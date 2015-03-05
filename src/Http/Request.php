@@ -12,6 +12,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    * @var FQDN
    */
   protected $_domain;
+  protected $_partCache = [];
 
   /**
    * @inheritdoc
@@ -74,7 +75,10 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function protocol()
   {
-    return $this->isSecure() ? 'https://' : 'http://';
+    return $this->_cachedPart(
+      'protocol',
+      function () { return $this->isSecure() ? 'https://' : 'http://'; }
+    );
   }
 
   /**
@@ -84,7 +88,10 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function subDomain()
   {
-    return $this->getFqdn()->subDomain();
+    return $this->_cachedPart(
+      'subdomain',
+      function () { return $this->getFqdn()->subDomain(); }
+    );
   }
 
   /**
@@ -94,7 +101,10 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function domain()
   {
-    return $this->getFqdn()->domain();
+    return $this->_cachedPart(
+      'domain',
+      function () { return $this->getFqdn()->domain(); }
+    );
   }
 
   /**
@@ -104,7 +114,10 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function tld()
   {
-    return $this->getFqdn()->tld();
+    return $this->_cachedPart(
+      'tld',
+      function () { return $this->getFqdn()->tld(); }
+    );
   }
 
   /**
@@ -114,7 +127,16 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function port()
   {
-    return $this->getPort();
+    return $this->_cachedPart('port', function () { return $this->getPort(); });
+  }
+
+  protected function _cachedPart($part, callable $retrieve)
+  {
+    if(!isset($this->_partCache[$part]))
+    {
+      $this->_partCache[$part] = $retrieve();
+    }
+    return $this->_partCache[$part];
   }
 
   /**
@@ -221,7 +243,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
   /**
    * Retrieve a section of the path
    *
-   * @param int  $offset
+   * @param int $offset
    * @param null $limit
    *
    * @return string
