@@ -28,6 +28,13 @@ interface IAuthedUser
   public function getProperty($key, $default = null);
 
   /**
+   * Get all cached properties
+   *
+   * @return array
+   */
+  public function getProperties();
+
+  /**
    * @return string Serialized representation of the authed user
    */
   public function serialize();

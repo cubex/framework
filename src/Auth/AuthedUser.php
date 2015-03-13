@@ -11,9 +11,9 @@ class AuthedUser implements IAuthedUser
     $username = null, $userId = 0, array $properties = []
   )
   {
-    $this->_data['userId']   = $userId;
+    $this->_data['userId'] = $userId;
     $this->_data['username'] = $username;
-    $this->_data['data']     = $properties;
+    $this->_data['data'] = $properties;
   }
 
   protected function _getData($key, $default = null)
@@ -55,10 +55,28 @@ class AuthedUser implements IAuthedUser
     return isset($data[$key]) ? $data[$key] : $default;
   }
 
+  /**
+   * Set a cached property on the authed user
+   *
+   * @param $key
+   * @param $value
+   *
+   * @return $this
+   */
   public function setProperty($key, $value)
   {
     $this->_data['data'][$key] = $value;
     return $this;
+  }
+
+  /**
+   * Get all cached properties
+   *
+   * @return array
+   */
+  public function getProperties()
+  {
+    return (array)$this->_data;
   }
 
   /**
@@ -81,7 +99,7 @@ class AuthedUser implements IAuthedUser
     $json = json_decode($data);
     if(json_last_error() === JSON_ERROR_NONE)
     {
-      $this->_data         = (array)$json;
+      $this->_data = (array)$json;
       $this->_data['data'] = ValueAs::arr($this->_data['data'], []);
     }
     else
