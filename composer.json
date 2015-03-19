@@ -36,9 +36,9 @@
     "stack/builder": "~1.0",
     "mustache/mustache": "*",
     "mockery/mockery": "*",
-    "guzzlehttp/guzzle": "~4.2",
+    "guzzlehttp/guzzle": "~5.2",
     "geoip2/geoip2": "~2.1",
-    "phpunit/phpunit": "4.1"
+    "phpunit/phpunit": "~4.5"
   },
   "autoload": {
     "psr-4": {
