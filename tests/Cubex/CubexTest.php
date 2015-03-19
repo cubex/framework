@@ -255,15 +255,15 @@ class CubexTest extends \PHPUnit_Framework_TestCase
       ],
       [
         CubexException::debugException('', 0, ['a' => 'b']),
-        [print_r(['a' => 'b'], true)]
+        print_r(['a' => 'b'], true)
       ],
       [
         CubexException::debugException('', 0, false),
-        ['>bool(false)']
+        'bool(false)'
       ],
       [
         CubexException::debugException('', 0, 23),
-        ['int(23)']
+        'int(23)'
       ]
     ];
   }
