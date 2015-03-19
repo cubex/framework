@@ -17,6 +17,15 @@ class AuthedUserTest extends \PHPUnit_Framework_TestCase
 
     $user->setProperty('nada', 'found');
     $this->assertEquals('found', $user->getProperty('nada', 'missing'));
+
+    $this->assertEquals(
+      [
+        'userId'   => 1,
+        'username' => 'brooke',
+        'data'     => ['surname' => 'bryan', 'nada' => 'found']
+      ],
+      $user->getProperties()
+    );
   }
 
   public function testSerialize()
