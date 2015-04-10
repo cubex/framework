@@ -9,6 +9,8 @@ class AuthedUserTest extends \PHPUnit_Framework_TestCase
   {
     $user = new AuthedUser('brooke', 1, ['surname' => 'bryan']);
 
+    $this->assertEquals(['surname' => 'bryan'], $user->getProperties());
+
     $this->assertEquals('brooke', $user->getUsername());
     $this->assertEquals(1, $user->getUserId());
 

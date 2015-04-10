@@ -76,7 +76,7 @@ class AuthedUser implements IAuthedUser
    */
   public function getProperties()
   {
-    return (array)$this->_data;
+    return (array)$this->_data['data'];
   }
 
   /**

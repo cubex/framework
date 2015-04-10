@@ -70,10 +70,10 @@ class AuthService extends AbstractServiceProvider
   protected function _setLoginCookie(IAuthedUser $user)
   {
     $request = $this->getCubex()->make('request');
-    $domain  = null;
+    $domain = $this->_getCookieDomain();
     if($request instanceof Request)
     {
-      $domain = $request->domain() . '.' . $request->tld();
+      $domain = $this->_getCookieDomain($request);
     }
 
     Cookie::queue(
@@ -100,10 +100,10 @@ class AuthService extends AbstractServiceProvider
       $this->_authedUser = null;
 
       $request = $this->getCubex()->make('request');
-      $domain  = null;
+      $domain = $this->_getCookieDomain();
       if($request instanceof Request)
       {
-        $domain = $request->domain() . '.' . $request->tld();
+        $domain = $this->_getCookieDomain($request);
       }
 
       Cookie::delete($this->getCookieName(), null, $domain);
@@ -243,5 +243,24 @@ class AuthService extends AbstractServiceProvider
   public function forgottenPassword($username, array $options = null)
   {
     return $this->_authProvider->forgottenPassword($username, $options);
+  }
+
+  public function _getCookieDomain(Request $request = null)
+  {
+    if($request === null)
+    {
+      return $this->getCubex()->getConfiguration()->getItem(
+        'auth',
+        'cookie_domain'
+      );
+    }
+
+    return $request->urlSprintf(
+      $this->getCubex()->getConfiguration()->getItem(
+        'auth',
+        'cookie_domain_format',
+        "%d.%t"
+      )
+    );
   }
 }
