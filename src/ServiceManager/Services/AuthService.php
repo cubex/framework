@@ -80,10 +80,20 @@ class AuthService extends AbstractServiceProvider
       Cookie::make(
         $this->getCookieName(),
         $user->serialize(),
-        $this->getConfigItem('cookie_time', 2592000),
+        $this->getCubex()->getConfiguration()->getItem(
+          'auth',
+          'cookie_time',
+          2592000
+        ),
         null,
         $domain,
-        ValueAs::bool($this->getConfigItem('cookie_secure', false))
+        ValueAs::bool(
+          $this->getCubex()->getConfiguration()->getItem(
+            'auth',
+            'cookie_secure',
+            false
+          )
+        )
       )
     );
   }
@@ -136,7 +146,11 @@ class AuthService extends AbstractServiceProvider
    */
   public function getCookieName()
   {
-    return $this->getConfigItem('cookie_name', 'cubex_login');
+    return $this->getCubex()->getConfiguration()->getItem(
+      'auth',
+      'cookie_name',
+      'cubex_login'
+    );
   }
 
   /**
@@ -165,7 +179,14 @@ class AuthService extends AbstractServiceProvider
       $this->_authedUser = $serviceUser;
       //Set the login cookie when retrieved the user from the auth provider
       //Defaulted to on for speed, but can be disabled within the config
-      if(ValueAs::bool($this->getConfigItem('cookie_retriever'), true))
+      if(ValueAs::bool(
+        $this->getCubex()->getConfiguration()->getItem(
+          'auth',
+          'cookie_retriever'
+        ),
+        true
+      )
+      )
       {
         $this->_setLoginCookie($serviceUser);
       }
