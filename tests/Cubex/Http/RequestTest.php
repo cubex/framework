@@ -236,4 +236,19 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     $request->initialize([], [], [], [], [], $server);
     $this->assertEquals('http://www.cubex.io', $request->referrer());
   }
+
+  public function testXForwardedFor()
+  {
+    //http://en.wikipedia.org/wiki/X-Forwarded-For#Format
+    $request = new Request();
+    //8.8.8.8 = client IP
+    //4.4.4.4 = proxy1
+    $server = [
+      'HTTP_X_FORWARDED_FOR' => '8.8.8.8, 4.4.4.4',
+      'REMOTE_ADDR'          => '8.8.4.4',
+    ];
+    $request->initialize([], [], [], [], [], $server);
+    $request->setTrustedProxies(['8.8.4.4']);
+    $this->assertEquals('8.8.8.8', $request->getClientIp());
+  }
 }
