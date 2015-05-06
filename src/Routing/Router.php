@@ -144,7 +144,7 @@ class Router implements IRouter
       return $data;
     }
 
-    return Route::create($data, $this->_routeData, $matchedPath);
+    return Route::create($data, $this->_routeData, trim($matchedPath, '/'));
   }
 
   /**

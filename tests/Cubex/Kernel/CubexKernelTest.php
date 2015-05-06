@@ -740,6 +740,24 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       false
     );
     $this->assertEquals('123abc', $result->getContent());
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/droute');
+    $result = $kernel->handle(
+      $request,
+      HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertEquals('processed: droute', $result->getContent());
+
+    $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+    $request->server->set('REQUEST_URI', '/droute/path/test');
+    $result = $kernel->handle(
+      $request,
+      HttpKernelInterface::MASTER_REQUEST,
+      false
+    );
+    $this->assertEquals('processed: droute', $result->getContent());
   }
 
   public function invalidRoute()

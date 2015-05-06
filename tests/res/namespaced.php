@@ -14,6 +14,34 @@ class CubexProject extends CubexKernel
       'sub\%sApplication',
     ];
   }
+
+  public function getRoutes()
+  {
+    return [
+      'droute' => '\namespaced\DefaultRouteTest',
+    ];
+  }
+}
+
+class DefaultRouteTest extends CubexKernel
+{
+  public function defaultRoute()
+  {
+    return new DefaultActionTest();
+  }
+}
+
+class DefaultActionTest extends CubexKernel
+{
+  public function defaultAction()
+  {
+    return 'processed: ' . $this->_pathProcessed;
+  }
+
+  public function getRoutes()
+  {
+    return ['path' => 'defaultAction'];
+  }
 }
 
 class TheRoutable

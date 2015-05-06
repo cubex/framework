@@ -356,11 +356,6 @@ abstract class CubexKernel
           {
             $value = $this->getCubex()->make($class);
           }
-          $value->_pathProcessed = build_path_unix(
-            $this->_pathProcessed,
-            $route->getMatchedPath()
-          );
-          $value->_processParams = $params;
         }
         catch(\Exception $e)
         {
@@ -404,6 +399,16 @@ abstract class CubexKernel
         }
       }
     }
+
+    if($value instanceof CubexKernel)
+    {
+      $value->_pathProcessed = build_path_unix(
+        $this->_pathProcessed,
+        $route->getMatchedPath()
+      );
+      $value->_processParams = $params;
+    }
+
     return $this->_processResponse($value, $request, $type, $catch, $params);
   }
 
