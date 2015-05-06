@@ -52,7 +52,7 @@ class TestLayoutController extends LayoutController
 
   public function renderJson()
   {
-    $class       = new \stdClass();
+    $class = new \stdClass();
     $class->test = 'json';
     return $class;
   }

@@ -27,6 +27,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['defaultAction']);
     $kernel->expects($this->any())->method("defaultAction")->will(
       $this->returnValue(($defaultAction))
@@ -53,6 +56,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
   public function testCubexAwareGetNull()
   {
     $this->setExpectedException('RuntimeException');
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMockForAbstractClass('\Cubex\Kernel\CubexKernel');
     $kernel->getCubex();
   }
@@ -60,6 +66,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
   public function testGetDefaultAction()
   {
     //Ensure default action is null to avoid conflicts with user projects
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMockForAbstractClass('\Cubex\Kernel\CubexKernel');
     $this->assertNull($kernel->defaultAction());
   }
@@ -128,6 +137,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMock(
       '\Cubex\Kernel\CubexKernel',
       ['getRoutes', 'resp']
@@ -148,7 +160,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
-    $this->assertContains("respdata", (string)$resp);
+    $this->assertEquals("respdata", $resp->getContent());
   }
 
   public function testHandleWithException()
@@ -158,6 +170,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMock(
       '\Cubex\Kernel\CubexKernel',
       ['getRoutes', 'resp']
@@ -178,7 +193,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
-    $this->assertContains("Mocked Exception", (string)$resp);
+    $this->assertContains("Mocked Exception", $resp->getContent());
   }
 
   public function testHandleInvalidResponse()
@@ -223,6 +238,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
 
   public function testAttemptMethod()
   {
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMockBuilder('\Cubex\Kernel\CubexKernel')
       ->setMethods(
         [
@@ -385,6 +403,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|CubexKernel $kernel
+     */
     $kernel = $this->getMock(
       '\Cubex\Kernel\CubexKernel',
       ['renderCubexed', 'cubex']
@@ -395,9 +416,6 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $kernel->expects($this->any())->method("cubex")->will(
       $this->returnValue(("cubex"))
     );
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|CubexKernel $kernel
-     */
 
     $kernel->setCubex($cubex);
     /**
@@ -413,11 +431,11 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
 
     $request = Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/cubexed/tester');
-    $this->assertContains("cubexed", (string)$kernel->handle($request));
+    $this->assertEquals("cubexed", $kernel->handle($request)->getContent());
 
     $request = Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/cubex/tester');
-    $this->assertContains("cubex", (string)$kernel->handle($request));
+    $this->assertEquals("cubex", $kernel->handle($request)->getContent());
   }
 
   /**
@@ -453,6 +471,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
         '\Symfony\Component\HttpFoundation\RedirectResponse',
         $result
       );
+      /**
+       * @var RedirectResponse $result
+       */
       $this->assertEquals($expect->getTargetUrl(), $result->getTargetUrl());
     }
     else if($expect instanceof \Symfony\Component\HttpFoundation\Response)
@@ -483,6 +504,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       $this->returnValue("test")
     );
 
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|CubexKernel $kernel
+     */
     $kernel = $this->getMock(
       '\Cubex\Kernel\CubexKernel',
       ['actionIn', 'handle']
@@ -566,7 +590,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('boiled', (string)$result);
+    $this->assertEquals('boiled', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', 'kernelBoiler');
@@ -575,7 +599,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('Kernel Boiler Response', (string)$result);
+    $this->assertEquals('Kernel Boiler Response', $result->getContent());
 
     $kernel = new CubexProject();
     $kernel->setCubex($cubex);
@@ -586,7 +610,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test tag pet', (string)$result);
+    $this->assertEquals('test tag pet', $result->getContent());
 
     $kernel = new CubexProject();
     $kernel->setCubex($cubex);
@@ -597,7 +621,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('blue mist', (string)$result);
+    $this->assertEquals('blue mist', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/random');
@@ -606,7 +630,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test extension', (string)$result);
+    $this->assertEquals('test extension', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/random/arg/test');
@@ -615,7 +639,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('arg test', (string)$result);
+    $this->assertEquals('arg test', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test');
@@ -624,7 +648,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test application', (string)$result);
+    $this->assertEquals('test application', $result->getContent());
   }
 
   public function testDefaultRoute()
@@ -642,7 +666,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test default action', (string)$result);
+    $this->assertEquals('test default action', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/default/test-sub-route');
@@ -651,7 +675,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test sub route', (string)$result);
+    $this->assertEquals('test sub route', $result->getContent());
   }
 
   public function testRoutingParameters()
@@ -670,7 +694,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('12345', (string)$result);
+    $this->assertEquals('12345', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/default/pathnum/abcdef');
@@ -679,7 +703,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test default action', (string)$result);
+    $this->assertEquals('test default action', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/default/pathalpha/abcdef');
@@ -688,7 +712,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('abcdef', (string)$result);
+    $this->assertEquals('abcdef', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/default/pathalpha/12345');
@@ -697,7 +721,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('test default action', (string)$result);
+    $this->assertEquals('test default action', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/default/pathall/123abc/more');
@@ -706,7 +730,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('123abc/more', (string)$result);
+    $this->assertEquals('123abc/more', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set('REQUEST_URI', '/test/default/path/123abc/more');
@@ -715,7 +739,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('123abc', (string)$result);
+    $this->assertEquals('123abc', $result->getContent());
   }
 
   public function invalidRoute()
@@ -743,6 +767,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
 
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['getRoutes']);
     $kernel->expects($this->any())->method("getRoutes")->will(
       $this->returnValue(
@@ -761,7 +788,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('callback route', (string)$result);
+    $this->assertEquals('callback route', $result->getContent());
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set(
@@ -773,7 +800,10 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('showing manual route for 123 456', (string)$result);
+    $this->assertEquals(
+      'showing manual route for 123 456',
+      $result->getContent()
+    );
 
     $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
     $request->server->set(
@@ -785,7 +815,10 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('showing manual route for 987 654', (string)$result);
+    $this->assertEquals(
+      'showing manual route for 987 654',
+      $result->getContent()
+    );
   }
 
   public function testCanProcess()
@@ -796,7 +829,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('Please Login', (string)$result);
+    $this->assertEquals('Please Login', $result->getContent());
 
     $kernel = new KernelAuthTest(false);
     $result = $kernel->handle(
@@ -804,7 +837,10 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('Error 403 - Access Forbidden', (string)$result);
+    $this->assertContains(
+      'Error 403 - Access Forbidden',
+      $result->getContent()
+    );
     $this->assertEquals(403, $result->getStatusCode());
   }
 
@@ -832,6 +868,9 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex = new Cubex();
     $cubex->prepareCubex();
     $cubex->processConfiguration($cubex->getConfiguration());
+    /**
+     * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
+     */
     $kernel = $this->getMock(
       '\Cubex\Kernel\CubexKernel',
       ['getRoutes', 'resp']
@@ -852,7 +891,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
-    $this->assertContains("respdata", (string)$resp);
+    $this->assertEquals("respdata", $resp->getContent());
   }
 
   public function baseRoutesProvider()
@@ -917,7 +956,6 @@ class KernelBoilerTest extends CubexKernel
     return new Response('Kernel Boiler Response');
   }
 }
-
 
 class KernelAuthTest extends CubexKernel
 {
