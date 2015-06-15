@@ -5,6 +5,7 @@ use Cubex\Http\Request;
 use Cubex\Http\Visitor\MaxmindVisitor;
 use CubexTest\InternalCubexTestCase;
 use Packaged\Config\Provider\ConfigSection;
+use Packaged\Helpers\Path;
 
 class MaxmindVisitorTestInternal extends InternalCubexTestCase
 {
@@ -15,7 +16,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
     $dbgz = 'http://geolite.maxmind.com/download/'
       . 'geoip/database/GeoLite2-City.mmdb.gz';
 
-    $filename = build_path(sys_get_temp_dir(), 'GeoLite2-City.mmdb.gz');
+    $filename = Path::build(sys_get_temp_dir(), 'GeoLite2-City.mmdb.gz');
     $this->_geoipdb = substr($filename, 0, -3);
 
     if(!file_exists($this->_geoipdb))

@@ -8,6 +8,7 @@ use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Facade;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
+use Packaged\Helpers\Path;
 use Packaged\Helpers\System;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -164,14 +165,14 @@ class Cubex extends Container
       $config = new IniConfigProvider();
       $files = [
         'defaults.ini',
-        'defaults' . DS . 'config.ini',
+        'defaults' . DIRECTORY_SEPARATOR . 'config.ini',
         $this->env() . '.ini',
-        $this->env() . DS . 'config.ini',
+        $this->env() . DIRECTORY_SEPARATOR . 'config.ini',
       ];
 
       foreach($files as $fileName)
       {
-        $file = build_path($this->getProjectRoot(), 'conf', $fileName);
+        $file = Path::build($this->getProjectRoot(), 'conf', $fileName);
         try
         {
           $config->loadFile($file);
@@ -323,7 +324,7 @@ class Cubex extends Container
     if($request->getPathInfo() === '/favicon.ico')
     {
       $favicon = new BinaryFileResponse(
-        build_path(dirname(__DIR__), 'favicon.ico')
+        Path::build(dirname(__DIR__), 'favicon.ico')
       );
 
       $favicon->prepare($request);

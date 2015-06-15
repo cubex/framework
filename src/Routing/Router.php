@@ -2,6 +2,7 @@
 namespace Cubex\Routing;
 
 use Cubex\CubexAwareTrait;
+use Packaged\Helpers\Path;
 
 class Router implements IRouter
 {
@@ -86,7 +87,7 @@ class Router implements IRouter
           {
             return $this->createRoute(
               $subMatch->getValue(),
-              build_path_unix($matchedPath, $subMatch->getMatchedPath())
+              Path::buildUnix($matchedPath, $subMatch->getMatchedPath())
             );
           }
           return null;

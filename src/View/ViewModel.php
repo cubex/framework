@@ -6,6 +6,7 @@ use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationTrait;
 use Cubex\ICubexAware;
 use Illuminate\Support\Contracts\RenderableInterface;
+use Packaged\Helpers\Path;
 
 abstract class ViewModel implements RenderableInterface, ICubexAware
 {
@@ -131,14 +132,14 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
       $this->_templateDir = dirname($this->_templateDir);
     }
 
-    $this->_templateDir = build_path(
+    $this->_templateDir = Path::build(
       $this->_templateDir,
       $this->_templateDirName
     );
 
     if($this->_templateFile === null)
     {
-      $this->_templateFile = build_path_custom(
+      $this->_templateFile = Path::buildCustom(
         DIRECTORY_SEPARATOR,
         array_reverse($nesting)
       );
@@ -154,7 +155,7 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
    */
   public function getTemplatePath($extension = '.phtml')
   {
-    return build_path(
+    return Path::build(
       $this->getTemplateDir(),
       $this->getTemplateFile()
     ) . $extension;

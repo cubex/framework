@@ -4,6 +4,7 @@ namespace CubexTest\Cubex\View;
 use Cubex\View\ViewModel;
 use namespaced\sub\TestView;
 use namespaced\Views\TestableView;
+use Packaged\Helpers\Path;
 
 class ViewModelTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,7 +22,7 @@ class ViewModelTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('randomFile', $view->getTemplateFile());
 
     $this->assertEquals(
-      build_path('randomDir', 'randomFile.phtml'),
+      Path::build('randomDir', 'randomFile.phtml'),
       $view->getTemplatePath('.phtml')
     );
   }

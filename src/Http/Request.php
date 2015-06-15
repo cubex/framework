@@ -2,6 +2,7 @@
 namespace Cubex\Http;
 
 use Packaged\Helpers\FQDN;
+use Packaged\Helpers\Strings;
 
 /**
  * @method static Request createFromGlobals
@@ -285,7 +286,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     {
       $ip = $this->getClientIp();
     }
-    return starts_with_any(
+    return Strings::startsWithAny(
       $ip,
       ['192.168.', '10.', '172.16.', '127.']
     );

@@ -11,6 +11,9 @@ use Cubex\Routing\IRoute;
 use Cubex\Routing\IRouter;
 use Cubex\Routing\Route;
 use Illuminate\Support\Contracts\RenderableInterface;
+use Packaged\Helpers\Arrays;
+use Packaged\Helpers\Objects;
+use Packaged\Helpers\Path;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -247,7 +250,7 @@ abstract class CubexKernel
       try
       {
         $route = $router->process(
-          build_path_unix($this->_pathProcessed, $path)
+          Path::buildUnix($this->_pathProcessed, $path)
         );
       }
       catch(\Exception $e)
@@ -280,7 +283,7 @@ abstract class CubexKernel
     $classPath = ucwords(str_replace(['-', '_'], ' ', $classPath));
     $classPath = str_replace(' ', '', $classPath);
 
-    $namespace = get_namespace(get_called_class());
+    $namespace = Objects::getNamespace(get_called_class());
     $subRoutes = $this->subRouteTo();
 
     //No subroutes available
@@ -289,7 +292,7 @@ abstract class CubexKernel
       foreach($subRoutes as $subRoute)
       {
         //Half sprintf style, but changed to str_replace for multiple instances
-        $attempt = build_path_win(
+        $attempt = Path::buildWindows(
           $namespace,
           str_replace('%s', $classPath, $subRoute)
         );
@@ -344,7 +347,7 @@ abstract class CubexKernel
       if(stripos($value, '\\') !== false && preg_match($match, $value))
       {
         $class = $value;
-        $nsClass = build_path_win(get_namespace($this), $value);
+        $nsClass = Path::buildWindows(Objects::getNamespace($this), $value);
 
         try
         {
@@ -402,7 +405,7 @@ abstract class CubexKernel
 
     if($value instanceof CubexKernel)
     {
-      $value->_pathProcessed = build_path_unix(
+      $value->_pathProcessed = Path::buildUnix(
         $this->_pathProcessed,
         $route->getMatchedPath()
       );
@@ -771,6 +774,6 @@ abstract class CubexKernel
       return $this->_processParams;
     }
 
-    return idx($this->_processParams, $key, $default);
+    return Arrays::value($this->_processParams, $key, $default);
   }
 }
