@@ -252,6 +252,7 @@ abstract class CubexKernel
         $route = $router->process(
           Path::buildUnix($this->_pathProcessed, $path)
         );
+        $this->_pathProcessed = null;
       }
       catch(\Exception $e)
       {
