@@ -321,12 +321,27 @@ class Cubex extends Container
     //If the favicon has not been picked up within the public folder
     //return the cubex favicon
 
-    if($request->getPathInfo() === '/favicon.ico')
+    if($request->getRequestUri() === '/favicon.ico')
     {
-      $favicon = new BinaryFileResponse(
-        Path::build(dirname(__DIR__), 'favicon.ico')
+      $favIconPaths = [];
+      $favIconPaths[] = Path::build($this->getProjectRoot(), 'favicon.ico');
+      $favIconPaths[] = Path::build(
+        $this->getProjectRoot(),
+        'assets',
+        'favicon.ico'
       );
+      $favIconPaths[] = Path::build(dirname(__DIR__), 'favicon.ico');
+      $favPath = null;
 
+      foreach($favIconPaths as $favPath)
+      {
+        if(file_exists($favPath))
+        {
+          break;
+        }
+      }
+
+      $favicon = new BinaryFileResponse($favPath);
       $favicon->prepare($request);
       return $favicon;
     }
