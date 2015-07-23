@@ -1,11 +1,11 @@
 <?php
 namespace Cubex\Kernel;
 
-use Symfony\Component\HttpFoundation\Request;
 use Cubex\Http\Response;
 use Packaged\Api\Exceptions\ApiException;
 use Packaged\Api\Format\JsonFormat;
 use Packaged\Api\Interfaces\ApiResponseInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class EndpointKernel extends CubexKernel
 {
@@ -20,7 +20,7 @@ abstract class EndpointKernel extends CubexKernel
     if($value instanceof ApiResponseInterface)
     {
       $format = new JsonFormat();
-      $value  = Response::create(
+      $value = Response::create(
         $format->encode(
           $value->toArray(),
           200,
@@ -39,22 +39,15 @@ abstract class EndpointKernel extends CubexKernel
    */
   public function handleException(\Exception $exception)
   {
-    $data = null;
-    if($exception instanceof ApiException)
+    if(!($exception instanceof ApiException))
     {
-      $data = $exception->getReturn();
+      $exception = new ApiException(
+        $exception->getMessage(), $exception->getCode()
+      );
     };
 
     //Let the end user known the exception message
-    $format      = new JsonFormat();
-    $apiResponse = Response::create(
-      $format->encode(
-        $data,
-        $exception->getCode(),
-        $exception->getMessage(),
-        '\\' . get_class($exception)
-      )
-    );
+    $apiResponse = Response::create($exception->getFormatted(new JsonFormat()));
     $apiResponse->headers->set("Content-Type", "application/json");
     return $apiResponse;
   }
