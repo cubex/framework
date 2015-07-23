@@ -24,11 +24,15 @@ class EndpointKernelTest extends InternalCubexTestCase
     $kernel->setCubex($this->getCubex());
     $result = $kernel->handle(Request::create('/error', 'GET', []));
     $this->assertContains('json', $result->headers->get('content-type'));
-    $this->assertEquals(
-      '{"status":{"code":500,"message":"Something Failed"},'
-      . '"type":"\\Packaged\\Api\\Exceptions\\ApiException",'
-      . '"result":null}',
-      stripcslashes($result->getContent())
+    $content = $result->getContent();
+    $this->assertJson($content);
+    $this->assertContains(
+      'status":{"code":500,"message":"Something Failed"}',
+      $content
+    );
+    $this->assertContains(
+      '"type":"\\\\Packaged\\\\Api\\\\Exceptions\\\\ApiException"',
+      $content
     );
   }
 
