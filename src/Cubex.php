@@ -175,7 +175,7 @@ class Cubex extends Container
         $file = Path::build($this->getProjectRoot(), 'conf', $fileName);
         try
         {
-          $config->loadFile($file);
+          $config->loadFile($file, true);
         }
         catch(\Exception $e)
         {
