@@ -328,7 +328,7 @@ abstract class CubexKernel
   )
   {
     $value = $route->getValue();
-    $params = $route->getRouteData();
+    $this->_processParams = $params = $route->getRouteData();
 
     //If the action has returned a valid response, lets send that back
     if($value instanceof Response)
