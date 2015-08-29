@@ -4,6 +4,7 @@ namespace Cubex\Console;
 use Cubex\Cubex;
 use Cubex\ICubexAware;
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -106,11 +107,11 @@ abstract class ConsoleCommand extends Command implements ICubexAware
     $descriptions = [];
     foreach($propBlock->getTags() as $tag)
     {
-      /**
-       * @var $tag \phpDocumentor\Reflection\DocBlock\Tag\ParamTag
-       */
-      $tagName                = substr($tag->getVariableName(), 1);
-      $descriptions[$tagName] = $tag->getDescription();
+      if($tag instanceof ParamTag)
+      {
+        $tagName = substr($tag->getVariableName(), 1);
+        $descriptions[$tagName] = $tag->getDescription();
+      }
     }
 
     foreach($method->getParameters() as $paramNum => $parameter)
