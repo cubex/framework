@@ -50,6 +50,11 @@ abstract class CubexKernel
   protected $_pathProcessed;
 
   /**
+   * @var Request
+   */
+  protected $_request;
+
+  /**
    * Initialise a class, stopping multiple calls to init()
    */
   final public function init()
@@ -142,6 +147,8 @@ abstract class CubexKernel
     Request $request, $type = self::MASTER_REQUEST, $catch = true
   )
   {
+    $this->_request = $request;
+
     $calltime = microtime(true);
     //Initialise the kernel
     $this->init();
@@ -722,7 +729,7 @@ abstract class CubexKernel
    */
   protected function _getRequest()
   {
-    return $this->getCubex()->make('request');
+    return $this->_request ?: $this->getCubex()->make('request');
   }
 
   /**

@@ -30,6 +30,8 @@ abstract class SubdomainKernel extends CubexKernel
     Request $request, $type = self::MASTER_REQUEST, $catch = true
   )
   {
+    $this->_request = $request;
+
     if(!($request instanceof CubexRequest))
     {
       throw new \RuntimeException("Invalid cubex request");
