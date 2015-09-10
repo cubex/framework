@@ -32,7 +32,7 @@ abstract class CubexKernel
   /**
    * @var array params sent through by the constructor
    */
-  protected $_processParams;
+  protected $_processParams = [];
 
   /**
    * @var bool stop re-initialise of the class
