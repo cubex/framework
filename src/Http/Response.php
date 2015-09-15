@@ -6,11 +6,30 @@ use Illuminate\Support\Contracts\RenderableInterface;
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
   protected $_callTime;
+  protected $_sendCubexHeaders = true;
 
   public function __construct($content = '', $status = 200, $headers = [])
   {
     parent::__construct('', $status, $headers);
     $this->from($content);
+  }
+
+  /**
+   * @return $this
+   */
+  public function disableCubexHeaders()
+  {
+    $this->_sendCubexHeaders = false;
+    return $this;
+  }
+
+  /**
+   * @return $this
+   */
+  public function enableCubexHeaders()
+  {
+    $this->_sendCubexHeaders = true;
+    return $this;
   }
 
   /**
@@ -76,7 +95,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   public function fromJson($object)
   {
     $this->_originalSource = $object;
-    $response              = \json_encode($object);
+    $response = \json_encode($object);
 
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
@@ -104,8 +123,8 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   public function fromJsonp($responseKey, $object)
   {
     $this->_originalSource = $object;
-    $responseObject        = \json_encode($object);
-    $response              = "{$responseKey}({$responseObject})";
+    $responseObject = \json_encode($object);
+    $response = "{$responseKey}({$responseObject})";
 
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
@@ -157,21 +176,24 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    */
   public function setCubexHeaders()
   {
-    //Add the exec time as a header if PHP_START has been defined by the project
-    if(defined('PHP_START'))
+    if($this->_sendCubexHeaders)
     {
-      $this->headers->set(
-        "X-Execution-Time",
-        number_format((microtime(true) - PHP_START) * 1000, 3) . ' ms'
-      );
-    }
+      //Add the exec time as a header if PHP_START has been defined by the project
+      if(defined('PHP_START'))
+      {
+        $this->headers->set(
+          "X-Execution-Time",
+          number_format((microtime(true) - PHP_START) * 1000, 3) . ' ms'
+        );
+      }
 
-    if($this->_callTime > 0)
-    {
-      $this->headers->set(
-        'X-Call-Time',
-        number_format((microtime(true) - $this->_callTime) * 1000, 3) . ' ms'
-      );
+      if($this->_callTime > 0)
+      {
+        $this->headers->set(
+          'X-Call-Time',
+          number_format((microtime(true) - $this->_callTime) * 1000, 3) . ' ms'
+        );
+      }
     }
   }
 

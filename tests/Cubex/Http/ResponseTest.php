@@ -67,6 +67,17 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     $response = new Response();
     $response->setCubexHeaders();
     $this->assertContains('X-Execution-Time', (string)$response);
+
+    $response = new Response();
+    $response->disableCubexHeaders();
+    $response->setCubexHeaders();
+    $this->assertNotContains('X-Execution-Time', (string)$response);
+
+    $response = new Response();
+    $response->disableCubexHeaders();
+    $response->enableCubexHeaders();
+    $response->setCubexHeaders();
+    $this->assertContains('X-Execution-Time', (string)$response);
   }
 }
 
