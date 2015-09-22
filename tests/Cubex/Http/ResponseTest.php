@@ -2,6 +2,7 @@
 namespace CubexTest\Cubex\Http;
 
 use Cubex\Http\Response;
+use Cubex\Responses\CsvResponse;
 use Illuminate\Support\Contracts\RenderableInterface;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
@@ -78,6 +79,31 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     $response->enableCubexHeaders();
     $response->setCubexHeaders();
     $this->assertContains('X-Execution-Time', (string)$response);
+  }
+
+  public function testCsvResponse()
+  {
+    $response = new CsvResponse(
+      [
+        ['a1', 'b1', 'c1'],
+        ['a2', 'b2', 'c2'],
+      ]
+    );
+    $response->setFilename('test.csv');
+    $raw = (string)$response->send();
+    $this->assertContains('a1,b1,c1', $raw);
+  }
+
+  /**
+   * @expectedException \Exception
+   * @expectedExceptionMessage You must specify an array or object when using a csv response
+   */
+  public function testInvalidCsvResponse()
+  {
+    $response = new CsvResponse();
+    $raw = (string)$response->getContent();
+    $this->assertEmpty($raw);
+    $response->setContent('this is a test');
   }
 }
 

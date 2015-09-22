@@ -7,6 +7,12 @@ class CsvResponse extends Response
 {
   protected $_filename;
 
+  public function __construct($content = '', $status = 200, $headers = [])
+  {
+    parent::__construct('', $status, $headers);
+    $this->setContent($content);
+  }
+
   public function send()
   {
     $this->headers->set('Content-Type', 'text/csv');
@@ -57,9 +63,13 @@ class CsvResponse extends Response
       fclose($out);
       return $this;
     }
-    else
-    {
-      return parent::sendContent();
-    }
+    return parent::sendContent();
+  }
+
+  public function getContent()
+  {
+    ob_start();
+    $this->sendContent();
+    return ob_get_clean();
   }
 }
