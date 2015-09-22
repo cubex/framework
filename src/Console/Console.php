@@ -41,7 +41,7 @@ class Console extends Application implements ICubexAware
    */
   public function doRun(InputInterface $input, OutputInterface $output)
   {
-    $this->configure();
+    $this->configure($input, $output);
     return parent::doRun($input, $output);
   }
 
@@ -49,9 +49,12 @@ class Console extends Application implements ICubexAware
    * Pull the configuration from cubex and setup resolving patterns and
    * defined command lists
    *
+   * @param InputInterface  $input
+   * @param OutputInterface $output
+   *
    * @return $this
    */
-  public function configure()
+  public function configure(InputInterface $input, OutputInterface $output)
   {
     if($this->_configured)
     {
@@ -60,7 +63,7 @@ class Console extends Application implements ICubexAware
 
     try
     {
-      $config   = $this->getCubex()->getConfiguration()->getSection('console');
+      $config = $this->getCubex()->getConfiguration()->getSection('console');
       $commands = $config->getItem('commands', []);
       $patterns = $config->getItem('patterns', []);
 
@@ -76,6 +79,12 @@ class Console extends Application implements ICubexAware
             $command->setName($name);
           }
           $this->add($command);
+        }
+        else
+        {
+          $output->writeln(
+            '<error>Command [' . $name . '] does not reference a valid class</error>'
+          );
         }
       }
     }
@@ -162,7 +171,7 @@ class Console extends Application implements ICubexAware
    */
   protected function getDefaultCommands()
   {
-    $commands   = parent::getDefaultCommands();
+    $commands = parent::getDefaultCommands();
     $commands[] = new BuiltInWebServer();
     return $commands;
   }

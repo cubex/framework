@@ -6,11 +6,13 @@ use Cubex\Console\Console;
 use Cubex\Cubex;
 use Packaged\Config\Provider\Test\TestConfigProvider;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsoleTest extends \PHPUnit_Framework_TestCase
 {
-  public function getConsole()
+  public function getConsole(InputInterface $input, OutputInterface $output)
   {
     $cubex = new Cubex();
     $console = Console::withCubex($cubex);
@@ -20,35 +22,39 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
       'commands',
       [
         '\namespaced\NamerCommand',
-        'phpserver' => 'CubexTest\Cubex\Console\PhpWebServer'
+        'phpserver' => 'CubexTest\Cubex\Console\PhpWebServer',
+        'broken'    => 'InvalidClass',
       ]
     );
     $config->addItem(
       'console',
       'patterns',
       [
-        '\namespaced\sub\%s'
+        '\namespaced\sub\%s',
       ]
     );
 
     $cubex->configure($config);
     $console->setCubex($cubex);
-    $console->configure();
+    $console->configure($input, $output);
     return $console;
   }
 
   public function testDoRun()
   {
-    $console = $this->getConsole();
-
     $output = new BufferedOutput();
     $input = new ArrayInput([]);
 
+    $console = $this->getConsole($input, $output);
     $console->doRun($input, $output);
     $buffered = $output->fetch();
 
     $this->assertContains('phpserver', $buffered);
     $this->assertContains('Namer', $buffered);
+    $this->assertContains(
+      'Command [broken] does not reference a valid class',
+      $buffered
+    );
   }
 
   /**
@@ -62,7 +68,10 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
    */
   public function testFind($instance, $string, $exception = false)
   {
-    $console = $this->getConsole();
+    $output = new BufferedOutput();
+    $input = new ArrayInput([]);
+
+    $console = $this->getConsole($input, $output);
     if($exception)
     {
       $this->setExpectedException('InvalidArgumentException');
