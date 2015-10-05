@@ -19,11 +19,15 @@ abstract class EndpointKernel extends CubexKernel
   {
     if($value instanceof ApiResponseInterface)
     {
+
+      $statusCode =
+        method_exists($value, 'getStatusCode') ? $value->getStatusCode() : 200;
+
       $format = new JsonFormat();
-      $value = Response::create(
+      $value  = Response::create(
         $format->encode(
           $value->toArray(),
-          200,
+          $statusCode,
           '',
           '\\' . get_class($value)
         )
