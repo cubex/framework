@@ -15,6 +15,14 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   }
 
   /**
+   * @return string
+   */
+  public function getStatusText()
+  {
+    return $this->statusText;
+  }
+
+  /**
    * @return $this
    */
   public function disableCubexHeaders()
