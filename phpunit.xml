@@ -11,6 +11,9 @@
          syntaxCheck="false"
          bootstrap="tests/bootstrap.php"
   >
+  <php>
+    <ini name="date.timezone" value="UTC"/>
+  </php>
   <testsuites>
     <testsuite name="Cubex Test Suite">
       <directory>./tests/Cubex</directory>

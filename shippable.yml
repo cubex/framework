@@ -10,7 +10,6 @@ php:
 build:
   pre_ci:
   ci:
-    - echo "date.timezone = UTC" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - php --version
     - composer self-update
     - composer install --no-progress --no-interaction --prefer-source
