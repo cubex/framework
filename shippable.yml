@@ -10,7 +10,6 @@ php:
 build:
   pre_ci:
   ci:
-    - php --version
     - composer self-update
     - composer install --no-progress --no-interaction --prefer-source
     - vendor/bin/phpunit --log-junit shippable/testresults/junit.xml --coverage-clover shippable/codecoverage/clover.xml -c phpunit.xml
