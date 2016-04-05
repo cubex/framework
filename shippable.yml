@@ -12,4 +12,4 @@ build:
   ci:
     - composer self-update
     - composer install --no-progress --no-interaction --prefer-source
-    - vendor/bin/phpunit --log-junit shippable/testresults/junit.xml --coverage-clover shippable/codecoverage/clover.xml -c phpunit.xml
+    - vendor/bin/phpunit --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage -c phpunit.xml
