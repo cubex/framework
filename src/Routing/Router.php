@@ -18,6 +18,8 @@ class Router implements IRouter
    */
   protected $_routeData;
 
+  protected $_pattern = [];
+
   /**
    * Set the object you wish to handle routing for
    *
@@ -76,6 +78,7 @@ class Router implements IRouter
           '',
           $url
         );
+        $this->_pattern[] = $pattern;
         if(is_callable($route))
         {
           return $this->createRoute($route, $matchedPath);
@@ -97,6 +100,16 @@ class Router implements IRouter
     }
 
     return null;
+  }
+
+  /**
+   * Get the matched route
+   *
+   * @return string
+   */
+  public function getRoute()
+  {
+    return implode('/', array_filter($this->_pattern));
   }
 
   public function matchPattern($url, $pattern)

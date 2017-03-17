@@ -24,4 +24,11 @@ interface IRouter extends ICubexAware
    * @throws \Exception When no route can be found
    */
   public function process($url);
+
+  /**
+   * Get the matched route
+   *
+   * @return string
+   */
+  public function getRoute();
 }
