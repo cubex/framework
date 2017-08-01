@@ -6,7 +6,7 @@ require_once dirname(
 
 //Create an instance of cubex, with the web root defined
 $app = new \Cubex\Cubex(dirname(dirname(dirname(__DIR__))));
-$app->setEnv('phpunit');
+$app->setEnv(\Cubex\Cubex::ENV_PHPUNIT);
 $app->boot();
 
 //Bootstrap Cubex Test Cases

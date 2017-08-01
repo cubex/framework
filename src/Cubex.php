@@ -2,6 +2,8 @@
 namespace Cubex;
 
 use Cubex\Facade\FacadeLoader;
+use Cubex\Http\Request as CubexRequest;
+use Cubex\Http\Response as CubexResponse;
 use Cubex\Kernel\CubexKernel;
 use Cubex\ServiceManager\ServiceManager;
 use Illuminate\Container\Container;
@@ -15,8 +17,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use \Cubex\Http\Request as CubexRequest;
-use \Cubex\Http\Response as CubexResponse;
 
 /**
  * Cubex Container, to be passed around for dependency injection etc
@@ -26,6 +26,11 @@ class Cubex extends Container
 {
   const FLAG_CLI = 'cli';
   const FLAG_WEB = 'web';
+
+  const ENV_PROD = 'production';
+  const ENV_STAGE = 'stage';
+  const ENV_LOCAL = 'local';
+  const ENV_PHPUNIT = 'phpunit';
 
   protected $_env;
   protected $_flags;
@@ -469,7 +474,7 @@ class Cubex extends Container
     if($this->_env === null || !$this->_env)
     {
       //If there is no environment available, assume local
-      $this->_env = 'local';
+      $this->_env = self::ENV_LOCAL;
     }
 
     return $this->_env;
@@ -486,5 +491,37 @@ class Cubex extends Container
   {
     $this->_env = $env;
     return $this;
+  }
+
+  /**
+   * Check the environment against input
+   *
+   * @param $env
+   *
+   * @return bool
+   */
+  public function isEnv($env)
+  {
+    return $this->_env == $env;
+  }
+
+  /**
+   * Is the environment phpunit?
+   *
+   * @return bool
+   */
+  public function isEnvPhpUnit()
+  {
+    return $this->isEnv(self::ENV_PHPUNIT);
+  }
+
+  /**
+   * Is the environment production?
+   *
+   * @return bool
+   */
+  public function isEnvProd()
+  {
+    return $this->isEnv(self::ENV_PROD);
   }
 }
