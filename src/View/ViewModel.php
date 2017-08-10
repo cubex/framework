@@ -5,10 +5,10 @@ use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationTrait;
 use Cubex\ICubexAware;
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 use Packaged\Helpers\Path;
 
-abstract class ViewModel implements RenderableInterface, ICubexAware
+abstract class ViewModel implements Renderable, ICubexAware
 {
   use CubexAwareTrait;
   use TranslationTrait;
@@ -100,7 +100,7 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
       $this->_callingClass = get_class($this->_callingClass);
     }
 
-    $parts   = explode('\\', $this->_callingClass);
+    $parts = explode('\\', $this->_callingClass);
     $nesting = [];
 
     if(!empty($parts) && in_array('Views', $parts))
@@ -119,7 +119,7 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
     }
     else
     {
-      $nesting[]        = class_basename($this->_callingClass);
+      $nesting[] = class_basename($this->_callingClass);
       $this->_viewDepth = 1;
     }
 
@@ -156,9 +156,9 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
   public function getTemplatePath($extension = '.phtml')
   {
     return Path::build(
-      $this->getTemplateDir(),
-      $this->getTemplateFile()
-    ) . $extension;
+        $this->getTemplateDir(),
+        $this->getTemplateFile()
+      ) . $extension;
   }
 
   /**

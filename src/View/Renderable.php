@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\View;
 
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable as RenderableInterface;
 
 class Renderable implements RenderableInterface
 {

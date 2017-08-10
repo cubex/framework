@@ -10,7 +10,7 @@ use Cubex\Routing\IRoutable;
 use Cubex\Routing\IRoute;
 use Cubex\Routing\IRouter;
 use Cubex\Routing\Route;
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 use Packaged\Helpers\Arrays;
 use Packaged\Helpers\Objects;
 use Packaged\Helpers\Path;
@@ -462,7 +462,7 @@ abstract class CubexKernel
       return $value->handle($request, $type, $catch);
     }
 
-    if($value instanceof RenderableInterface)
+    if($value instanceof Renderable)
     {
       return new CubexResponse($value);
     }
@@ -620,7 +620,7 @@ abstract class CubexKernel
         'bindCubex',
         'setCubex',
         'getCubex',
-        'isCubexAvailable'
+        'isCubexAvailable',
       ];
     }
 
@@ -725,6 +725,7 @@ abstract class CubexKernel
 
   /**
    * Retrieve the Cubex request object
+   *
    * @return \Cubex\Http\Request
    */
   protected function _getRequest()

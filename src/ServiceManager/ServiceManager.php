@@ -12,6 +12,7 @@ class ServiceManager implements ICubexAware
 
   /**
    * Services to regiser
+   *
    * @var array
    */
   protected $_services = [];
@@ -25,12 +26,14 @@ class ServiceManager implements ICubexAware
 
   /**
    * Maintain the registered services so they can be correctly shutdown
+   *
    * @var array
    */
   protected $_registeredServices = [];
 
   /**
    * Registered Service Names
+   *
    * @var array
    */
   protected $_serviceRegister = [];
@@ -91,7 +94,7 @@ class ServiceManager implements ICubexAware
   {
     $this->_services['log'] = [
       '\Cubex\ServiceManager\Services\LogService',
-      ['log_name' => 'misc']
+      ['log_name' => 'misc'],
     ];
 
     //Register the encryption service
@@ -121,7 +124,7 @@ class ServiceManager implements ICubexAware
    * @throws \RuntimeException
    * @throws \Exception
    */
-  protected function _register($cubex, $service, $params = array())
+  protected function _register($cubex, $service, $params = [])
   {
     if(!isset($this->_services[$service]))
     {
@@ -141,7 +144,7 @@ class ServiceManager implements ICubexAware
       );
     }
 
-    $instance = new $class;
+    $instance = new $class();
 
     if(!($instance instanceof IServiceProvider))
     {

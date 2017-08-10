@@ -2,7 +2,7 @@
 namespace CubexTest\Cubex\View;
 
 use Cubex\View\Layout;
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 use namespaced\CubexProject;
 
 class LayoutTest extends \PHPUnit_Framework_TestCase
@@ -62,7 +62,7 @@ class LayoutTest extends \PHPUnit_Framework_TestCase
   }
 }
 
-class RenderableSection implements RenderableInterface
+class RenderableSection implements Renderable
 {
   public function render()
   {

@@ -37,7 +37,7 @@ abstract class ConsoleCommand extends Command implements ICubexAware
    */
   public function __construct($name = null)
   {
-    $reflect  = new \ReflectionClass($this);
+    $reflect = new \ReflectionClass($this);
     $docBlock = new DocBlock($reflect);
 
     try
@@ -103,7 +103,7 @@ abstract class ConsoleCommand extends Command implements ICubexAware
 
     $addedArguments = false;
 
-    $propBlock    = new DocBlock($method);
+    $propBlock = new DocBlock($method);
     $descriptions = [];
     foreach($propBlock->getTags() as $tag)
     {
@@ -121,11 +121,11 @@ abstract class ConsoleCommand extends Command implements ICubexAware
       {
         continue;
       }
-      $mode    = InputArgument::REQUIRED;
+      $mode = InputArgument::REQUIRED;
       $default = null;
       if($parameter->isDefaultValueAvailable())
       {
-        $mode    = InputArgument::OPTIONAL;
+        $mode = InputArgument::OPTIONAL;
         $default = $parameter->getDefaultValue();
       }
 
@@ -169,9 +169,9 @@ abstract class ConsoleCommand extends Command implements ICubexAware
     {
       $propBlock = new DocBlock($property);
 
-      $short       = null;
+      $short = null;
       $description = $propBlock->getShortDescription();
-      $mode        = InputOption::VALUE_OPTIONAL;
+      $mode = InputOption::VALUE_OPTIONAL;
 
       if($propBlock->hasTag('short'))
       {
@@ -231,7 +231,7 @@ abstract class ConsoleCommand extends Command implements ICubexAware
    */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    $this->_input  = $input;
+    $this->_input = $input;
     $this->_output = $output;
 
     $params = $input->getArguments();

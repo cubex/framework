@@ -27,7 +27,7 @@ class Log extends Facade
     LogLevel::WARNING,
     LogLevel::NOTICE,
     LogLevel::INFO,
-    LogLevel::DEBUG
+    LogLevel::DEBUG,
   ];
 
   /**
@@ -38,7 +38,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function emergency($message, array $context = array())
+  public static function emergency($message, array $context = [])
   {
     static::_log(LogLevel::EMERGENCY, $message, $context);
   }
@@ -54,7 +54,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function alert($message, array $context = array())
+  public static function alert($message, array $context = [])
   {
     static::_log(LogLevel::ALERT, $message, $context);
   }
@@ -69,7 +69,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function critical($message, array $context = array())
+  public static function critical($message, array $context = [])
   {
     static::_log(LogLevel::CRITICAL, $message, $context);
   }
@@ -83,7 +83,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function error($message, array $context = array())
+  public static function error($message, array $context = [])
   {
     static::_log(LogLevel::ERROR, $message, $context);
   }
@@ -99,7 +99,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function warning($message, array $context = array())
+  public static function warning($message, array $context = [])
   {
     static::_log(LogLevel::WARNING, $message, $context);
   }
@@ -112,7 +112,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function notice($message, array $context = array())
+  public static function notice($message, array $context = [])
   {
     static::_log(LogLevel::NOTICE, $message, $context);
   }
@@ -127,7 +127,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function info($message, array $context = array())
+  public static function info($message, array $context = [])
   {
     static::_log(LogLevel::INFO, $message, $context);
   }
@@ -140,7 +140,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function debug($message, array $context = array())
+  public static function debug($message, array $context = [])
   {
     static::_log(LogLevel::DEBUG, $message, $context);
   }
@@ -154,7 +154,7 @@ class Log extends Facade
    *
    * @return null
    */
-  public static function custom($level, $message, array $context = array())
+  public static function custom($level, $message, array $context = [])
   {
     static::_log($level, $message, $context);
   }
@@ -170,12 +170,12 @@ class Log extends Facade
   public static function logLevelAllowed($messageLevel, $logLevel)
   {
     return array_search($messageLevel, self::$logLevels) <=
-    array_search($logLevel, self::$logLevels);
+      array_search($logLevel, self::$logLevels);
   }
 
-  protected static function _log($level, $message, array $context = array())
+  protected static function _log($level, $message, array $context = [])
   {
-    $instance   = new self;
+    $instance = new self();
     $logService = $instance->getFacadeRoot();
     $logService->writeLog($level, $message, $context);
   }

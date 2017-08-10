@@ -9,7 +9,7 @@ class RenderableTest extends \PHPUnit_Framework_TestCase
   {
     $render = new Renderable('hello');
     $this->assertInstanceOf(
-      'Illuminate\Support\Contracts\RenderableInterface',
+      'Illuminate\Contracts\Support\Renderable',
       $render
     );
     $this->assertEquals('hello', $render->render());

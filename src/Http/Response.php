@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Http;
 
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
@@ -68,7 +68,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
 
     if(is_object($source) || is_array($source))
     {
-      if($source instanceof RenderableInterface)
+      if($source instanceof Renderable)
       {
         $this->setContent($source->render());
       }
@@ -81,7 +81,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
         $this->fromJson($source);
       }
     }
-    elseif(is_bool($source))
+    else if(is_bool($source))
     {
       $this->setContent($source ? 'true' : 'false');
     }

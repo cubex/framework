@@ -15,7 +15,7 @@ class EncryptionService extends AbstractServiceProvider
    */
   public function register(array $parameters = null)
   {
-    $this->getCubex()->bindShared(
+    $this->getCubex()->bind(
       'encrypter',
       function (Cubex $cubex)
       {
@@ -23,10 +23,11 @@ class EncryptionService extends AbstractServiceProvider
           $cubex->getConfiguration()->getItem(
             'security',
             'encryption_key',
-            'BµlÇe.8)æ<¤§¬FòÊ¼&ø\'ð'
+            'mR?u7DP30sj5Djdf'
           )
         );
-      }
+      },
+      true
     );
   }
 }

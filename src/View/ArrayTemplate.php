@@ -1,12 +1,12 @@
 <?php
 namespace Cubex\View;
 
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 
 /**
  * Convert a data array to a string with a template
  */
-class ArrayTemplate extends \ArrayIterator implements RenderableInterface
+class ArrayTemplate extends \ArrayIterator implements Renderable
 {
   protected $_template;
   protected $_glue;
@@ -21,10 +21,10 @@ class ArrayTemplate extends \ArrayIterator implements RenderableInterface
    * @return static
    */
   public static function create(
-    $template = '', $glue = '', array $items = array()
+    $template = '', $glue = '', array $items = []
   )
   {
-    $object = new static;
+    $object = new static();
     $object->setTemplate($template);
     $object->setGlue($glue);
     foreach($items as $item)

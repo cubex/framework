@@ -3,7 +3,7 @@ namespace Cubex\View;
 
 use Cubex\Http\Response;
 use Cubex\Kernel\ControllerKernel;
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable as RenderableInterface;
 
 abstract class LayoutController extends ControllerKernel
 {
@@ -96,7 +96,7 @@ abstract class LayoutController extends ControllerKernel
    * @param $response
    * @param $capturedOutput
    *
-   * @return Response|null
+   * @return Response|\Illuminate\Contracts\Support\Renderable|null
    */
   public function handleResponse($response, $capturedOutput)
   {

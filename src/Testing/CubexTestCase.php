@@ -192,7 +192,7 @@ abstract class CubexTestCase extends \PHPUnit_Framework_TestCase
    * @param string       $name
    * @param TestResponse $response
    *
-   * @return \Illuminate\Support\Contracts\RenderableInterface
+   * @return \Illuminate\Contracts\Support\Renderable
    * @throws \Exception
    */
   public function getLayoutSection(

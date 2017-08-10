@@ -54,7 +54,7 @@ class BrandedTemplateView extends TemplatedViewModel
    */
   protected $_standardFiles = [
     '/_%LOCALE',
-    ''
+    '',
   ];
 
   /**
@@ -110,7 +110,7 @@ class BrandedTemplateView extends TemplatedViewModel
         $this->_request->subDomain(),
         $this->_request->domain(),
         $this->_request->tld(),
-        strtolower(substr($this->_request->getLocale(), 0, 2))
+        strtolower(substr($this->_request->getLocale(), 0, 2)),
       ];
     }
 
@@ -141,7 +141,7 @@ class BrandedTemplateView extends TemplatedViewModel
    *
    * @return array
    */
-  protected function _locateFiles($array, $default = array())
+  protected function _locateFiles($array, $default = [])
   {
     foreach($array as $variant)
     {
@@ -150,7 +150,7 @@ class BrandedTemplateView extends TemplatedViewModel
           '%SUBDOMAIN',
           '%DOMAIN',
           '%TLD',
-          '%LOCALE'
+          '%LOCALE',
         ],
         $this->_requestReplacements,
         $variant

@@ -9,7 +9,7 @@ use Cubex\ICubexAware;
 use Cubex\Kernel\CubexKernel;
 use Cubex\Responses\Error404Response;
 use Cubex\Routing\Route;
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 use namespaced\CubexProject;
 use Packaged\Config\Provider\Test\TestConfigProvider;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -147,7 +147,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $kernel->expects($this->any())->method("getRoutes")->will(
       $this->returnValue(
         [
-          'hello/world' => 'resp'
+          'hello/world' => 'resp',
         ]
       )
     );
@@ -180,7 +180,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $kernel->expects($this->any())->method("getRoutes")->will(
       $this->returnValue(
         [
-          'hello/world' => 'resp'
+          'hello/world' => 'resp',
         ]
       )
     );
@@ -253,7 +253,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
           'actionHomepage',
           'renderGettingStarted',
           'downloadActions',
-          'defaultAction'
+          'defaultAction',
         ]
       )
       ->getMock();
@@ -537,7 +537,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
       [
         $kernel,
         '\Cubex\Responses\Error404Response',
-        new Error404Response()
+        new Error404Response(),
       ],
       [$kernel, 'stdClass', null],
       [$kernel, $callable, "testCallable"],
@@ -549,26 +549,26 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
         $namespaceKernel,
         '\NoSuchClass',
         null,
-        "Your route provides an invalid class '\\NoSuchClass'"
+        "Your route provides an invalid class '\\NoSuchClass'",
       ],
       [
         $namespaceKernel,
         '\NoSuchClass',
         null,
-        null
+        null,
       ],
       [
         $kernel,
         'http://google.com',
         new RedirectResponse(
           'http://google.com'
-        )
+        ),
       ],
       [$kernel, 'actionIn', new Response("method")],
       [
         $kernel,
         '\Symfony\Component\HttpFoundation\Request,createFromGlobals',
-        \Symfony\Component\HttpFoundation\Request::createFromGlobals()
+        \Symfony\Component\HttpFoundation\Request::createFromGlobals(),
       ],
       [$kernel, $toString, "test"],
     ];
@@ -896,7 +896,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $kernel->expects($this->any())->method("getRoutes")->will(
       $this->returnValue(
         [
-          $route => 'resp'
+          $route => 'resp',
         ]
       )
     );
@@ -956,7 +956,7 @@ class BoilerTest implements ICubexAware
 }
 
 class RenderableTest
-  implements RenderableInterface
+  implements Renderable
 {
   public function render()
   {
@@ -1014,7 +1014,7 @@ class RouteDataTest extends CubexKernel
 {
   protected $_processParams = [
     'one' => 'two',
-    'a'   => 'b'
+    'a'   => 'b',
   ];
 
   public function getRouteData($key = null, $default = null)

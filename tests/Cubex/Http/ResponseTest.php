@@ -3,7 +3,7 @@ namespace CubexTest\Cubex\Http;
 
 use Cubex\Http\Response;
 use Cubex\Responses\CsvResponse;
-use Illuminate\Support\Contracts\RenderableInterface;
+use Illuminate\Contracts\Support\Renderable;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -96,7 +96,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
   /**
    * @expectedException \Exception
-   * @expectedExceptionMessage You must specify an array or object when using a csv response
+   * @expectedExceptionMessage You must specify an array or object when using a
+   *                           csv response
    */
   public function testInvalidCsvResponse()
   {
@@ -107,7 +108,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
   }
 }
 
-class RenderableClass implements RenderableInterface
+class RenderableClass implements Renderable
 {
   public function render()
   {

@@ -5,7 +5,7 @@ use Cubex\Http\Response;
 
 class Error403Response extends Response
 {
-  public function __construct($content = '', $status = 403, $headers = array())
+  public function __construct($content = '', $status = 403, $headers = [])
   {
     $content = '<h2>Error 403 - Access Forbidden</h2>';
     $content .= '<p>You do not have permission';
