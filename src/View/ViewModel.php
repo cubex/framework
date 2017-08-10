@@ -5,10 +5,10 @@ use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationTrait;
 use Cubex\ICubexAware;
-use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\Support\Renderable as RenderableInterface;
 use Packaged\Helpers\Path;
 
-abstract class ViewModel implements Renderable, ICubexAware
+abstract class ViewModel implements RenderableInterface, ICubexAware
 {
   use CubexAwareTrait;
   use TranslationTrait;

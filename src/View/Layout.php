@@ -2,7 +2,7 @@
 namespace Cubex\View;
 
 use Cubex\Kernel\CubexKernel;
-use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\Support\Renderable as RenderableInterface;
 
 class Layout extends TemplatedViewModel
 {
@@ -14,7 +14,7 @@ class Layout extends TemplatedViewModel
   protected $_templateDirName = 'Layouts';
 
   /**
-   * @var Renderable[]
+   * @var RenderableInterface[]
    */
   protected $_sections = [];
 
@@ -53,13 +53,13 @@ class Layout extends TemplatedViewModel
    * Add a new section to the layout
    *
    * @param                     $sectionName
-   * @param Renderable          $renderable
+   * @param RenderableInterface $RenderableInterface
    *
    * @return $this
    */
-  public function insert($sectionName, Renderable $renderable)
+  public function insert($sectionName, RenderableInterface $RenderableInterface)
   {
-    $this->_sections[$sectionName] = $renderable;
+    $this->_sections[$sectionName] = $RenderableInterface;
     return $this;
   }
 
@@ -77,11 +77,11 @@ class Layout extends TemplatedViewModel
   }
 
   /**
-   * Retrieve the renderable object bound to this section
+   * Retrieve the RenderableInterface object bound to this section
    *
    * @param $sectionName
    *
-   * @return Renderable
+   * @return RenderableInterface
    * @throws \Exception
    */
   public function get($sectionName)
