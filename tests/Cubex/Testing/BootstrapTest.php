@@ -3,12 +3,13 @@ namespace CubexTest\Cubex\Testing;
 
 use Cubex\Cubex;
 use Cubex\Testing\Bootstrap;
+use PHPUnit\Framework\TestCase;
 
-class BootstrapTest extends \PHPUnit_Framework_TestCase
+class BootstrapTest extends TestCase
 {
   public function testSetsGlobal()
   {
-    $cubex     = new Cubex();
+    $cubex = new Cubex();
     $bootstrap = new Bootstrap($cubex);
     $bootstrap->boot();
     $this->assertSame($cubex, $bootstrap->getCubex());
@@ -16,8 +17,8 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
 
   public function testReplaceCubexPerInstance()
   {
-    $cubex     = new Cubex();
-    $cubex2    = new Cubex();
+    $cubex = new Cubex();
+    $cubex2 = new Cubex();
     $bootstrap = new Bootstrap($cubex);
     $bootstrap->boot();
     $this->assertSame($cubex, $bootstrap->getCubex());

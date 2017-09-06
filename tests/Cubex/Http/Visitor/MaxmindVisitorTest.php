@@ -25,8 +25,8 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
         'http' => [
           'method' => "GET",
           'header' => "Accept-language: en\r\n"
-            . "User-Agent: CURL (Cubex Framework; en-us)\r\n"
-        ]
+            . "User-Agent: CURL (Cubex Framework; en-us)\r\n",
+        ],
       ];
 
       $context = stream_context_create($opts);
@@ -92,7 +92,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
 
   public function testNoConfig()
   {
-    $this->setExpectedException(
+    $this->expectException(
       "Exception",
       "You must configure the MaxMindVisitor class"
     );
@@ -102,7 +102,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
 
   public function testNoLicence()
   {
-    $this->setExpectedException(
+    $this->expectException(
       "Exception",
       "No maxmind licence key specified"
     );
@@ -121,7 +121,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
 
   public function testNoUserId()
   {
-    $this->setExpectedException(
+    $this->expectException(
       "Exception",
       "No maxmind user id specified"
     );
@@ -152,6 +152,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
       )
     );
     $visitor->getCountry();
+    $this->assertEquals("GB", $visitor->getCountry());
   }
 
   public function visitorProvider()
@@ -166,9 +167,9 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdb
+            'database' => $this->_geoipdb,
           ]
-        )
+        ),
       ],
       [
         '208.67.222.222',
@@ -179,9 +180,9 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdb
+            'database' => $this->_geoipdb,
           ]
-        )
+        ),
       ],
       ['127.0.0.1', 'GB', 'London', 'eng'],
       [
@@ -192,8 +193,8 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
         new ConfigSection(
           'http_visitor',
           ['city' => 'Portsmouth', 'country' => 'UK', 'region' => 'england']
-        )
-      ]
+        ),
+      ],
     ];
   }
 }

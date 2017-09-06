@@ -12,10 +12,11 @@ use Cubex\Routing\Route;
 use Illuminate\Contracts\Support\Renderable;
 use namespaced\CubexProject;
 use Packaged\Config\Provider\Test\TestConfigProvider;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-class CubexKernelTest extends \PHPUnit_Framework_TestCase
+class CubexKernelTest extends TestCase
 {
   /**
    * @param string $defaultAction
@@ -30,7 +31,10 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
      */
-    $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['defaultAction']);
+    $kernel = $this->createPartialMock(
+      '\Cubex\Kernel\CubexKernel',
+      ['defaultAction']
+    );
     $kernel->expects($this->any())->method("defaultAction")->will(
       $this->returnValue(($defaultAction))
     );
@@ -55,7 +59,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
 
   public function testCubexAwareGetNull()
   {
-    $this->setExpectedException('RuntimeException');
+    $this->expectException('RuntimeException');
     /**
      * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
      */
@@ -118,7 +122,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
 
   public function test404Handle()
   {
-    $this->setExpectedException(
+    $this->expectException(
       'Exception',
       "The processed route did not yield a valid response",
       404
@@ -140,7 +144,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
      */
-    $kernel = $this->getMock(
+    $kernel = $this->createPartialMock(
       '\Cubex\Kernel\CubexKernel',
       ['getRoutes', 'resp']
     );
@@ -173,7 +177,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
      */
-    $kernel = $this->getMock(
+    $kernel = $this->createPartialMock(
       '\Cubex\Kernel\CubexKernel',
       ['getRoutes', 'resp']
     );
@@ -209,7 +213,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
 
   public function testThrowsExceptionWithNoRouter()
   {
-    $this->setExpectedException("RuntimeException", "No IRouter located");
+    $this->expectException("RuntimeException", "No IRouter located");
     $request = Request::createFromGlobals();
     $kernel = $this->getKernel();
     $kernel->getCubex()->instance('\Cubex\Routing\IRouter', new \stdClass());
@@ -406,7 +410,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|CubexKernel $kernel
      */
-    $kernel = $this->getMock(
+    $kernel = $this->createPartialMock(
       '\Cubex\Kernel\CubexKernel',
       ['renderCubexed', 'cubex']
     );
@@ -460,7 +464,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
 
     if(!$catch)
     {
-      $this->setExpectedException('Exception', $exception);
+      $this->expectException('Exception', $exception);
     }
 
     $result = $kernel->executeRoute($route, $request, $type, $catch);
@@ -499,7 +503,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     $cubex = new Cubex();
     $response = new Response("hey");
 
-    $toString = $this->getMock('stdClass', ['__toString']);
+    $toString = $this->createPartialMock('stdClass', ['__toString']);
     $toString->expects($this->any())->method("__toString")->will(
       $this->returnValue("test")
     );
@@ -507,7 +511,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|CubexKernel $kernel
      */
-    $kernel = $this->getMock(
+    $kernel = $this->createPartialMock(
       '\Cubex\Kernel\CubexKernel',
       ['actionIn', 'handle']
     );
@@ -788,7 +792,10 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
      */
-    $kernel = $this->getMock('\Cubex\Kernel\CubexKernel', ['getRoutes']);
+    $kernel = $this->createPartialMock(
+      '\Cubex\Kernel\CubexKernel',
+      ['getRoutes']
+    );
     $kernel->expects($this->any())->method("getRoutes")->will(
       $this->returnValue(
         ['manual-route' => '\namespaced\sub\ManualRouteExtension']
@@ -889,7 +896,7 @@ class CubexKernelTest extends \PHPUnit_Framework_TestCase
     /**
      * @var CubexKernel|\PHPUnit_Framework_MockObject_MockObject $kernel
      */
-    $kernel = $this->getMock(
+    $kernel = $this->createPartialMock(
       '\Cubex\Kernel\CubexKernel',
       ['getRoutes', 'resp']
     );

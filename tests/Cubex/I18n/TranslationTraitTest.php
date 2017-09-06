@@ -113,7 +113,7 @@ class TranslationTraitTestInternal extends InternalCubexTestCase
     $instance = new TranslateTestClass();
     $instance->setCubex($this->newCubexInstace());
     $instance->getCubex()->instance('i18n.translator', $translator);
-    $instance->getTranslator();
+    $this->assertInstanceOf(Translator::class, $instance->getTranslator());
   }
 }
 

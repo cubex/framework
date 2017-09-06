@@ -6,8 +6,9 @@ use Cubex\Cubex;
 use Cubex\Http\Request;
 use Packaged\Config\Provider\ConfigSection;
 use Packaged\Config\Provider\Test\TestConfigProvider;
+use PHPUnit\Framework\TestCase;
 
-class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
+class IPAuthProviderTest extends TestCase
 {
   public function testLogout()
   {
@@ -18,7 +19,7 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
   public function testForgottenPassword()
   {
     $auth = new IPAuthProvider();
-    $this->setExpectedException(
+    $this->expectException(
       '\Exception',
       'Forgotten Password is not available'
     );
@@ -44,27 +45,27 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
   {
     if($exception !== null)
     {
-      $this->setExpectedException('\Exception', $exception);
+      $this->expectException('\Exception', $exception);
     }
 
     $cnf = [];
     $cnf['192.168.0.10'] = [
       'username' => 'bob',
       'userid'   => 3,
-      'display'  => 'Bobby'
+      'display'  => 'Bobby',
     ];
     $cnf['192.168.0.11'] = [
       'userid'  => 3,
-      'display' => 'Bobby'
+      'display' => 'Bobby',
     ];
     $cnf['192.168.0.12'] = [
       'username' => 'bob',
-      'display'  => 'Bobby'
+      'display'  => 'Bobby',
     ];
     $cnf['tester'] = [
       'username' => 'pet',
       'userid'   => 2,
-      'display'  => 'Dog'
+      'display'  => 'Dog',
     ];
     $cnf['192.168.0.20'] = ['alias' => 'tester'];
 
@@ -113,7 +114,7 @@ class IPAuthProviderTest extends \PHPUnit_Framework_TestCase
         null,
         null,
         "Unable to retrieve the users IP",
-        true
+        true,
       ],
       ['192.168.0.12', 'bob', 0, 'Bobby'],
       ['192.168.0.13', null, null, null, 'Unauthorized IP'],

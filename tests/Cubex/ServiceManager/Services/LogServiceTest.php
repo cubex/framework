@@ -5,8 +5,9 @@ use Cubex\Cubex;
 use Cubex\ServiceManager\Services\LogService;
 use CubexTest\Cubex\Facade\TestLogger;
 use Packaged\Config\Provider\ConfigSection;
+use PHPUnit\Framework\TestCase;
 
-class LogServiceTest extends \PHPUnit_Framework_TestCase
+class LogServiceTest extends TestCase
 {
   public function testRegisterUsesSharedLogger()
   {

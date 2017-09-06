@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\Http;
 
 use Cubex\Http\Request;
+use PHPUnit\Framework\TestCase;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+class RequestTest extends TestCase
 {
   public function testExtendsSymfonyRequest()
   {
@@ -205,7 +206,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
       ['192.168.0.1', true],
       ['172.16.0.2', true],
       ['127.0.0.1', true],
-      ['123.123.123.123', false]
+      ['123.123.123.123', false],
     ];
   }
 

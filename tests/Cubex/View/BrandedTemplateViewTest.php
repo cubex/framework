@@ -4,8 +4,9 @@ namespace CubexTest\Cubex\View;
 use Cubex\Cubex;
 use Cubex\Http\Request;
 use Cubex\View\BrandedTemplateView;
+use PHPUnit\Framework\TestCase;
 
-class BrandedTemplateViewTest extends \PHPUnit_Framework_TestCase
+class BrandedTemplateViewTest extends TestCase
 {
   public function prepareViewModel(Request $request = null)
   {
@@ -41,7 +42,7 @@ class BrandedTemplateViewTest extends \PHPUnit_Framework_TestCase
   public function testFullReplacement()
   {
     $request = $this->createRequest('www.replace.com');
-    $view    = $this->prepareViewModel($request);
+    $view = $this->prepareViewModel($request);
     $this->assertContains('Replaced', $view->render());
   }
 
@@ -54,7 +55,7 @@ class BrandedTemplateViewTest extends \PHPUnit_Framework_TestCase
   public function testPrePost()
   {
     $request = $this->createRequest('www.custom.com');
-    $view    = $this->prepareViewModel($request);
+    $view = $this->prepareViewModel($request);
     $this->assertContains('Pre', $view->render());
     $this->assertContains('Default branded page', $view->render());
     $this->assertContains('Post', $view->render());
@@ -63,7 +64,7 @@ class BrandedTemplateViewTest extends \PHPUnit_Framework_TestCase
   public function testLanguage()
   {
     $request = $this->createRequest('www.custom.test', 'it');
-    $view    = $this->prepareViewModel($request);
+    $view = $this->prepareViewModel($request);
     $this->assertContains('Pre', $view->render());
     $this->assertContains('Italian Version', $view->render());
     $this->assertContains('Post', $view->render());
@@ -71,9 +72,9 @@ class BrandedTemplateViewTest extends \PHPUnit_Framework_TestCase
 
   public function testException()
   {
-    $this->setExpectedException('Exception', 'Broken Language');
+    $this->expectException('Exception', 'Broken Language');
     $request = $this->createRequest('www.custom.test', 'fr');
-    $view    = $this->prepareViewModel($request);
+    $view = $this->prepareViewModel($request);
     $view->render();
   }
 }

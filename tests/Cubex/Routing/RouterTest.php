@@ -44,7 +44,7 @@ class RouterTestInternal extends InternalCubexTestCase
 
   public function testProcessNoSubjectException()
   {
-    $this->setExpectedException(
+    $this->expectException(
       "RuntimeException",
       "No routable subject has been defined"
     );
@@ -59,14 +59,14 @@ class RouterTestInternal extends InternalCubexTestCase
   {
     if($expectException)
     {
-      $this->setExpectedException(
+      $this->expectException(
         "Exception",
         "Unable to locate a suitable route"
       );
     }
     $router = new Router();
     $router->setCubex($this->newCubexInstace());
-    $subject = $this->getMock('\Cubex\Routing\IRoutable', ['getRoutes']);
+    $subject = $this->createMock('\Cubex\Routing\IRoutable', ['getRoutes']);
     $subject->expects($this->any())->method("getRoutes")
       ->will($this->returnValue($routes));
     $router->setSubject($subject);
@@ -144,7 +144,7 @@ class RouterTestInternal extends InternalCubexTestCase
   {
     $router = new Router();
     $router->setCubex($this->newCubexInstace());
-    $subject = $this->getMock('\Cubex\Routing\IRoutable', ['getRoutes']);
+    $subject = $this->createMock('\Cubex\Routing\IRoutable', ['getRoutes']);
     $subject->expects($this->any())->method("getRoutes")
       ->will($this->returnValue([':test/:number@num' => 'test']));
     $router->setSubject($subject);

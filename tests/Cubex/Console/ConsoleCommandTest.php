@@ -83,14 +83,14 @@ Middle(s): Anthony James',
   public function testUnfinishedCommand()
   {
     $command = new NoDocBlockTestConsoleCommand('tester');
-    $this->setExpectedException('RuntimeException');
+    $this->expectException('RuntimeException');
     $this->getCommandOutput($command, []);
   }
 
   public function testSetCubex()
   {
     $command = new TestProcessConsoleCommand();
-    $this->setExpectedException(
+    $this->expectException(
       'Exception',
       'Cubex is controlled by the application'
     );

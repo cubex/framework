@@ -4,8 +4,9 @@ namespace CubexTest;
 use Cubex\Cubex;
 use Packaged\Config\Provider\Test\TestConfigProvider;
 use Packaged\Config\Provider\Test\TestConfigSection;
+use PHPUnit\Framework\TestCase;
 
-abstract class InternalCubexTestCase extends \PHPUnit_Framework_TestCase
+abstract class InternalCubexTestCase extends TestCase
 {
   /**
    * @return \Cubex\Cubex

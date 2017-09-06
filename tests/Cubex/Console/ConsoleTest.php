@@ -5,12 +5,13 @@ use Cubex\Console\Commands\BuiltInWebServer;
 use Cubex\Console\Console;
 use Cubex\Cubex;
 use Packaged\Config\Provider\Test\TestConfigProvider;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ConsoleTest extends \PHPUnit_Framework_TestCase
+class ConsoleTest extends TestCase
 {
   public function getConsole(InputInterface $input, OutputInterface $output)
   {
@@ -74,7 +75,7 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
     $console = $this->getConsole($input, $output);
     if($exception)
     {
-      $this->setExpectedException('InvalidArgumentException');
+      $this->expectException('InvalidArgumentException');
     }
     $this->assertInstanceOf($instance, $console->find($string));
   }

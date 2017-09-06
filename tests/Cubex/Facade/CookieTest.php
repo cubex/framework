@@ -4,8 +4,9 @@ namespace CubexTest\Cubex\Facade;
 use Cubex\Cubex;
 use Cubex\Facade\Cookie;
 use Cubex\Http\Request;
+use PHPUnit\Framework\TestCase;
 
-class CookieTest extends \PHPUnit_Framework_TestCase
+class CookieTest extends TestCase
 {
   public function testMake()
   {

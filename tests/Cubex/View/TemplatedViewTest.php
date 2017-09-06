@@ -3,8 +3,9 @@ namespace CubexTest\Cubex\View;
 
 use Cubex\Kernel\ControllerKernel;
 use Cubex\View\TemplatedView;
+use PHPUnit\Framework\TestCase;
 
-class TemplatedViewTest extends \PHPUnit_Framework_TestCase
+class TemplatedViewTest extends TestCase
 {
   public function testRender()
   {

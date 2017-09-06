@@ -9,21 +9,22 @@ use Cubex\View\Renderable;
 use namespaced\sub\TestView;
 use namespaced\TestLayoutController;
 use namespaced\TestViewModel;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
+class CubexTestCaseTest extends TestCase
 {
   public function testResponseSetAndGet()
   {
     $response = new TestResponse(new Response('Test'));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $this->assertSame($response, $test->getLastResponse());
   }
 
   public function testGetRequest()
   {
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $response = $test->getResponse('/');
     $this->assertSame($response, $test->getLastResponse());
   }
@@ -31,7 +32,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertRedirectedTo()
   {
     $response = new TestResponse(new RedirectResponse('/test'));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertRedirectedTo('/test', $response);
     $test->assertRedirectedTo('/test');
@@ -40,7 +41,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertResponseOk()
   {
     $response = new TestResponse(new Response('Test'));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertResponseOk($response);
     $test->assertResponseOk();
@@ -49,7 +50,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertStatusCode()
   {
     $response = new TestResponse(new Response('Test', 123));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertStatusCode(123, $response);
     $test->assertStatusCode(123);
@@ -58,7 +59,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertResponseContains()
   {
     $response = new TestResponse(new Response('Test'));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertResponseContains('est', $response);
     $test->assertResponseContains('est');
@@ -67,7 +68,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertReturnsCubexResponse()
   {
     $response = new TestResponse(new Response('Test'));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertReturnsCubexResponse($response);
     $test->assertReturnsCubexResponse();
@@ -76,7 +77,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertReturnsViewModel()
   {
     $response = new TestResponse(Response::create(new TestViewModel()));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertReturnsViewModel($response);
     $test->assertReturnsViewModel();
@@ -85,7 +86,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testAssertReturnsInstanceOf()
   {
     $response = new TestResponse(Response::create(new Renderable('Testing')));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertReturnsInstanceOf('\Cubex\View\Renderable', $response);
     $test->assertReturnsInstanceOf('\Cubex\View\Renderable');
@@ -96,7 +97,7 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
     $response = new TestResponse(
       Response::create(new Layout(new TestLayoutController()))
     );
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $test->assertReturnsLayout($response);
     $test->assertReturnsLayout();
@@ -105,10 +106,10 @@ class CubexTestCaseTest extends \PHPUnit_Framework_TestCase
   public function testGetLayoutSection()
   {
     $layout = new Layout(new TestLayoutController());
-    $view   = new TestView();
+    $view = new TestView();
     $layout->insert('content', $view);
     $response = new TestResponse(Response::create($layout));
-    $test     = new MockCubexTestCase();
+    $test = new MockCubexTestCase();
     $test->setLastResponse($response);
     $this->assertSame($view, $test->getLayoutSection());
   }

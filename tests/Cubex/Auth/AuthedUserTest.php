@@ -2,8 +2,9 @@
 namespace CubexTest\Auth;
 
 use Cubex\Auth\AuthedUser;
+use PHPUnit\Framework\TestCase;
 
-class AuthedUserTest extends \PHPUnit_Framework_TestCase
+class AuthedUserTest extends TestCase
 {
   public function testBasics()
   {

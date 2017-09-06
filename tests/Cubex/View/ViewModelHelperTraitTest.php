@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\View;
 
 use Cubex\View\ViewModelHelperTrait;
+use PHPUnit\Framework\TestCase;
 
-class ViewModelHelperTraitTest extends \PHPUnit_Framework_TestCase
+class ViewModelHelperTraitTest extends TestCase
 {
   public function testBasics()
   {
@@ -31,7 +32,7 @@ class ViewModelHelperTraitTest extends \PHPUnit_Framework_TestCase
 
   public function testMagicException()
   {
-    $this->setExpectedException('\Exception', 'Unsupported method random');
+    $this->expectException('\Exception', 'Unsupported method random');
     $class = new TestableViewModelHelperTrait();
     $class->random();
   }

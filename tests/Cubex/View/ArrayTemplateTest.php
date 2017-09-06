@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\View;
 
 use Cubex\View\ArrayTemplate;
+use PHPUnit\Framework\TestCase;
 
-class ArrayTemplateTest extends \PHPUnit_Framework_TestCase
+class ArrayTemplateTest extends TestCase
 {
   public function testBasics()
   {

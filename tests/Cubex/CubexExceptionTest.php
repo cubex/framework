@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex;
 
 use Cubex\CubexException;
+use PHPUnit\Framework\TestCase;
 
-class CubexExceptionTest extends \PHPUnit_Framework_TestCase
+class CubexExceptionTest extends TestCase
 {
   public function testDebug()
   {

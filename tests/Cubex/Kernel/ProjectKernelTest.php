@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\Kernel;
 
 use Cubex\Kernel\ProjectKernel;
+use PHPUnit\Framework\TestCase;
 
-class ProjectKernelTest extends \PHPUnit_Framework_TestCase
+class ProjectKernelTest extends TestCase
 {
   public function testSubRoutesRetunsArray()
   {

@@ -9,9 +9,10 @@ use Cubex\View\LayoutController;
 use Cubex\View\Renderable;
 use namespaced\CubexProject;
 use namespaced\TestLayoutController;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-class LayoutControllerTest extends \PHPUnit_Framework_TestCase
+class LayoutControllerTest extends TestCase
 {
   public function testBasics()
   {

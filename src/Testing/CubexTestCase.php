@@ -5,9 +5,10 @@ use Cubex\Cubex;
 use Cubex\Http\Request;
 use Cubex\ICubexAware;
 use Cubex\View\Layout;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-abstract class CubexTestCase extends \PHPUnit_Framework_TestCase
+abstract class CubexTestCase extends TestCase
   implements ICubexAware
 {
   protected $_cubex;

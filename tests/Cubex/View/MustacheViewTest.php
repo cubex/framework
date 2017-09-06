@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\View;
 
 use Cubex\View\MustacheViewModel;
+use PHPUnit\Framework\TestCase;
 
-class MustacheViewTest extends \PHPUnit_Framework_TestCase
+class MustacheViewTest extends TestCase
 {
   public function testRender()
   {
@@ -22,7 +23,7 @@ class MustacheViewTest extends \PHPUnit_Framework_TestCase
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('invalid');
     $tpl = $view->getTemplatePath('.phtml');
-    $this->setExpectedException(
+    $this->expectException(
       'Exception',
       'The template file \'' . $tpl . '\' does not exist'
     );

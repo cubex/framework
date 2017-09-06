@@ -4,13 +4,14 @@ namespace CubexTest\Cubex\View;
 use Cubex\View\Layout;
 use Illuminate\Contracts\Support\Renderable;
 use namespaced\CubexProject;
+use PHPUnit\Framework\TestCase;
 
-class LayoutTest extends \PHPUnit_Framework_TestCase
+class LayoutTest extends TestCase
 {
   public function testSections()
   {
     $section = new RenderableSection();
-    $layout  = new Layout(new CubexProject(), 'Default');
+    $layout = new Layout(new CubexProject(), 'Default');
 
     $this->assertFalse($layout->exists('first'));
 
@@ -26,7 +27,7 @@ class LayoutTest extends \PHPUnit_Framework_TestCase
 
   public function testInvalidSectionGet()
   {
-    $this->setExpectedException(
+    $this->expectException(
       'Exception',
       "missing has not yet been bound to this layout"
     );

@@ -5,8 +5,9 @@ use Cubex\Cubex;
 use Cubex\ServiceManager\Services\EncryptionService;
 use Packaged\Config\Provider\ConfigSection;
 use Packaged\Config\Provider\Test\TestConfigProvider;
+use PHPUnit\Framework\TestCase;
 
-class EncryptionServiceTest extends \PHPUnit_Framework_TestCase
+class EncryptionServiceTest extends TestCase
 {
   public function testRegisterCreatesEncrypter()
   {

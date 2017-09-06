@@ -25,7 +25,7 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
 
   public function testThrowsExceptionWithBadRequest()
   {
-    $this->setExpectedException('RuntimeException');
+    $this->expectException('RuntimeException');
     $kernel = $this->getKernel();
     $kernel->handle(
       Request::createFromGlobals(),
@@ -51,7 +51,7 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
 
     if(!$catch)
     {
-      $this->setExpectedException('Exception', $expect);
+      $this->expectException('Exception', $expect);
     }
 
     $response = $class->handle(

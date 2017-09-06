@@ -37,6 +37,7 @@ class Cubex extends Container
   protected $_docRoot;
   protected $_projectRoot;
   protected $_booted = false;
+  protected $_shutdown = false;
 
   /**
    * @param null $webRoot
@@ -432,6 +433,7 @@ class Cubex extends Container
         $serviceManager->shutdown();
       }
     }
+    $this->_shutdown = true;
   }
 
   /**
@@ -523,5 +525,15 @@ class Cubex extends Container
   public function isEnvProd()
   {
     return $this->isEnv(self::ENV_PROD);
+  }
+
+  public function hasBooted()
+  {
+    return $this->_booted;
+  }
+
+  public function hasShutdown()
+  {
+    return $this->_shutdown;
   }
 }

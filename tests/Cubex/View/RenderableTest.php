@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\View;
 
 use Cubex\View\Renderable;
+use PHPUnit\Framework\TestCase;
 
-class RenderableTest extends \PHPUnit_Framework_TestCase
+class RenderableTest extends TestCase
 {
   public function testRenderable()
   {

@@ -10,8 +10,9 @@ use Cubex\Http\Request;
 use Cubex\ServiceManager\ServiceManager;
 use Illuminate\Cookie\CookieJar;
 use Packaged\Config\Provider\Test\TestConfigProvider;
+use PHPUnit\Framework\TestCase;
 
-class AuthServiceTest extends \PHPUnit_Framework_TestCase
+class AuthServiceTest extends TestCase
 {
   /**
    * @return \Cubex\ServiceManager\Services\AuthService
@@ -60,14 +61,14 @@ class AuthServiceTest extends \PHPUnit_Framework_TestCase
 
   public function testInvalidLoginException()
   {
-    $this->setExpectedException('\RuntimeException', "Unable to login 'user'");
+    $this->expectException('\RuntimeException', "Unable to login 'user'");
     $auth = $this->getAuthService();
     $auth->login('user', 'password');
   }
 
   public function testForgottenPasswordException()
   {
-    $this->setExpectedException('\Exception', "User not found");
+    $this->expectException('\Exception', "User not found");
     $auth = $this->getAuthService();
     $auth->forgottenPassword('user');
   }

@@ -6,10 +6,11 @@ use Cubex\ServiceManager\IServiceProvider;
 use Cubex\ServiceManager\ServiceManager;
 use Packaged\Config\ConfigSectionInterface;
 use Packaged\Config\Provider\Test\TestConfigProvider;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ServiceManagerTest extends \PHPUnit_Framework_TestCase
+class ServiceManagerTest extends TestCase
 {
   public function testCanAddService()
   {
@@ -30,7 +31,7 @@ class ServiceManagerTest extends \PHPUnit_Framework_TestCase
       $tester
     );
 
-    $this->setExpectedException(
+    $this->expectException(
       '\RuntimeException',
       "The service 'smtester' has already been registered."
     );
@@ -103,7 +104,7 @@ class ServiceManagerTest extends \PHPUnit_Framework_TestCase
     {
       $manager->destroyService($service);
     }
-    $this->setExpectedException($eType, $eMsg);
+    $this->expectException($eType, $eMsg);
     $cubex->make($service);
   }
 
@@ -115,7 +116,7 @@ class ServiceManagerTest extends \PHPUnit_Framework_TestCase
         'thisDoesNotExist',
         '\RuntimeException',
         "'thisDoesNotExist' could not be loaded for the 'tester' service'",
-        'tester'
+        'tester',
       ],
       [
         'stdClass',
@@ -123,7 +124,7 @@ class ServiceManagerTest extends \PHPUnit_Framework_TestCase
         "You are attempting to load 'testerx', " .
         "however no configuration exists",
         'testerx',
-        true
+        true,
       ],
     ];
   }

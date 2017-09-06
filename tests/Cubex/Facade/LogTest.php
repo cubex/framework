@@ -4,10 +4,11 @@ namespace CubexTest\Cubex\Facade;
 use Cubex\Cubex;
 use Cubex\Facade\Log;
 use Cubex\ServiceManager\Services\LogService;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-class LogTest extends \PHPUnit_Framework_TestCase
+class LogTest extends TestCase
 {
   public function testAvailablePsrLevels()
   {

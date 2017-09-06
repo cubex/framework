@@ -5,8 +5,9 @@ use Cubex\View\ViewModel;
 use namespaced\sub\TestView;
 use namespaced\Views\TestableView;
 use Packaged\Helpers\Path;
+use PHPUnit\Framework\TestCase;
 
-class ViewModelTest extends \PHPUnit_Framework_TestCase
+class ViewModelTest extends TestCase
 {
   public function testGetSet()
   {

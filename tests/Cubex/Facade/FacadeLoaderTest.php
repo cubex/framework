@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\Facade;
 
 use Cubex\Facade\FacadeLoader;
+use PHPUnit\Framework\TestCase;
 
-class FacadeLoaderTest extends \PHPUnit_Framework_TestCase
+class FacadeLoaderTest extends TestCase
 {
   public function testLoad()
   {

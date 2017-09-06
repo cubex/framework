@@ -3,7 +3,6 @@
 require_once dirname(
     dirname(dirname(dirname(__DIR__)))
   ) . '/vendor/autoload.php';
-
 //Create an instance of cubex, with the web root defined
 $app = new \Cubex\Cubex(dirname(dirname(dirname(__DIR__))));
 $app->setEnv(\Cubex\Cubex::ENV_PHPUNIT);

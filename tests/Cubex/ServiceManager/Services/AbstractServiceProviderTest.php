@@ -4,8 +4,9 @@ namespace CubexTest\Cubex\ServiceManager\Services;
 use Cubex\Cubex;
 use Cubex\ServiceManager\Services\AbstractServiceProvider;
 use Packaged\Config\Provider\ConfigSection;
+use PHPUnit\Framework\TestCase;
 
-class AbstractServiceProviderTest extends \PHPUnit_Framework_TestCase
+class AbstractServiceProviderTest extends TestCase
 {
   public function testAbstracts()
   {
@@ -20,7 +21,7 @@ class AbstractServiceProviderTest extends \PHPUnit_Framework_TestCase
     /**
      * @var $abstract AbstractServiceProvider
      */
-    $cubex  = new Cubex();
+    $cubex = new Cubex();
     $config = new ConfigSection('ser', ['t' => '1']);
 
     $abstract->boot($cubex, $config);

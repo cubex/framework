@@ -4,8 +4,9 @@ namespace CubexTest\Cubex\Http;
 use Cubex\Http\Response;
 use Cubex\Responses\CsvResponse;
 use Illuminate\Contracts\Support\Renderable;
+use PHPUnit\Framework\TestCase;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends TestCase
 {
   public function testExtendsSymfonyResponse()
   {

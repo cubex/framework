@@ -2,8 +2,9 @@
 namespace CubexTest\Cubex\View;
 
 use Cubex\View\TemplatedViewModel;
+use PHPUnit\Framework\TestCase;
 
-class TemplatedViewModelTest extends \PHPUnit_Framework_TestCase
+class TemplatedViewModelTest extends TestCase
 {
   public function testRender()
   {
@@ -15,7 +16,7 @@ class TemplatedViewModelTest extends \PHPUnit_Framework_TestCase
     $view->setTemplateFile('test');
     $this->assertContains('Test phtml file', $view->render());
 
-    $this->setExpectedException('Exception', 'Excepted');
+    $this->expectException('Exception', 'Excepted');
     $view->setTemplateFile('exceptional');
     $view->render();
   }
@@ -29,7 +30,7 @@ class TemplatedViewModelTest extends \PHPUnit_Framework_TestCase
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('invalid');
     $tpl = $view->getTemplatePath('.phtml');
-    $this->setExpectedException(
+    $this->expectException(
       'Exception',
       'The template file \'' . $tpl . '\' does not exist'
     );
