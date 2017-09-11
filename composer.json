@@ -25,7 +25,7 @@
     "packaged/figlet": "~0",
     "packaged/config": "~1.0",
     "packaged/helpers": "~1.0",
-    "packaged/api": "~0.5",
+    "packaged/api": "~0",
     "symfony/http-foundation": "~3.2",
     "symfony/http-kernel": "~3.2",
     "symfony/console": "~3.2",
