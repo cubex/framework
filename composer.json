@@ -37,9 +37,8 @@
     "stack/builder": "~1.0",
     "mustache/mustache": "~2.12",
     "mockery/mockery": "~0.9",
-    "guzzlehttp/guzzle": "~5.2",
+    "guzzlehttp/guzzle": "~6.3",
     "geoip2/geoip2": "~2.1",
-    "satooshi/php-coveralls": "~1.0",
     "phpunit/phpunit": "~6.3"
   },
   "autoload": {
