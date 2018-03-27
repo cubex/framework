@@ -117,25 +117,25 @@ class Visitor implements IVisitorInfo, ICubexAware
       $connection = fsockopen($host, 43, $errno, $errstr, 1);
       $request = fputs($connection, $this->_ip . "\r\n");
 
-      $response = '';
+      $whois = '';
       if($connection && $request)
       {
         while(!feof($connection))
         {
-          $response .= fgets($connection);
+          $whois .= fgets($connection);
         }
         fclose($connection);
       }
 
       $countries = $cities = $regions = [];
 
-      preg_match_all('/^country:\s*([A-Z]{2})/mi', $response, $countries);
+      preg_match_all('/^country:\s*([A-Z]{2})/mi', $whois, $countries);
       if(isset($countries[1]) && !empty($countries[1]))
       {
         $this->_country = end($countries[1]);
       }
 
-      preg_match_all('/^city:\s*([A-Z].*$)/mi', $response, $cities);
+      preg_match_all('/^city:\s*([A-Z].*$)/mi', $whois, $cities);
       if(isset($cities[1]) && !empty($cities[1]))
       {
         $this->_city = end($cities[1]);
@@ -143,7 +143,7 @@ class Visitor implements IVisitorInfo, ICubexAware
 
       preg_match_all(
         '/^(state|stateprov|county|prov|province):\s*([A-Z].*$)/mi',
-        $response,
+        $whois,
         $regions
       );
 
