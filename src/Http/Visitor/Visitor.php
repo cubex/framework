@@ -110,10 +110,23 @@ class Visitor implements IVisitorInfo, ICubexAware
 
   protected function _fromWhois()
   {
-    if(System::commandExists('whois'))
+    $host = $this->_config->getItem('whois_host', 'whois.arin.net');
+    if($host)
     {
-      exec("whois " . $this->_ip, $whois);
-      $whois = implode("\n", $whois);
+      // connect and send whois query
+      $connection = fsockopen($host, 43, $errno, $errstr, 1);
+      $request = fputs($connection, $this->_ip . "\r\n");
+
+      $whois = '';
+      if($connection && $request)
+      {
+        while(!feof($connection))
+        {
+          $whois .= fgets($connection);
+        }
+        fclose($connection);
+      }
+
       $countries = $cities = $regions = [];
 
       preg_match_all('/^country:\s*([A-Z]{2})/mi', $whois, $countries);

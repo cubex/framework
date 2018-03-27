@@ -5,45 +5,10 @@ use Cubex\Http\Request;
 use Cubex\Http\Visitor\MaxmindVisitor;
 use CubexTest\InternalCubexTestCase;
 use Packaged\Config\Provider\ConfigSection;
-use Packaged\Helpers\Path;
 
 class MaxmindVisitorTestInternal extends InternalCubexTestCase
 {
-  protected $_geoipdb;
-
-  protected function setUp()
-  {
-    $dbgz = 'http://geolite.maxmind.com/download/'
-      . 'geoip/database/GeoLite2-City.mmdb.gz';
-
-    $filename = Path::build(sys_get_temp_dir(), 'GeoLite2-City.mmdb.gz');
-    $this->_geoipdb = substr($filename, 0, -3);
-
-    if(!file_exists($this->_geoipdb))
-    {
-      $opts = [
-        'http' => [
-          'method' => "GET",
-          'header' => "Accept-language: en\r\n"
-            . "User-Agent: CURL (Cubex Framework; en-us)\r\n",
-        ],
-      ];
-
-      $context = stream_context_create($opts);
-
-      file_put_contents($filename, file_get_contents($dbgz, false, $context));
-
-      $file = gzopen($filename, 'rb');
-      $out = fopen($this->_geoipdb, 'wb');
-      while(!gzeof($file))
-      {
-        fwrite($out, gzread($file, 4096));
-      }
-      fclose($out);
-      gzclose($file);
-      unlink($filename);
-    }
-  }
+  protected $_geoipdb = __DIR__ . '/GeoIP2-City-Test.mmdb';
 
   /**
    * @param      $remoteAddr
@@ -159,10 +124,10 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
   {
     return [
       [
-        '123.123.123.123',
-        'CN',
-        'Beijing',
-        '11',
+        '81.2.69.192',
+        'GB',
+        'London',
+        'ENG',
         new ConfigSection(
           'http_visitor',
           [
@@ -172,10 +137,23 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
         ),
       ],
       [
-        '208.67.222.222',
+        '216.160.83.56',
         'US',
-        'San Francisco',
-        'CA',
+        'Milton',
+        'WA',
+        new ConfigSection(
+          'http_visitor',
+          [
+            'mode'     => 'reader',
+            'database' => $this->_geoipdb,
+          ]
+        ),
+      ],
+      [
+        '89.160.20.112',
+        'SE',
+        'Linköping',
+        'E',
         new ConfigSection(
           'http_visitor',
           [

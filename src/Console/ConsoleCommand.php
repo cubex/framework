@@ -3,6 +3,7 @@ namespace Cubex\Console;
 
 use Cubex\Cubex;
 use Cubex\ICubexAware;
+use Packaged\Helpers\ValueAs;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
 use Symfony\Component\Console\Command\Command;
@@ -40,25 +41,13 @@ abstract class ConsoleCommand extends Command implements ICubexAware
     $reflect = new \ReflectionClass($this);
     $docBlock = new DocBlock($reflect);
 
-    try
-    {
-      parent::__construct($name);
-    }
-    catch(\Exception $e)
-    {
-      if($docBlock->hasTag('name'))
-      {
-        $this->setName(
-          head($docBlock->getTagsByName('name'))->getDescription()
-        );
-      }
-    }
+    $names = [
+      $name,
+      $docBlock->hasTag('name') ? head($docBlock->getTagsByName('name'))->getDescription() : null,
+      strtolower(class_basename(get_called_class())),
+    ];
 
-    //Always ensure the command has a name
-    if($this->getName() === null)
-    {
-      $this->setName(strtolower(class_basename(get_called_class())));
-    }
+    parent::__construct(ValueAs::nonempty(...$names));
 
     if($this->getDescription() === null)
     {

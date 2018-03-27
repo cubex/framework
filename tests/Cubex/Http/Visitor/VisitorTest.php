@@ -6,7 +6,6 @@ use Cubex\Http\Visitor\MockVisitorInfo;
 use Cubex\Http\Visitor\Visitor;
 use CubexTest\InternalCubexTestCase;
 use Packaged\Config\Provider\ConfigSection;
-use Packaged\Helpers\System;
 
 class VisitorTestInternal extends InternalCubexTestCase
 {
@@ -121,7 +120,6 @@ class VisitorTestInternal extends InternalCubexTestCase
 
   public function visitorProvider()
   {
-    $whois = System::commandExists('whois');
     return [
       ['127.0.0.1', 'GB', 'London', 'eng'],
       [
@@ -132,18 +130,18 @@ class VisitorTestInternal extends InternalCubexTestCase
         new ConfigSection(
           'http_visitor',
           ['city' => 'Portsmouth', 'country' => 'UK', 'region' => 'england']
-        )
+        ),
       ],
       [
         '208.67.222.222',
-        $whois ? 'US' : 'GB',
-        $whois ? 'San Francisco' : 'London',
-        $whois ? 'CA' : 'eng',
+        'US',
+        'San Francisco',
+        'CA',
         new ConfigSection(
           'http_visitor',
           ['whois' => true]
-        )
-      ]
+        ),
+      ],
     ];
   }
 }
