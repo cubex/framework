@@ -110,25 +110,32 @@ class Visitor implements IVisitorInfo, ICubexAware
 
   protected function _fromWhois()
   {
-    if(System::commandExists('whois'))
+    $host = $this->_config->getItem('whois_host', 'whois.arin.net');
+    if($host)
     {
-      $host = $this->_config->getItem('whois_host');
-      if($host)
+      // connect and send whois query
+      $connection = fsockopen($host, 43, $errno, $errstr, 1);
+      $request = fputs($connection, $this->_ip . "\r\n");
+
+      $response = '';
+      if($connection && $request)
       {
-        $host = '-h ' . $host;
+        while(!feof($connection))
+        {
+          $response .= fgets($connection);
+        }
+        fclose($connection);
       }
 
-      exec("whois $host {$this->_ip}", $whois);
-      $whois = implode("\n", $whois);
       $countries = $cities = $regions = [];
 
-      preg_match_all('/^country:\s*([A-Z]{2})/mi', $whois, $countries);
+      preg_match_all('/^country:\s*([A-Z]{2})/mi', $response, $countries);
       if(isset($countries[1]) && !empty($countries[1]))
       {
         $this->_country = end($countries[1]);
       }
 
-      preg_match_all('/^city:\s*([A-Z].*$)/mi', $whois, $cities);
+      preg_match_all('/^city:\s*([A-Z].*$)/mi', $response, $cities);
       if(isset($cities[1]) && !empty($cities[1]))
       {
         $this->_city = end($cities[1]);
@@ -136,7 +143,7 @@ class Visitor implements IVisitorInfo, ICubexAware
 
       preg_match_all(
         '/^(state|stateprov|county|prov|province):\s*([A-Z].*$)/mi',
-        $whois,
+        $response,
         $regions
       );
 
