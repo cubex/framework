@@ -22,18 +22,6 @@ defaults: &defaults
 
 version: 2
 jobs:
-  build-php54:
-    <<: *defaults
-    docker:
-      - image: tomkay/docker-legacy-php:5.4-alpine
-  build-php55:
-    <<: *defaults
-    docker:
-      - image: tomkay/docker-legacy-php:5.5-alpine
-  build-php56:
-    <<: *defaults
-    docker:
-      - image: php:5.6-alpine
   build-php70:
     <<: *defaults
     docker:
@@ -51,9 +39,6 @@ workflows:
   version: 2
   build:
     jobs:
-      - build-php54
-      - build-php55
-      - build-php56
       - build-php70
       - build-php71
       - build-php72
