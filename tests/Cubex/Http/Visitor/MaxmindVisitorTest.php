@@ -8,7 +8,7 @@ use Packaged\Config\Provider\ConfigSection;
 
 class MaxmindVisitorTestInternal extends InternalCubexTestCase
 {
-  protected $_geoipdbFilename = __DIR__ . '/GeoIP2-City-Test.mmdb';
+  protected $_geoipdb = __DIR__ . '/GeoIP2-City-Test.mmdb';
 
   /**
    * @param      $remoteAddr
@@ -23,7 +23,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
     $remoteAddr, $country, $city, $region, $config = null
   )
   {
-    if(!file_exists($this->_geoipdbFilename))
+    if(!file_exists($this->_geoipdb))
     {
       $this->markTestSkipped("GeoIP Database Not Downloaded");
       return;
@@ -39,11 +39,11 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
     {
       $config = new ConfigSection(
         'http_visitor',
-        ['database' => $this->_geoipdbFilename]
+        ['database' => $this->_geoipdb]
       );
     }
 
-    $config->addItem('database', $config->getItem('database', $this->_geoipdbFilename));
+    $config->addItem('database', $config->getItem('database', $this->_geoipdb));
 
     $cubex->getConfiguration()->addSection($config);
 
@@ -132,7 +132,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdbFilename,
+            'database' => $this->_geoipdb,
           ]
         ),
       ],
@@ -145,7 +145,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdbFilename,
+            'database' => $this->_geoipdb,
           ]
         ),
       ],
@@ -158,7 +158,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdbFilename,
+            'database' => $this->_geoipdb,
           ]
         ),
       ],
