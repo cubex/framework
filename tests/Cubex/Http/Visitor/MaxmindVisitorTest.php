@@ -9,40 +9,45 @@ use Packaged\Helpers\Path;
 
 class MaxmindVisitorTestInternal extends InternalCubexTestCase
 {
-  protected $_geoipdb;
+  protected static $_geoipdbFilename;
 
-  protected function setUp()
+  public static function setUpBeforeClass()
   {
-    $dbgz = 'http://geolite.maxmind.com/download/'
-      . 'geoip/database/GeoLite2-City.mmdb.gz';
+    $dbgz = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz';
 
-    $filename = Path::build(sys_get_temp_dir(), 'GeoLite2-City.mmdb.gz');
-    $this->_geoipdb = substr($filename, 0, -3);
+    $gzFilename = Path::build(sys_get_temp_dir(), 'GeoLite2-City.tar.gz');
+    $tarFilename = substr($gzFilename, 0, -3);
+    $extractLocation = substr($tarFilename, 0, -4);
 
-    if(!file_exists($this->_geoipdb))
+    $opts = [
+      'http' => [
+        'method' => "GET",
+        'header' => "Accept-language: en\r\n"
+          . "User-Agent: CURL (Cubex Framework; en-us)\r\n",
+      ],
+    ];
+
+    $context = stream_context_create($opts);
+
+    file_put_contents($gzFilename, file_get_contents($dbgz, false, $context));
+
+    if(file_exists($tarFilename))
     {
-      $opts = [
-        'http' => [
-          'method' => "GET",
-          'header' => "Accept-language: en\r\n"
-            . "User-Agent: CURL (Cubex Framework; en-us)\r\n",
-        ],
-      ];
-
-      $context = stream_context_create($opts);
-
-      file_put_contents($filename, file_get_contents($dbgz, false, $context));
-
-      $file = gzopen($filename, 'rb');
-      $out = fopen($this->_geoipdb, 'wb');
-      while(!gzeof($file))
-      {
-        fwrite($out, gzread($file, 4096));
-      }
-      fclose($out);
-      gzclose($file);
-      unlink($filename);
+      unlink($tarFilename);
     }
+
+    $phar = new \PharData($gzFilename);
+    $phar->decompress();
+    $tar = new \PharData($tarFilename);
+    $tar->extractTo($extractLocation, null, true);
+    if($tar->current()->isDir())
+    {
+      $extractLocation .= '/' . basename($phar->current()->getPathname());
+    }
+
+    static::$_geoipdbFilename .= $extractLocation . '/GeoLite2-City.mmdb';
+    unlink($gzFilename);
+    unlink($tarFilename);
   }
 
   /**
@@ -58,7 +63,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
     $remoteAddr, $country, $city, $region, $config = null
   )
   {
-    if(!file_exists($this->_geoipdb))
+    if(!file_exists(static::$_geoipdbFilename))
     {
       $this->markTestSkipped("GeoIP Database Not Downloaded");
       return;
@@ -74,11 +79,11 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
     {
       $config = new ConfigSection(
         'http_visitor',
-        ['database' => $this->_geoipdb]
+        ['database' => static::$_geoipdbFilename]
       );
     }
 
-    $config->addItem('database', $config->getItem('database', $this->_geoipdb));
+    $config->addItem('database', $config->getItem('database', static::$_geoipdbFilename));
 
     $cubex->getConfiguration()->addSection($config);
 
@@ -167,7 +172,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdb,
+            'database' => static::$_geoipdbFilename,
           ]
         ),
       ],
@@ -180,7 +185,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
           'http_visitor',
           [
             'mode'     => 'reader',
-            'database' => $this->_geoipdb,
+            'database' => static::$_geoipdbFilename,
           ]
         ),
       ],
