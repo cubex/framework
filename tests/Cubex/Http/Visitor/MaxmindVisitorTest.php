@@ -162,7 +162,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
         '123.123.123.123',
         'CN',
         'Beijing',
-        '11',
+        'BJ',
         new ConfigSection(
           'http_visitor',
           [
