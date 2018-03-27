@@ -132,7 +132,7 @@ class VisitorTestInternal extends InternalCubexTestCase
         new ConfigSection(
           'http_visitor',
           ['city' => 'Portsmouth', 'country' => 'UK', 'region' => 'england']
-        )
+        ),
       ],
       [
         '208.67.222.222',
@@ -141,9 +141,9 @@ class VisitorTestInternal extends InternalCubexTestCase
         $whois ? 'CA' : 'eng',
         new ConfigSection(
           'http_visitor',
-          ['whois' => true]
-        )
-      ]
+          ['whois' => true, 'whois_host' => 'whois.arin.net']
+        ),
+      ],
     ];
   }
 }

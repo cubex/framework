@@ -112,7 +112,13 @@ class Visitor implements IVisitorInfo, ICubexAware
   {
     if(System::commandExists('whois'))
     {
-      exec("whois " . $this->_ip, $whois);
+      $host = $this->_config->getItem('whois_host');
+      if($host)
+      {
+        $host = '-h ' . $host;
+      }
+
+      exec("whois $host {$this->_ip}", $whois);
       $whois = implode("\n", $whois);
       $countries = $cities = $regions = [];
 
