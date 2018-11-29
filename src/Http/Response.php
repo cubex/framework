@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Http;
 
-use Illuminate\Contracts\Support\Renderable;
+use Cubex\Ui\Renderable;
 
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
@@ -103,11 +103,11 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   public function fromJson($object)
   {
     $this->_originalSource = $object;
-    $response = \json_encode($object);
+    $response = json_encode($object);
 
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
-    $response = \str_replace(
+    $response = str_replace(
       ['<', '>'],
       ['\u003c', '\u003e'],
       $response
@@ -131,12 +131,12 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   public function fromJsonp($responseKey, $object)
   {
     $this->_originalSource = $object;
-    $responseObject = \json_encode($object);
+    $responseObject = json_encode($object);
     $response = "{$responseKey}({$responseObject})";
 
     // Prevent content sniffing attacks by encoding "<" and ">", so browsers
     // won't try to execute the document as HTML
-    $response = \str_replace(
+    $response = str_replace(
       ['<', '>'],
       ['\u003c', '\u003e'],
       $response

@@ -1,8 +1,9 @@
 <?php
 namespace Cubex\Console;
 
-use Cubex\Cubex;
-use Cubex\ICubexAware;
+use Cubex\Context\ContextAware;
+use Cubex\Context\ContextAwareTrait;
+use Packaged\Helpers\Arrays;
 use Packaged\Helpers\ValueAs;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
@@ -15,8 +16,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Extended Command to support public properties for arguments
  */
-abstract class ConsoleCommand extends Command implements ICubexAware
+abstract class ConsoleCommand extends Command implements ContextAware
 {
+  use ContextAwareTrait;
+
   /**
    * @var InputInterface
    */
@@ -33,8 +36,8 @@ abstract class ConsoleCommand extends Command implements ICubexAware
    *                          passing null means it must be set in configure()
    *
    * @throws \LogicException When the command name is empty
+   * @throws \ReflectionException
    *
-   * @api
    */
   public function __construct($name = null)
   {
@@ -43,15 +46,15 @@ abstract class ConsoleCommand extends Command implements ICubexAware
 
     $names = [
       $name,
-      $docBlock->hasTag('name') ? head($docBlock->getTagsByName('name'))->getDescription() : null,
-      strtolower(class_basename(get_called_class())),
+      $docBlock->hasTag('name') ? Arrays::first($docBlock->getTagsByName('name'))->getDescription() : null,
+      strtolower(basename(str_replace('\\', '/', get_called_class()))),
     ];
 
     parent::__construct(ValueAs::nonempty(...$names));
 
     if($this->getDescription() === null)
     {
-      $description = head($docBlock->getTagsByName('description'));
+      $description = Arrays::first($docBlock->getTagsByName('description'));
       if($description)
       {
         $this->setDescription($description->getDescription());
@@ -141,13 +144,12 @@ abstract class ConsoleCommand extends Command implements ICubexAware
    * Create options and arguments from the public properties on your command
    *
    * @param \ReflectionClass $class
-   * @param                  $argsAdded
+   *
+   * @param                  $args
    *
    * @return null
    */
-  protected function createOptionsFromPublic(
-    \ReflectionClass $class, $argsAdded
-  )
+  protected function createOptionsFromPublic(\ReflectionClass $class, $args)
   {
     $properties = $class->getProperties(\ReflectionProperty::IS_PUBLIC);
     if(empty($properties))
@@ -157,40 +159,26 @@ abstract class ConsoleCommand extends Command implements ICubexAware
     foreach($properties as $property)
     {
       $propBlock = new DocBlock($property);
-
       $short = null;
       $description = $propBlock->getShortDescription();
       $mode = InputOption::VALUE_OPTIONAL;
-
       if($propBlock->hasTag('short'))
       {
-        $short = head($propBlock->getTagsByName('short'))->getDescription();
+        $short = Arrays::first($propBlock->getTagsByName('short'))->getDescription();
       }
-
       if($propBlock->hasTag('description'))
       {
-        $description = head(
-          $propBlock->getTagsByName('description')
-        )->getDescription();
+        $description = Arrays::first($propBlock->getTagsByName('description'))->getDescription();
       }
-
       if($propBlock->hasTag('valuerequired'))
       {
         $mode = InputOption::VALUE_REQUIRED;
       }
-
       if($propBlock->hasTag('flag'))
       {
         $mode = InputOption::VALUE_NONE;
       }
-
-      $this->addOption(
-        $property->getName(),
-        $short,
-        $mode,
-        $description,
-        $property->getValue($this)
-      );
+      $this->addOption($property->getName(), $short, $mode, $description, $property->getValue($this));
     }
   }
 
@@ -246,37 +234,5 @@ abstract class ConsoleCommand extends Command implements ICubexAware
       'executeCommand(InputInterface $input, OutputInterface $output)' . "\n",
       500
     );
-  }
-
-  /**
-   * Gets the application instance for this command.
-   *
-   * @return Console An Application instance
-   *
-   * @api
-   */
-  public function getApplication()
-  {
-    return parent::getApplication();
-  }
-
-  /**
-   * @return \Cubex\Cubex
-   */
-  public function getCubex()
-  {
-    return $this->getApplication()->getCubex();
-  }
-
-  /**
-   * Set the cubex application
-   *
-   * @param Cubex $app
-   *
-   * @throws \Exception
-   */
-  public function setCubex(Cubex $app)
-  {
-    throw new \Exception("Cubex is controlled by the application");
   }
 }

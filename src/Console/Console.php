@@ -2,34 +2,19 @@
 namespace Cubex\Console;
 
 use Cubex\Console\Commands\BuiltInWebServer;
-use Cubex\Cubex;
-use Cubex\CubexAwareTrait;
-use Cubex\ICubexAware;
+use Cubex\Context\ContextAware;
+use Cubex\Context\ContextAwareTrait;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Console extends Application implements ICubexAware
+class Console extends Application implements ContextAware
 {
-  use CubexAwareTrait;
-
   protected $_searchPatterns = ['%s'];
   protected $_configured = false;
 
-  /**
-   * Create a new console application with Cubex Set
-   *
-   * @param Cubex $cubex
-   *
-   * @return Console
-   */
-  public static function withCubex(Cubex $cubex)
-  {
-    $console = new self('Cubex Console', '1.0.0');
-    $console->setCubex($cubex);
-    return $console;
-  }
+  use ContextAwareTrait;
 
   /**
    * Runs the current application.
@@ -38,6 +23,7 @@ class Console extends Application implements ICubexAware
    * @param OutputInterface $output An Output instance
    *
    * @return integer 0 if everything went fine, or an error code
+   * @throws \Throwable
    */
   public function doRun(InputInterface $input, OutputInterface $output)
   {
@@ -63,7 +49,7 @@ class Console extends Application implements ICubexAware
 
     try
     {
-      $config = $this->getCubex()->getConfiguration()->getSection('console');
+      $config = $this->getContext()->config()->getSection('console');
       $commands = $config->getItem('commands', []);
       $patterns = $config->getItem('patterns', []);
 
@@ -122,18 +108,10 @@ class Console extends Application implements ICubexAware
         continue;
       }
 
-      if($setName)
-      {
-        $command = new $attempt($name);
-      }
-      else
-      {
-        $command = new $attempt;
-      }
-
+      $command = $setName ? new $attempt($name) : new $attempt();
       if($command instanceof Command)
       {
-        return $command;
+        return $this->_prepareCommand($command);
       }
     }
 
@@ -167,12 +145,22 @@ class Console extends Application implements ICubexAware
   }
 
   /**
-   * @inheritdoc
+   * @return array|Command[]
+   * @throws \ReflectionException
    */
   protected function getDefaultCommands()
   {
     $commands = parent::getDefaultCommands();
-    $commands[] = new BuiltInWebServer();
+    $commands[] = $this->_prepareCommand(new BuiltInWebServer());
     return $commands;
+  }
+
+  protected function _prepareCommand(Command $command): Command
+  {
+    if($this->hasContext() && $command instanceof ContextAware)
+    {
+      $command->setContext($this->getContext());
+    }
+    return $command;
   }
 }

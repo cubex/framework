@@ -2,11 +2,7 @@
 namespace Cubex\Http;
 
 use Packaged\Helpers\FQDN;
-use Packaged\Helpers\Strings;
 
-/**
- * @method static Request createFromGlobals
- */
 class Request extends \Symfony\Component\HttpFoundation\Request
 {
   /**
@@ -14,27 +10,6 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   protected $_domain;
   protected $_partCache = [];
-
-  /**
-   * @inheritdoc
-   */
-  public function __construct(
-    array $query = [], array $request = [],
-    array $attributes = [], array $cookies = [],
-    array $files = [], array $server = [], $content = null
-  )
-  {
-    parent::__construct(
-      $query,
-      $request,
-      $attributes,
-      $cookies,
-      $files,
-      $server,
-      $content
-    );
-    $this->setLocale($this->getPreferredLanguage());
-  }
 
   public function getFqdn()
   {
@@ -185,7 +160,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
     $port = $this->getPort();
 
     return ('http' == $scheme && $port == 80)
-    || ('https' == $scheme && $port == 443);
+      || ('https' == $scheme && $port == 443);
   }
 
   /**

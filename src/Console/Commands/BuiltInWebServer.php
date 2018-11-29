@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class BuiltInWebServer extends ConsoleCommand
 {
   public $host = '0.0.0.0';
-  public $port = 8080;
+  public $port = 8888;
   public $showfig = true;
   public $router = 'public/index.php';
 
@@ -46,13 +46,13 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write(':' . $this->port);
     $output->writeLn("");
 
-    $projectRoot = trim($this->getCubex()->getProjectRoot());
+    $projectRoot = trim($this->getContext()->getProjectRoot());
     $projectRoot = $projectRoot ? '"' . $projectRoot . '"' : '';
 
-    $command   = ["php -S $this->host:$this->port -t"];
+    $command = ["php -S $this->host:$this->port -t"];
     $command[] = $projectRoot;
     $command[] = trim($this->router);
-    $command   = implode(' ', array_filter($command));
+    $command = implode(' ', array_filter($command));
 
     $output->writeln(["", "\tRaw Command: $command", ""]);
 
@@ -62,7 +62,7 @@ class BuiltInWebServer extends ConsoleCommand
   protected function runCommand($command)
   {
     $exitCode = 0;
-    $method   = $this->_executeMethod;
+    $method = $this->_executeMethod;
     if(System::commandExists('bash'))
     {
       // Use bash to execute if available,
