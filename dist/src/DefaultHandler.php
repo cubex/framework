@@ -1,15 +1,18 @@
 <?php
 namespace Project;
 
-use Cubex\Context\Context;
-use Cubex\Http\Handler;
-use Cubex\Http\Request;
-use Cubex\Http\Response;
+use Cubex\Controller\Controller;
 
-class DefaultHandler implements Handler
+class DefaultHandler extends Controller
 {
-  public function handle(Context $c, Response $w, Request $r)
+  protected function defaultRoute()
   {
-    $w->from("Hello");
+    //return 'page';
+    return WorldHandler::class;
+  }
+
+  public function getPage()
+  {
+    return 'Hello Page';
   }
 }
