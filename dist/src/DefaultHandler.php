@@ -2,13 +2,16 @@
 namespace Project;
 
 use Cubex\Controller\Controller;
+use Cubex\Controller\Route;
 
 class DefaultHandler extends Controller
 {
-  protected function defaultRoute()
+  public function getRoutes()
   {
-    //return 'page';
-    return WorldHandler::class;
+    return [
+      Route::i("/hello/world", WorldHandler::class),
+      Route::i("/hello", "page"),
+    ];
   }
 
   public function getPage()

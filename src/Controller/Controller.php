@@ -12,6 +12,46 @@ use Exception;
 class Controller implements Handler, ContextAware
 {
   use ContextAwareTrait;
+  private $_response;
+  private $_request;
+
+  /**
+   * @return Response
+   */
+  public function getResponse(): ?Response
+  {
+    return $this->_response;
+  }
+
+  /**
+   * @param Response $response
+   *
+   * @return Controller
+   */
+  public function setResponse(Response $response)
+  {
+    $this->_response = $response;
+    return $this;
+  }
+
+  /**
+   * @return Request
+   */
+  public function getRequest(): ?Request
+  {
+    return $this->_request;
+  }
+
+  /**
+   * @param Request $request
+   *
+   * @return Controller
+   */
+  public function setRequest(Request $request)
+  {
+    $this->_request = $request;
+    return $this;
+  }
 
   public function canProcess()
   {
@@ -37,6 +77,8 @@ class Controller implements Handler, ContextAware
   public function handle(Context $c, Response $w, Request $r)
   {
     $this->setContext($c);
+    $this->setRequest($r);
+    $this->setResponse($w);
 
     //Verify the request can be processed
     $authResponse = $this->canProcess();
@@ -57,6 +99,7 @@ class Controller implements Handler, ContextAware
       if($route instanceof Route && $route->match($r))
       {
         $result = $route->getResult();
+        break;
       }
     }
 
@@ -69,7 +112,30 @@ class Controller implements Handler, ContextAware
         {
           $obj->setContext($c);
         }
-        if($obj instanceof Handler)
+
+        if($obj instanceof Controller)
+        {
+          $obj->setRequest($r);
+          $obj->setResponse($w);
+        }
+
+        if(is_callable($obj))
+        {
+          ob_start();
+          try
+          {
+            $callableResponse = $obj();
+          }
+          catch(\Exception $e)
+          {
+            ob_get_clean();
+            throw $e;
+          }
+
+          $w->setContent($this->_convertResponse($callableResponse, ob_get_clean()));
+          return true;
+        }
+        else if($obj instanceof Handler)
         {
           return $obj->handle($c, $w, $r);
         }

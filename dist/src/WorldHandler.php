@@ -5,7 +5,7 @@ use Cubex\Controller\Controller;
 
 class WorldHandler extends Controller
 {
-  public function getPage()
+  public function __invoke()
   {
     return 'Hello World';
   }
