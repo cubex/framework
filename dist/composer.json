@@ -1,0 +1,15 @@
+{
+  "config": {
+    "optimize-autoloader": true
+  },
+  "require": {
+    "cubex/framework": "dev-master"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "Project\\": "src/"
+    }
+  }
+}
