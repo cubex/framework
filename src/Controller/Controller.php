@@ -1,5 +1,5 @@
 <?php
-namespace Cubex\Kernel;
+namespace Cubex\Controller;
 
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
@@ -7,6 +7,7 @@ use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
 use Cubex\Http\Request;
 use Cubex\Http\Response;
+use Exception;
 
 class Controller implements Handler, ContextAware
 {
@@ -17,38 +18,88 @@ class Controller implements Handler, ContextAware
     return [];
   }
 
+  protected function defaultRoute()
+  {
+    return 'page';
+  }
+
+  /**
+   * @param Context  $c
+   * @param Response $w
+   * @param Request  $r
+   *
+   * @throws Exception
+   */
   public function handle(Context $c, Response $w, Request $r)
   {
     $this->setContext($c);
 
-    'hello/bob';
-    '/hello/bob';
-
-
     //Loop over routes
-    //Extract route data into context
-    //Process method|class(Handler)
-    //{httpMethod}MethodName
-    //throw FuckedException();
+    $result = $this->defaultRoute();
+
+    if(strstr($result, '\\') && class_exists($result))
+    {
+      $obj = new $result();
+      if($obj instanceof ContextAware)
+      {
+        $obj->setContext($c);
+      }
+      if($obj instanceof Handler)
+      {
+        return $obj->handle($c, $w, $r);
+      }
+    }
+
+    $method = $this->_getMethod($r, $result);
+    if($method !== null)
+    {
+      $methodResponse = null;
+      ob_start();
+      try
+      {
+        $methodResponse = $this->$method();
+      }
+      catch(\Exception $e)
+      {
+        ob_get_clean();
+        throw $e;
+      }
+
+      $w->setContent($this->_convertResponse($methodResponse, ob_get_clean()));
+      return;
+    }
+
+    throw new \RuntimeException("unable to handle your request", 404);
   }
 
-  public function getMethod() {
-    $data = $this->ajaxGetMethod();
-    return new Render($data);
-  }
-
-  public function postMethod()
+  protected function _convertResponse($response, $buffer)
   {
-    return $this->getMethod();
+    if($response === null)
+    {
+      $response = $buffer;
+    }
+    return $response;
   }
 
-  public function ajaxPostMethod()
+  private function _getMethod(Request $r, $method)
   {
+    $method = ucfirst($method);
+    $prefixes = [];
+    if($r->isXmlHttpRequest())
+    {
+      $prefixes[] = 'ajax';
+      $prefixes[] = 'ajax' . ucfirst(strtolower($r->getMethod()));
+    }
 
-  }
+    $prefixes[] = strtolower($r->getMethod());
 
-  public function ajaxGetMethod()
-  {
-    return ['data' => 'abc'];
+    foreach($prefixes as $prefix)
+    {
+      if(method_exists($this, $prefix . $method))
+      {
+        return $prefix . $method;
+      }
+    }
+    return null;
   }
 }
