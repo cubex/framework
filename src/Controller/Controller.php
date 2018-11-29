@@ -18,14 +18,12 @@ class Controller implements Handler, ContextAware
     return true;
   }
 
+  /**
+   * @return Route[]
+   */
   public function getRoutes()
   {
     return [];
-  }
-
-  protected function defaultRoute()
-  {
-    return 'page';
   }
 
   /**
@@ -53,8 +51,14 @@ class Controller implements Handler, ContextAware
       throw new \Exception("unable to process your request", 403);
     }
 
-    //Loop over routes
-    $result = $this->defaultRoute();
+    $result = null;
+    foreach($this->getRoutes() as $route)
+    {
+      if($route instanceof Route && $route->match($r))
+      {
+        $result = $route->getResult();
+      }
+    }
 
     if($result && is_string($result))
     {
