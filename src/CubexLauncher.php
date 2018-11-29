@@ -3,6 +3,8 @@ namespace Cubex;
 
 use Cubex\Console\Console;
 use Cubex\Context\Context;
+use Cubex\Context\ContextAware;
+use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Request;
 use Cubex\Http\Response;
 use Cubex\Routing\Router;
@@ -12,92 +14,36 @@ use Packaged\Helpers\Path;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class CubexLauncher
+class CubexLauncher implements ContextAware
 {
-  /**
-   * @var Context
-   */
-  private $_context;
-  /**
-   * @var Request
-   */
-  private $_request;
-  /**
-   * @var Response
-   */
-  private $_response;
-  /**
-   * @var Router
-   */
-  private $_router;
+  use ContextAwareTrait;
 
   public function __construct($projectRoot)
   {
-    $this->_context = new Context();
-    $this->_context->setProjectRoot($projectRoot);
-    $this->configure();
-
-    if($this->_context->isCli())
-    {
-      $this->_request = Request::createConsoleRequest();
-    }
-    else
-    {
-      $this->_request = Request::createFromGlobals();
-    }
-    $this->_response = new Response();
+    $ctx = new Context();
+    $this->setContext($ctx);
+    $ctx->setProjectRoot($projectRoot);
+    $this->configure($ctx);
   }
 
-  protected function configure()
+  protected function configure(Context $ctx)
   {
     try
     {
-      $cfg = new IniConfigProvider(Path::build($this->getContext()->getProjectRoot(), "conf", "defaults.ini"));
-      $this->getContext()->setConfig($cfg);
+      $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
     }
     catch(Exception $e)
     {
     }
   }
 
-  public function getContext()
+  public function handleException(Exception $e, Response $w, Request $r)
   {
-    return $this->_context;
-  }
-
-  public function getRequest()
-  {
-    return $this->_request;
-  }
-
-  public function getResponse()
-  {
-    return $this->_response;
-  }
-
-  public function shutdown()
-  {
-    //Shutdown Everything Cleanly
-  }
-
-  /**
-   * @return Router
-   */
-  public function getRouter(): Router
-  {
-    return $this->_router;
-  }
-
-  public function setRouter(Router $router)
-  {
-    $this->_router = $router;
-    return $this;
-  }
-
-  public function handleException(Exception $e)
-  {
-    $this->getResponse()->setStatusCode($e->getCode() >= 400 ? $e->getCode() : 500, $e->getMessage());
-    $this->getResponse()->setContent($e->getMessage())->prepare($this->getRequest())->send();
+    $w
+      ->setStatusCode($e->getCode() >= 400 ? $e->getCode() : 500, $e->getMessage())
+      ->setContent($e->getMessage())
+      ->prepare($r)
+      ->send();
   }
 
   public function cli()
@@ -122,41 +68,30 @@ class CubexLauncher
   }
 
   /**
-   * @param bool $catch Catch exceptions and generate a default response
-   *
-   * @param bool $send
-   *
-   * @return $this
-   * @throws Exception
-   */
-  public function handle($catch = true, $send = true)
-  {
-    return $this->handleWithRouter($this->getRouter(), $catch, $send);
-  }
-
-  /**
    * @param Router $router
    * @param bool   $catch
    * @param bool   $send
    *
-   * @return $this
+   * @return Response
    * @throws ?Exception
    */
-  public function handleWithRouter(Router $router, $catch = true, $send = true)
+  public function handle(Router $router, $catch = true, $send = true)
   {
+    $r = Request::createFromGlobals();
+    $w = new Response();
     try
     {
-      $handler = $router->getHandler($this->getRequest());
+      $handler = $router->getHandler($r);
       if($handler === null)
       {
         throw new \RuntimeException("No handler was available to process your request");
       }
-      $handler->handle($this->getContext(), $this->getResponse(), $this->getRequest());
+      $handler->handle($this->getContext(), $w, $r);
 
-      $this->getResponse()->prepare($this->getRequest());
+      $w->prepare($r);
       if($send)
       {
-        $this->getResponse()->send();
+        $w->send();
       }
     }
     catch(Exception $e)
@@ -165,9 +100,9 @@ class CubexLauncher
       {
         throw $e;
       }
-      $this->handleException($e);
+      $this->handleException($e, $w, $r);
     }
 
-    return $this;
+    return $w;
   }
 }

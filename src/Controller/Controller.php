@@ -13,6 +13,11 @@ class Controller implements Handler, ContextAware
 {
   use ContextAwareTrait;
 
+  public function canProcess()
+  {
+    return true;
+  }
+
   public function getRoutes()
   {
     return [];
@@ -28,45 +33,62 @@ class Controller implements Handler, ContextAware
    * @param Response $w
    * @param Request  $r
    *
+   * @return bool
    * @throws Exception
    */
   public function handle(Context $c, Response $w, Request $r)
   {
     $this->setContext($c);
 
+    //Verify the request can be processed
+    $authResponse = $this->canProcess();
+    if($authResponse instanceof Response)
+    {
+      $w->setStatusCode($authResponse->getStatusCode());
+      $w->setContent($authResponse->getContent());
+      return true;
+    }
+    else if($authResponse !== true)
+    {
+      throw new \Exception("unable to process your request", 403);
+    }
+
     //Loop over routes
     $result = $this->defaultRoute();
 
-    if(strstr($result, '\\') && class_exists($result))
+    if($result && is_string($result))
     {
-      $obj = new $result();
-      if($obj instanceof ContextAware)
+      if(strstr($result, '\\') && class_exists($result))
       {
-        $obj->setContext($c);
-      }
-      if($obj instanceof Handler)
-      {
-        return $obj->handle($c, $w, $r);
-      }
-    }
-
-    $method = $this->_getMethod($r, $result);
-    if($method !== null)
-    {
-      $methodResponse = null;
-      ob_start();
-      try
-      {
-        $methodResponse = $this->$method();
-      }
-      catch(\Exception $e)
-      {
-        ob_get_clean();
-        throw $e;
+        $obj = new $result();
+        if($obj instanceof ContextAware)
+        {
+          $obj->setContext($c);
+        }
+        if($obj instanceof Handler)
+        {
+          return $obj->handle($c, $w, $r);
+        }
       }
 
-      $w->setContent($this->_convertResponse($methodResponse, ob_get_clean()));
-      return;
+      $method = $this->_getMethod($r, $result);
+      if($method !== null)
+      {
+        $methodResponse = null;
+        ob_start();
+        try
+        {
+          $methodResponse = $this->$method();
+        }
+        catch(\Exception $e)
+        {
+          ob_get_clean();
+          throw $e;
+        }
+
+        $w->setContent($this->_convertResponse($methodResponse, ob_get_clean()));
+        return true;
+      }
     }
 
     throw new \RuntimeException("unable to handle your request", 404);

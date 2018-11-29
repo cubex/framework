@@ -7,18 +7,23 @@ use Cubex\Http\Request;
 
 class Router
 {
+  public static function i()
+  {
+    return new static();
+  }
+
   /**
    * @var RoutingCondition[]
    */
   protected $_conditions = [];
 
-  public function handleCondition(RoutingCondition $condition): RoutingCondition
+  public function handleCondition(RoutingCondition $condition): Router
   {
     $this->_conditions[] = $condition;
-    return $condition;
+    return $this;
   }
 
-  public function handle($path, Handler $handler): RoutingCondition
+  public function handle($path, Handler $handler): Router
   {
     $condition = Condition::with(RequestConstraint::path($path));
     return $this->handleCondition($condition->setHandler($handler));
