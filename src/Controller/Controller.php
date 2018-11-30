@@ -103,8 +103,9 @@ class Controller implements Handler, ContextAware
       }
     }
 
-    if($result && is_string($result))
+    if($result !== null && is_string($result))
     {
+      $callable = null;
       if(strstr($result, '\\') && class_exists($result))
       {
         $obj = new $result();
@@ -119,36 +120,24 @@ class Controller implements Handler, ContextAware
           $obj->setResponse($w);
         }
 
-        if(is_callable($obj))
-        {
-          ob_start();
-          try
-          {
-            $callableResponse = $obj();
-          }
-          catch(\Exception $e)
-          {
-            ob_get_clean();
-            throw $e;
-          }
-
-          $w->setContent($this->_convertResponse($callableResponse, ob_get_clean()));
-          return true;
-        }
-        else if($obj instanceof Handler)
+        if($obj instanceof Handler)
         {
           return $obj->handle($c, $w, $r);
         }
+        $callable = $obj;
       }
 
-      $method = $this->_getMethod($r, $result);
-      if($method !== null)
+      if($callable === null)
       {
-        $methodResponse = null;
+        $callable = $this->_getMethod($r, $result);
+      }
+
+      if(is_callable($callable))
+      {
         ob_start();
         try
         {
-          $methodResponse = $this->$method();
+          $callableResponse = $callable();
         }
         catch(\Exception $e)
         {
@@ -156,7 +145,7 @@ class Controller implements Handler, ContextAware
           throw $e;
         }
 
-        $w->setContent($this->_convertResponse($methodResponse, ob_get_clean()));
+        $w->setContent($this->_convertResponse($callableResponse, ob_get_clean()));
         return true;
       }
     }
