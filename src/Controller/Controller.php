@@ -184,7 +184,7 @@ abstract class Controller implements Handler, ContextAware
     {
       if(method_exists($this, $prefix . $method))
       {
-        return $prefix . $method;
+        return [$this, $prefix . $method];
       }
     }
     return null;
