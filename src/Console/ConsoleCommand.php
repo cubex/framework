@@ -180,6 +180,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
       }
       $this->addOption($property->getName(), $short, $mode, $description, $property->getValue($this));
     }
+    return null;
   }
 
   /**

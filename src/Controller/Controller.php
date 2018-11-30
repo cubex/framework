@@ -115,7 +115,6 @@ abstract class Controller implements Handler, ContextAware
 
     if($result !== null && is_string($result))
     {
-      $callable = null;
       if(strstr($result, '\\') && class_exists($result))
       {
         $obj = new $result();

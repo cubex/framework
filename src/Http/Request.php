@@ -2,6 +2,7 @@
 namespace Cubex\Http;
 
 use Packaged\Helpers\FQDN;
+use Packaged\Helpers\Strings;
 
 class Request extends \Symfony\Component\HttpFoundation\Request
 {

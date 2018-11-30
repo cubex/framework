@@ -44,7 +44,7 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write("http://");
     $output->write($this->host == '0.0.0.0' ? 'localhost' : $this->host);
     $output->write(':' . $this->port);
-    $output->writeLn("");
+    $output->writeln("");
 
     $projectRoot = trim($this->getContext()->getProjectRoot());
     $projectRoot = $projectRoot ? '"' . $projectRoot . '"' : '';
