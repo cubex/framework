@@ -62,13 +62,13 @@ class CubexLauncher implements ContextAware
 
   /**
    * @param Router $router
-   * @param bool   $catch
-   * @param bool   $send
+   * @param bool   $catchExceptions
+   * @param bool   $sendResponse
    *
    * @return Response
-   * @throws ?Exception
+   * @throws Exception
    */
-  public function handle(Router $router, $catch = true, $send = true)
+  public function handle(Router $router, $sendResponse = true, $catchExceptions = true)
   {
     $c = $this->getContext() ?? new Context();
     $r = Request::createFromGlobals();
@@ -83,14 +83,14 @@ class CubexLauncher implements ContextAware
       $handler->handle($c, $w, $r);
 
       $w->prepare($r);
-      if($send)
+      if($sendResponse)
       {
         $w->send();
       }
     }
     catch(Exception $e)
     {
-      if(!$catch)
+      if(!$catchExceptions)
       {
         throw $e;
       }

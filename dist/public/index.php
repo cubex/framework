@@ -8,4 +8,11 @@ use Project\DefaultHandler;
 require_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 $launcher = new CubexLauncher(dirname(__DIR__));
-$launcher->handle(Router::i()->handle("/", new DefaultHandler()), true);
+try
+{
+  $launcher->handle(Router::i()->handle("/", new DefaultHandler()));
+}
+catch(Exception $e)
+{
+  die("Your request could not be handeld");
+}
