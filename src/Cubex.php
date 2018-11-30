@@ -16,7 +16,7 @@ use Packaged\Helpers\Path;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class CubexLauncher implements ContextAware
+class Cubex implements ContextAware
 {
   use ContextAwareTrait;
 
