@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Http;
 
-use Cubex\Ui\Renderable;
+use Packages\Ui\Renderable;
 
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
