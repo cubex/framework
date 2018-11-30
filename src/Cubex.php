@@ -2,6 +2,7 @@
 namespace Cubex;
 
 use Cubex\Console\Console;
+use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
@@ -16,7 +17,7 @@ use Packaged\Helpers\Path;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class Cubex implements ContextAware
+class Cubex extends DependencyInjector implements ContextAware
 {
   use ContextAwareTrait;
 
