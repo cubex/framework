@@ -34,7 +34,7 @@ class Router
     return $this->handle($path, new FuncHandler($handleFunc));
   }
 
-  public function getResult(Request $request)
+  public function getHandler(Request $request)
   {
     foreach($this->_conditions as $condition)
     {

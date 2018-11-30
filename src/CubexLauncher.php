@@ -5,6 +5,8 @@ use Cubex\Console\Console;
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
+use Cubex\Http\ExceptionHandler;
+use Cubex\Http\Handler;
 use Cubex\Http\Request;
 use Cubex\Http\Response;
 use Cubex\Routing\Router;
@@ -35,15 +37,6 @@ class CubexLauncher implements ContextAware
     catch(Exception $e)
     {
     }
-  }
-
-  public function handleException(Exception $e, Response $w, Request $r)
-  {
-    $w
-      ->setStatusCode($e->getCode() >= 400 ? $e->getCode() : 500, $e->getMessage())
-      ->setContent($e->getMessage())
-      ->prepare($r)
-      ->send();
   }
 
   public function cli()
@@ -82,7 +75,7 @@ class CubexLauncher implements ContextAware
     try
     {
       $handler = $router->getHandler($r);
-      if($handler === null)
+      if($handler === null || !($handler instanceof Handler))
       {
         throw new \RuntimeException("No handler was available to process your request");
       }
@@ -100,7 +93,7 @@ class CubexLauncher implements ContextAware
       {
         throw $e;
       }
-      $this->handleException($e, $w, $r);
+      (new ExceptionHandler($e))->handle($this->getContext(), $w, $r);
     }
 
     return $w;
