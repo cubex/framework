@@ -7,9 +7,11 @@ use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
 use Cubex\Http\Request;
 use Cubex\Http\Response;
+use Cubex\Routing\Constraint;
+use Cubex\Routing\Route;
 use Exception;
 
-class Controller implements Handler, ContextAware
+abstract class Controller implements Handler, ContextAware
 {
   use ContextAwareTrait;
   private $_response;
@@ -61,9 +63,17 @@ class Controller implements Handler, ContextAware
   /**
    * @return Route[]
    */
-  public function getRoutes()
+  abstract public function getRoutes();
+
+  /**
+   * @param                         $path
+   * @param string|callable|Handler $result
+   *
+   * @return Route
+   */
+  public static function route($path, $result)
   {
-    return [];
+    return Route::with(Constraint::path($path))->setHandler($result);
   }
 
   /**
@@ -98,7 +108,7 @@ class Controller implements Handler, ContextAware
     {
       if($route instanceof Route && $route->match($r))
       {
-        $result = $route->getResult();
+        $result = $route->getHandler();
         break;
       }
     }
@@ -124,14 +134,11 @@ class Controller implements Handler, ContextAware
         {
           return $obj->handle($c, $w, $r);
         }
-        $callable = $obj;
+
+        throw new \RuntimeException("unable to handle your request", 500);
       }
 
-      if($callable === null)
-      {
-        $callable = $this->_getMethod($r, $result);
-      }
-
+      $callable = is_callable($result) ? $result : $this->_getMethod($r, $result);
       if(is_callable($callable))
       {
         ob_start();

@@ -13,11 +13,11 @@ class Router
   }
 
   /**
-   * @var RoutingCondition[]
+   * @var ConditionHandler[]
    */
   protected $_conditions = [];
 
-  public function handleCondition(RoutingCondition $condition): Router
+  public function handleCondition(ConditionHandler $condition): Router
   {
     $this->_conditions[] = $condition;
     return $this;
@@ -25,7 +25,7 @@ class Router
 
   public function handle($path, Handler $handler): Router
   {
-    $condition = Condition::with(RequestConstraint::path($path));
+    $condition = Route::with(Constraint::path($path));
     return $this->handleCondition($condition->setHandler($handler));
   }
 
@@ -34,7 +34,7 @@ class Router
     return $this->handle($path, new FuncHandler($handleFunc));
   }
 
-  public function getHandler(Request $request): ?Handler
+  public function getResult(Request $request)
   {
     foreach($this->_conditions as $condition)
     {
