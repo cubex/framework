@@ -104,7 +104,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request
    */
   public function port()
   {
-    return $this->_cachedPart('port', function () { return $this->getPort(); });
+    return (int)$this->_cachedPart('port', function () { return $this->getPort(); });
   }
 
   protected function _cachedPart($part, callable $retrieve)

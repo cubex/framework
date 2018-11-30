@@ -23,13 +23,15 @@ class Router
     return $this;
   }
 
-  public function handle($path, Handler $handler): Router
+  public function handle($path, Handler $handler): Constraint
   {
-    $condition = Route::with(Constraint::path($path));
-    return $this->handleCondition($condition->setHandler($handler));
+    $condition = Constraint::path($path);
+    $route = Route::with($condition);
+    $this->handleCondition($route->setHandler($handler));
+    return $condition;
   }
 
-  public function handleFunc($path, callable $handleFunc)
+  public function handleFunc($path, callable $handleFunc): Constraint
   {
     return $this->handle($path, new FuncHandler($handleFunc));
   }
