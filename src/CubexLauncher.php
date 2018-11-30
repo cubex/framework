@@ -23,9 +23,9 @@ class CubexLauncher implements ContextAware
   public function __construct($projectRoot)
   {
     $ctx = new Context();
-    $this->setContext($ctx);
     $ctx->setProjectRoot($projectRoot);
     $this->configure($ctx);
+    $this->setContext($ctx);
   }
 
   protected function configure(Context $ctx)
@@ -70,6 +70,7 @@ class CubexLauncher implements ContextAware
    */
   public function handle(Router $router, $catch = true, $send = true)
   {
+    $c = $this->getContext() ?? new Context();
     $r = Request::createFromGlobals();
     $w = new Response();
     try
@@ -79,7 +80,7 @@ class CubexLauncher implements ContextAware
       {
         throw new \RuntimeException("No handler was available to process your request");
       }
-      $handler->handle($this->getContext(), $w, $r);
+      $handler->handle($c, $w, $r);
 
       $w->prepare($r);
       if($send)
@@ -93,7 +94,7 @@ class CubexLauncher implements ContextAware
       {
         throw $e;
       }
-      (new ExceptionHandler($e))->handle($this->getContext(), $w, $r);
+      (new ExceptionHandler($e))->handle($c, $w, $r);
     }
 
     return $w;
