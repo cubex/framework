@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Context;
 
+use Cubex\Cubex;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\ConfigProvider;
 use Packaged\Helpers\System;
@@ -13,6 +14,7 @@ class Context
   protected $_env;
   protected $_cfg;
   protected $_meta;
+  protected $_cubex;
   /**
    * @var bool
    */
@@ -47,6 +49,25 @@ class Context
 
     //Is running as CLI?
     $this->_isCli = !System::isFunctionDisabled('php_sapi_name') && php_sapi_name() === 'cli';
+  }
+
+  /**
+   * @return Cubex
+   */
+  public function getCubex()
+  {
+    return $this->_cubex;
+  }
+
+  /**
+   * @param Cubex $cubex
+   *
+   * @return Context
+   */
+  public function setCubex(Cubex $cubex)
+  {
+    $this->_cubex = $cubex;
+    return $this;
   }
 
   public function setProjectRoot($root)

@@ -29,7 +29,7 @@ class DependencyInjector
    * @return mixed
    * @throws \Exception
    */
-  public function retrieve($abstract, array $parameters, $shared = true)
+  public function retrieve($abstract, array $parameters = [], $shared = true)
   {
     if($shared && isset($this->_instances[$abstract]))
     {

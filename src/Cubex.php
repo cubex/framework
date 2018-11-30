@@ -4,8 +4,6 @@ namespace Cubex;
 use Cubex\Console\Console;
 use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
-use Cubex\Context\ContextAware;
-use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
 use Cubex\Http\Request;
@@ -17,20 +15,20 @@ use Packaged\Helpers\Path;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class Cubex extends DependencyInjector implements ContextAware
+class Cubex extends DependencyInjector
 {
-  use ContextAwareTrait;
-
   public function __construct($projectRoot)
   {
-    $ctx = new Context();
-    $ctx->setProjectRoot($projectRoot);
-    $this->configure($ctx);
-    $this->setContext($ctx);
+    //Setup Context
+    $this->setupContext($projectRoot);
   }
 
-  protected function configure(Context $ctx)
+  protected function setupContext($projectRoot)
   {
+    $ctx = new Context();
+    $this->share(Context::class, $ctx);
+    $ctx->setProjectRoot($projectRoot);
+    $ctx->setCubex($this);
     try
     {
       $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
@@ -40,10 +38,18 @@ class Cubex extends DependencyInjector implements ContextAware
     }
   }
 
+  /**
+   * @return int
+   * @throws Exception
+   */
   public function cli()
   {
     $console = new Console("Cubex Console", "3.0");
-    $console->setContext($this->getContext());
+    $ctx = $this->retrieve(Context::class);
+    if($ctx instanceof Context)
+    {
+      $console->setContext($ctx);
+    }
     $input = new ArgvInput();
     $output = new ConsoleOutput();
 
@@ -71,7 +77,11 @@ class Cubex extends DependencyInjector implements ContextAware
    */
   public function handle(Router $router, $sendResponse = true, $catchExceptions = true)
   {
-    $c = $this->getContext() ?? new Context();
+    $c = $this->retrieve(Context::class);
+    if(!($c instanceof Context))
+    {
+      throw new \Exception("Cubex context missing");
+    }
     $r = Request::createFromGlobals();
     $w = new Response();
     try
