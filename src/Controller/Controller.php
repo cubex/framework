@@ -15,15 +15,15 @@ abstract class Controller implements Handler, ContextAware
 {
   use ContextAwareTrait;
 
-  public function canProcess()
-  {
-    return true;
-  }
-
   /**
    * @return Route[]
    */
   abstract public function getRoutes();
+
+  public function canProcess()
+  {
+    return true;
+  }
 
   /**
    * @param                         $path
@@ -34,6 +34,14 @@ abstract class Controller implements Handler, ContextAware
   public static function route($path, $result)
   {
     return Route::with(Constraint::path($path))->setHandler($result);
+  }
+
+  /**
+   * @return Request
+   */
+  public function getRequest()
+  {
+    return $this->getContext()->getRequest();
   }
 
   /**

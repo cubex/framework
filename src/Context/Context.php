@@ -36,7 +36,7 @@ class Context
     // Give this context an ID
     $this->_id = uniqid('ctx-', true);
 
-    $this->_request = $request;
+    $this->_request = $request ?: Request::createFromGlobals();
     $this->_meta = new ParameterBag();
     $this->_cfg = new ConfigProvider();
 
