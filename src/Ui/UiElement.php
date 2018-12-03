@@ -26,7 +26,7 @@ class UiElement extends Element implements ContextAware
             $filePath = $loader->findFile(static::class);
             if($filePath)
             {
-              $this->_templateFilePath = substr($filePath, 0, -3) . 'phtml';
+              $this->_templateFilePath = realpath(substr($filePath, 0, -3) . 'phtml');
             }
           }
         }
