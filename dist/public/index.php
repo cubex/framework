@@ -10,9 +10,11 @@ require_once(dirname(__DIR__) . '/vendor/autoload.php');
 $launcher = new Cubex(dirname(__DIR__));
 try
 {
-  $launcher->handle(Router::i()->handle("/", new DefaultHandler()));
+  $router = Router::i();
+  $router->handle("/", new DefaultHandler());
+  $launcher->handle($router);
 }
 catch(Throwable $e)
 {
-  die("Your request could not be handeld");
+  die("Your request could not be handled");
 }
