@@ -5,55 +5,15 @@ use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
-use Packaged\Http\Request;
-use Packaged\Http\Response;
 use Cubex\Routing\Constraint;
 use Cubex\Routing\Route;
+use Packaged\Http\Request;
 use Packaged\Ui\Renderable;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class Controller implements Handler, ContextAware
 {
   use ContextAwareTrait;
-  private $_response;
-  private $_request;
-
-  /**
-   * @return Response
-   */
-  public function getResponse(): ?Response
-  {
-    return $this->_response;
-  }
-
-  /**
-   * @param Response $response
-   *
-   * @return Controller
-   */
-  public function setResponse(Response $response)
-  {
-    $this->_response = $response;
-    return $this;
-  }
-
-  /**
-   * @return Request
-   */
-  public function getRequest(): ?Request
-  {
-    return $this->_request;
-  }
-
-  /**
-   * @param Request $request
-   *
-   * @return Controller
-   */
-  public function setRequest(Request $request)
-  {
-    $this->_request = $request;
-    return $this;
-  }
 
   public function canProcess()
   {
@@ -77,27 +37,21 @@ abstract class Controller implements Handler, ContextAware
   }
 
   /**
-   * @param Context  $c
-   * @param Response $w
-   * @param Request  $r
+   * @param Context $c
    *
-   * @return bool
+   * @return Response
    * @throws \Throwable
    */
-  public function handle(Context $c, Response $w, Request $r)
+  public function handle(Context $c): Response
   {
     ob_start();
     $this->setContext($c);
-    $this->setRequest($r);
-    $this->setResponse($w);
 
     //Verify the request can be processed
     $authResponse = $this->canProcess();
     if($authResponse instanceof Response)
     {
-      $w->setStatusCode($authResponse->getStatusCode());
-      $w->with($authResponse->getContent());
-      return true;
+      return $authResponse;
     }
     else if($authResponse !== true)
     {
@@ -107,7 +61,7 @@ abstract class Controller implements Handler, ContextAware
     $result = null;
     foreach($this->getRoutes() as $route)
     {
-      if($route instanceof Route && $route->match($r))
+      if($route instanceof Route && $route->match($this->getContext()->getRequest()))
       {
         $result = $route->getHandler();
         break;
@@ -124,22 +78,16 @@ abstract class Controller implements Handler, ContextAware
           $obj->setContext($c);
         }
 
-        if($obj instanceof Controller)
-        {
-          $obj->setRequest($r);
-          $obj->setResponse($w);
-        }
-
         if($obj instanceof Handler)
         {
-          return $obj->handle($c, $w, $r);
+          return $obj->handle($c);
         }
 
         throw new \RuntimeException("unable to handle your request", 500);
       }
       ob_end_clean();
 
-      $callable = is_callable($result) ? $result : $this->_getMethod($r, $result);
+      $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->getRequest(), $result);
       if(is_callable($callable))
       {
         ob_start();
@@ -153,8 +101,7 @@ abstract class Controller implements Handler, ContextAware
           throw $e;
         }
 
-        $w->with($this->_handleResponse($callableResponse, ob_get_clean()));
-        return true;
+        return $this->_handleResponse($callableResponse, ob_get_clean());
       }
     }
 
@@ -170,7 +117,7 @@ abstract class Controller implements Handler, ContextAware
     return $object;
   }
 
-  protected function _handleResponse($response, ?string $buffer)
+  protected function _handleResponse($response, ?string $buffer): Response
   {
     if($response === null)
     {
@@ -181,7 +128,12 @@ abstract class Controller implements Handler, ContextAware
       $response->setContext($this->getContext());
     }
 
-    return $response instanceof Renderable ? $response->render() : $response;
+    if($response instanceof Response)
+    {
+      return $response;
+    }
+
+    return new Response($response instanceof Renderable ? $response->render() : $response);
   }
 
   private function _getMethod(Request $r, $method)

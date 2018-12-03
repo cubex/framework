@@ -7,14 +7,14 @@ use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
 use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
-use Packaged\Http\Request;
-use Packaged\Http\Response;
 use Cubex\Routing\Router;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Helpers\Path;
+use Packaged\Http\Request;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\HttpFoundation\Response;
 
 class Cubex extends DependencyInjector
 {
@@ -30,7 +30,7 @@ class Cubex extends DependencyInjector
 
   protected function setupContext($projectRoot)
   {
-    $ctx = new Context();
+    $ctx = new Context(Request::createFromGlobals());
     $this->share(Context::class, $ctx);
     $ctx->setProjectRoot($projectRoot);
     $ctx->setCubex($this);
@@ -87,22 +87,15 @@ class Cubex extends DependencyInjector
     {
       throw new \Exception("Cubex context missing");
     }
-    $r = Request::createFromGlobals();
-    $w = new Response();
     try
     {
-      $handler = $router->getHandler($r);
+      $handler = $router->getHandler($c->getRequest());
       if($handler === null || !($handler instanceof Handler))
       {
         throw new \RuntimeException("No handler was available to process your request");
       }
-      $handler->handle($c, $w, $r);
-
-      $w->prepare($r);
-      if($sendResponse)
-      {
-        $w->send();
-      }
+      $r = $handler->handle($c);
+      $r->prepare($c->getRequest());
     }
     catch(\Throwable $e)
     {
@@ -110,9 +103,13 @@ class Cubex extends DependencyInjector
       {
         throw $e;
       }
-      (new ExceptionHandler($e))->handle($c, $w, $r);
+      $r = (new ExceptionHandler($e))->handle($c);
+      $r->prepare($c->getRequest());
     }
-
-    return $w;
+    if($sendResponse)
+    {
+      $r->send();
+    }
+    return $r;
   }
 }

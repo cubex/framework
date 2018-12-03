@@ -2,8 +2,7 @@
 namespace Cubex\Http;
 
 use Cubex\Context\Context;
-use Packaged\Http\Request;
-use Packaged\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class FuncHandler implements Handler
 {
@@ -14,8 +13,8 @@ class FuncHandler implements Handler
     $this->_func = $func;
   }
 
-  public function handle(Context $c, Response $w, Request $r)
+  public function handle(Context $c): Response
   {
-    call_user_func($this->_func, $c, $w, $r);
+    return call_user_func($this->_func, $c);
   }
 }

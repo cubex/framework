@@ -5,6 +5,7 @@ use Cubex\Cubex;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\ConfigProvider;
 use Packaged\Helpers\System;
+use Packaged\Http\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Context
@@ -15,6 +16,8 @@ class Context
   protected $_cfg;
   protected $_meta;
   protected $_cubex;
+  private $_request;
+
   /**
    * @var bool
    */
@@ -28,11 +31,12 @@ class Context
   const ENV_STAGE = 'stage';
   const ENV_PROD = 'prod';
 
-  public final function __construct()
+  public final function __construct(Request $request = null)
   {
     // Give this context an ID
     $this->_id = uniqid('ctx-', true);
 
+    $this->_request = $request;
     $this->_meta = new ParameterBag();
     $this->_cfg = new ConfigProvider();
 
@@ -89,6 +93,19 @@ class Context
   public function getEnvironment()
   {
     return $this->_env;
+  }
+
+  public function isEnv($env)
+  {
+    return $this->getEnvironment() === $env;
+  }
+
+  /**
+   * @return Request
+   */
+  public function getRequest()
+  {
+    return $this->_request;
   }
 
   public function isCli()

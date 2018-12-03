@@ -2,8 +2,7 @@
 namespace Cubex\Http;
 
 use Cubex\Context\Context;
-use Packaged\Http\Request;
-use Packaged\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class ExceptionHandler implements Handler
 {
@@ -14,13 +13,10 @@ class ExceptionHandler implements Handler
     $this->_exception = $e;
   }
 
-  public function handle(Context $c, Response $w, Request $r)
+  public function handle(Context $c): Response
   {
     $e = $this->_exception;
-    $w->setStatusCode($e->getCode() >= 400 ? $e->getCode() : 500, $e->getMessage())
-      ->setContent($e->getMessage())
-      ->prepare($r)
-      ->send();
+    $r = new Response($e->getMessage(), $e->getCode() >= 400 ? $e->getCode() : 500);
+    return $r;
   }
-
 }
