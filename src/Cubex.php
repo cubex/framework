@@ -1,6 +1,7 @@
 <?php
 namespace Cubex;
 
+use Composer\Autoload\ClassLoader;
 use Cubex\Console\Console;
 use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
@@ -17,10 +18,14 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Cubex extends DependencyInjector
 {
-  public function __construct($projectRoot)
+  public function __construct($projectRoot, ClassLoader $loader = null)
   {
     //Setup Context
     $this->setupContext($projectRoot);
+    if($loader !== null)
+    {
+      $this->share(ClassLoader::class, $loader);
+    }
   }
 
   protected function setupContext($projectRoot)

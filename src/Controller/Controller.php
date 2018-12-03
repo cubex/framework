@@ -151,12 +151,21 @@ abstract class Controller implements Handler, ContextAware
           throw $e;
         }
 
-        $w->from($this->_convertResponse($callableResponse, ob_get_clean()));
+        $w->from($this->_bindContext($this->_convertResponse($callableResponse, ob_get_clean())));
         return true;
       }
     }
 
     throw new \RuntimeException("unable to handle your request", 404);
+  }
+
+  protected function _bindContext($object)
+  {
+    if($object instanceof ContextAware)
+    {
+      $object->setContext($this->getContext());
+    }
+    return $object;
   }
 
   protected function _convertResponse($response, $buffer)

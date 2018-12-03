@@ -5,9 +5,8 @@ use Cubex\Cubex;
 use Cubex\Routing\Router;
 use Project\DefaultHandler;
 
-require_once(dirname(__DIR__) . '/vendor/autoload.php');
-
-$launcher = new Cubex(dirname(__DIR__));
+$loader = require_once(dirname(__DIR__) . '/vendor/autoload.php');
+$launcher = new Cubex(dirname(__DIR__), $loader);
 try
 {
   $router = Router::i();
