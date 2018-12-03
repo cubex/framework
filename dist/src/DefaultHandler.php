@@ -2,6 +2,7 @@
 namespace Project;
 
 use Cubex\Controller\Controller;
+use Project\Layout\Layout;
 
 class DefaultHandler extends Controller
 {
@@ -15,6 +16,6 @@ class DefaultHandler extends Controller
 
   public function getPage()
   {
-    return 'Hello Page';
+    return new Layout();
   }
 }

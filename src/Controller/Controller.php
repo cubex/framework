@@ -9,6 +9,7 @@ use Cubex\Http\Request;
 use Cubex\Http\Response;
 use Cubex\Routing\Constraint;
 use Cubex\Routing\Route;
+use Packaged\Ui\Renderable;
 
 abstract class Controller implements Handler, ContextAware
 {
@@ -85,6 +86,7 @@ abstract class Controller implements Handler, ContextAware
    */
   public function handle(Context $c, Response $w, Request $r)
   {
+    ob_start();
     $this->setContext($c);
     $this->setRequest($r);
     $this->setResponse($w);
@@ -94,7 +96,7 @@ abstract class Controller implements Handler, ContextAware
     if($authResponse instanceof Response)
     {
       $w->setStatusCode($authResponse->getStatusCode());
-      $w->from($authResponse->getContent());
+      $w->with($authResponse->getContent());
       return true;
     }
     else if($authResponse !== true)
@@ -135,6 +137,7 @@ abstract class Controller implements Handler, ContextAware
 
         throw new \RuntimeException("unable to handle your request", 500);
       }
+      ob_end_clean();
 
       $callable = is_callable($result) ? $result : $this->_getMethod($r, $result);
       if(is_callable($callable))
@@ -146,11 +149,11 @@ abstract class Controller implements Handler, ContextAware
         }
         catch(\Throwable $e)
         {
-          ob_get_clean();
+          ob_end_clean();
           throw $e;
         }
 
-        $w->from($this->_bindContext($this->_convertResponse($callableResponse, ob_get_clean())));
+        $w->with($this->_handleResponse($callableResponse, ob_get_clean()));
         return true;
       }
     }
@@ -167,13 +170,18 @@ abstract class Controller implements Handler, ContextAware
     return $object;
   }
 
-  protected function _convertResponse($response, $buffer)
+  protected function _handleResponse($response, ?string $buffer)
   {
     if($response === null)
     {
       $response = $buffer;
     }
-    return $response;
+    else if($response instanceof ContextAware)
+    {
+      $response->setContext($this->getContext());
+    }
+
+    return $response instanceof Renderable ? $response->render() : $response;
   }
 
   private function _getMethod(Request $r, $method)

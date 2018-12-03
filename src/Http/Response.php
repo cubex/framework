@@ -1,8 +1,6 @@
 <?php
 namespace Cubex\Http;
 
-use Packaged\Ui\Renderable;
-
 class Response extends \Symfony\Component\HttpFoundation\Response
 {
   protected $_callTime;
@@ -11,7 +9,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
   public function __construct($content = '', $status = 200, $headers = [])
   {
     parent::__construct('', $status, $headers);
-    $this->from($content);
+    $this->with($content);
   }
 
   /**
@@ -62,23 +60,19 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    *
    * @return $this
    */
-  public function from($source)
+  public function with($source)
   {
     $this->_originalSource = $source;
 
     if(is_object($source) || is_array($source))
     {
-      if($source instanceof Renderable)
-      {
-        $this->setContent($source->render());
-      }
-      else if(method_exists($source, '__toString'))
+      if(method_exists($source, '__toString'))
       {
         $this->setContent((string)$source);
       }
       else
       {
-        $this->fromJson($source);
+        $this->asJson($source);
       }
     }
     else if(is_bool($source))
@@ -100,7 +94,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    *
    * @return $this
    */
-  public function fromJson($object)
+  public function asJson($object)
   {
     $this->_originalSource = $object;
     $response = json_encode($object);
@@ -128,7 +122,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    *
    * @return $this
    */
-  public function fromJsonp($responseKey, $object)
+  public function asJsonp($responseKey, $object)
   {
     $this->_originalSource = $object;
     $responseObject = json_encode($object);
@@ -155,7 +149,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
    *
    * @return $this
    */
-  public function fromText($text)
+  public function asText($text)
   {
     $this->_originalSource = $text;
     $this->setContent($text);
