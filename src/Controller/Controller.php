@@ -9,7 +9,6 @@ use Cubex\Http\Request;
 use Cubex\Http\Response;
 use Cubex\Routing\Constraint;
 use Cubex\Routing\Route;
-use Exception;
 
 abstract class Controller implements Handler, ContextAware
 {
@@ -82,7 +81,7 @@ abstract class Controller implements Handler, ContextAware
    * @param Request  $r
    *
    * @return bool
-   * @throws Exception
+   * @throws \Throwable
    */
   public function handle(Context $c, Response $w, Request $r)
   {
@@ -145,7 +144,7 @@ abstract class Controller implements Handler, ContextAware
         {
           $callableResponse = $callable();
         }
-        catch(\Exception $e)
+        catch(\Throwable $e)
         {
           ob_get_clean();
           throw $e;

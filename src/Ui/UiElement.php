@@ -4,7 +4,6 @@ namespace Cubex\Ui;
 use Composer\Autoload\ClassLoader;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
-use Exception;
 use Packaged\Ui\Element;
 
 class UiElement extends Element implements ContextAware
@@ -15,12 +14,12 @@ class UiElement extends Element implements ContextAware
   {
     if($this->_templateFilePath === null && $this->hasContext())
     {
-      $ctx = $this->getContext();
-      if($ctx)
+
+      if($this->hasContext())
       {
         try
         {
-          $loader = $ctx->getCubex()->retrieve(ClassLoader::class);
+          $loader = $this->getContext()->getCubex()->retrieve(ClassLoader::class);
           if($loader instanceof ClassLoader)
           {
             $filePath = $loader->findFile(static::class);
@@ -30,7 +29,7 @@ class UiElement extends Element implements ContextAware
             }
           }
         }
-        catch(Exception $e)
+        catch(\Throwable $e)
         {
         }
       }

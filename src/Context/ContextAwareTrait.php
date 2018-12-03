@@ -6,9 +6,9 @@ trait ContextAwareTrait
   private $_context;
 
   /**
-   * @return Context|null
+   * @return Context
    */
-  public function getContext(): ?Context
+  public function getContext(): Context
   {
     return $this->_context;
   }
@@ -33,7 +33,7 @@ trait ContextAwareTrait
     return $this;
   }
 
-  public function hasContext()
+  public function hasContext(): bool
   {
     return $this->_context !== null;
   }

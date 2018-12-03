@@ -7,7 +7,7 @@ class ExceptionHandler implements Handler
 {
   protected $_exception;
 
-  public function __construct(\Exception $e)
+  public function __construct(\Throwable $e)
   {
     $this->_exception = $e;
   }

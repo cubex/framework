@@ -74,7 +74,7 @@ class Console extends Application implements ContextAware
         }
       }
     }
-    catch(\Exception $e)
+    catch(\Throwable $e)
     {
     }
     $this->_configured = true;
@@ -124,7 +124,7 @@ class Console extends Application implements ContextAware
    * @param string $name
    *
    * @return Command
-   * @throws \Exception
+   * @throws \Throwable
    */
   public function find($name)
   {
@@ -132,7 +132,7 @@ class Console extends Application implements ContextAware
     {
       return parent::find($name);
     }
-    catch(\Exception $e)
+    catch(\Throwable $e)
     {
       $command = $this->getCommandByString($name, true);
       if($command !== null)

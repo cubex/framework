@@ -38,7 +38,7 @@ class Cubex extends DependencyInjector
     {
       $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
     }
-    catch(Exception $e)
+    catch(\Throwable $e)
     {
     }
   }
@@ -62,7 +62,7 @@ class Cubex extends DependencyInjector
     {
       $exitCode = $console->run($input, $output);
     }
-    catch(Exception $e)
+    catch(\Throwable $e)
     {
       $output->writeln("GENERIC EXCEPTION : " . $e->getCode());
       $output->writeln($e->getMessage());
@@ -78,7 +78,7 @@ class Cubex extends DependencyInjector
    * @param bool   $sendResponse
    *
    * @return Response
-   * @throws Exception
+   * @throws \Throwable
    */
   public function handle(Router $router, $sendResponse = true, $catchExceptions = true)
   {
@@ -104,7 +104,7 @@ class Cubex extends DependencyInjector
         $w->send();
       }
     }
-    catch(Exception $e)
+    catch(\Throwable $e)
     {
       if(!$catchExceptions)
       {
