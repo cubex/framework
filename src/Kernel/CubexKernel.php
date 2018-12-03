@@ -291,7 +291,7 @@ abstract class CubexKernel
     $classPath = ucwords(str_replace(['-', '_'], ' ', $classPath));
     $classPath = str_replace(' ', '', $classPath);
 
-    $namespace = Objects::getNamespace(get_called_class());
+    $namespace = Objects::getNamespace(static::class);
     $subRoutes = $this->subRouteTo();
 
     //No subroutes available

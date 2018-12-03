@@ -93,7 +93,7 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
   {
     if($this->_callingClass === null)
     {
-      $this->_callingClass = get_called_class();
+      $this->_callingClass = static::class;
     }
     else if(!is_scalar($this->_callingClass))
     {

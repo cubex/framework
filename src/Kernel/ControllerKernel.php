@@ -9,7 +9,7 @@ class ControllerKernel extends CubexKernel
 
   public function subRouteTo()
   {
-    $names = explode('\\', get_called_class());
+    $names = explode('\\', static::class);
     $class = ucwords(preg_replace('/Controller$/', '', array_pop($names)));
 
     return [

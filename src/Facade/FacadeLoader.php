@@ -16,7 +16,7 @@ class FacadeLoader
   {
     if(!static::$registered)
     {
-      spl_autoload_register([__CLASS__, "load"]);
+      spl_autoload_register([self::class, "load"]);
     }
     static::$registered = true;
   }

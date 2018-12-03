@@ -44,7 +44,7 @@ abstract class ConsoleCommand extends Command implements ICubexAware
     $names = [
       $name,
       $docBlock->hasTag('name') ? head($docBlock->getTagsByName('name'))->getDescription() : null,
-      strtolower(class_basename(get_called_class())),
+      strtolower(class_basename(static::class)),
     ];
 
     parent::__construct(ValueAs::nonempty(...$names));
