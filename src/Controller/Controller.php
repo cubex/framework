@@ -95,7 +95,7 @@ abstract class Controller implements Handler, ContextAware
     if($authResponse instanceof Response)
     {
       $w->setStatusCode($authResponse->getStatusCode());
-      $w->setContent($authResponse->getContent());
+      $w->from($authResponse->getContent());
       return true;
     }
     else if($authResponse !== true)
@@ -151,7 +151,7 @@ abstract class Controller implements Handler, ContextAware
           throw $e;
         }
 
-        $w->setContent($this->_convertResponse($callableResponse, ob_get_clean()));
+        $w->from($this->_convertResponse($callableResponse, ob_get_clean()));
         return true;
       }
     }
