@@ -2,7 +2,7 @@
 namespace Cubex\Routing;
 
 use Cubex\Http\Handler;
-use Cubex\Http\Request;
+use Packaged\Http\Request;
 
 class Route implements ConditionHandler
 {

@@ -2,6 +2,8 @@
 namespace Cubex\Http;
 
 use Cubex\Context\Context;
+use Packaged\Http\Request;
+use Packaged\Http\Response;
 
 interface Handler
 {

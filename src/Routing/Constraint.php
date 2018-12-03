@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Http\Request;
 use Packaged\Helpers\Strings;
+use Packaged\Http\Request;
 
 class Constraint implements Condition
 {

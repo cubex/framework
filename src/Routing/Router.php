@@ -3,7 +3,7 @@ namespace Cubex\Routing;
 
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
-use Cubex\Http\Request;
+use Packaged\Http\Request;
 
 class Router
 {

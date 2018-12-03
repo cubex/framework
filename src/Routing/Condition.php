@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Http\Request;
+use Packaged\Http\Request;
 
 interface Condition
 {
