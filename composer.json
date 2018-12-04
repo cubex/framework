@@ -23,7 +23,7 @@
     "packaged/config": "~1.3",
     "packaged/figlet": "~0.0",
     "packaged/helpers": "~1.9",
-    "packaged/http": "~1.0",
+    "packaged/http": "~1.1",
     "packaged/ui": "~0.0",
     "phpdocumentor/reflection-docblock": "~2.0",
     "symfony/console": "~4.2"
