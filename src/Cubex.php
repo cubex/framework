@@ -12,12 +12,14 @@ use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Helpers\Path;
 use Packaged\Http\Request;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpFoundation\Response;
 
-class Cubex extends DependencyInjector
+class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
   const EVENT_HANDLE_START = 'handle.start';
   const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
@@ -25,13 +27,22 @@ class Cubex extends DependencyInjector
   const EVENT_HANDLE_COMPLETE = 'handle.complete';
   protected $_listeners = [];
 
-  public function __construct($projectRoot, ClassLoader $loader = null)
+  /** @var Cubex */
+  private static $_cubex;
+  protected $_logger;
+
+  public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
     //Setup Context
     $this->setupContext($projectRoot);
     if($loader !== null)
     {
       $this->share(ClassLoader::class, $loader);
+    }
+
+    if($global && static::$_cubex === null)
+    {
+      static::$_cubex = $this;
     }
   }
 
@@ -41,7 +52,6 @@ class Cubex extends DependencyInjector
     $this->share(Context::class, $ctx);
     $ctx->setProjectRoot($projectRoot);
     $ctx->setCubex($this);
-    $ctx->setLogger(new NullLogger());
     try
     {
       $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
@@ -159,5 +169,43 @@ class Cubex extends DependencyInjector
         $callback($c, ...$data);
       }
     }
+  }
+
+  public function setLogger(LoggerInterface $logger)
+  {
+    $this->share(LoggerInterface::class, $logger);
+    return $this;
+  }
+
+  /**
+   * @return LoggerInterface
+   */
+  public function getLogger()
+  {
+    try
+    {
+      $logger = $this->retrieve(LoggerInterface::class);
+    }
+    catch(Exception $e)
+    {
+      $logger = new NullLogger();
+    }
+    return $logger;
+  }
+
+  /**
+   * @return LoggerInterface
+   */
+  public static function log()
+  {
+    return static::$_cubex->getLogger();
+  }
+
+  /**
+   * @return Cubex|null
+   */
+  public static function instance()
+  {
+    return static::$_cubex;
   }
 }

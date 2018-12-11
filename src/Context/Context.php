@@ -6,11 +6,9 @@ use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\ConfigProvider;
 use Packaged\Helpers\System;
 use Packaged\Http\Request;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-class Context implements LoggerAwareInterface
+class Context
 {
   protected $_id;
   protected $_projectRoot;
@@ -18,7 +16,6 @@ class Context implements LoggerAwareInterface
   protected $_cfg;
   protected $_meta;
   protected $_cubex;
-  protected $_logger;
   private $_request;
 
   /**
@@ -141,24 +138,5 @@ class Context implements LoggerAwareInterface
   public function config()
   {
     return $this->_cfg;
-  }
-
-  /**
-   * @return LoggerInterface
-   */
-  public function log()
-  {
-    return $this->_logger;
-  }
-
-  /**
-   * @param LoggerInterface $logger
-   *
-   * @return Context
-   */
-  public function setLogger(LoggerInterface $logger)
-  {
-    $this->_logger = $logger;
-    return $this;
   }
 }
