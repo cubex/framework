@@ -8,6 +8,7 @@ use Cubex\Http\Handler;
 use Cubex\Routing\Constraint;
 use Cubex\Routing\Route;
 use Packaged\Http\Request;
+use Packaged\Http\Response as CubexResponse;
 use Packaged\Ui\Renderable;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -141,7 +142,7 @@ abstract class Controller implements Handler, ContextAware
       return $response;
     }
 
-    return new Response($response instanceof Renderable ? $response->render() : $response);
+    return new CubexResponse($response instanceof Renderable ? $response->render() : $response);
   }
 
   private function _getMethod(Request $r, $method)
