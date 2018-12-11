@@ -119,15 +119,11 @@ class CubexTest extends TestCase
       Cubex::EVENT_HANDLE_COMPLETE,
       function (Context $c) { $c->meta()->set(Cubex::EVENT_HANDLE_COMPLETE, true); }
     );
-    try
-    {
-      $router = new Router();
-      $router->handle('/', new FuncHandler(function () { return new Response('All OK'); }));
-      $cubex->handle($router, false, true);
-    }
-    catch(Throwable $e)
-    {
-    }
+
+    $router = new Router();
+    $router->handle('/', new FuncHandler(function () { return new Response('All OK'); }));
+    $cubex->handle($router, false, true);
+
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_START));
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_PRE_EXECUTE));
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_RESPONSE_PREPARE));
