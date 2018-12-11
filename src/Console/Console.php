@@ -52,31 +52,33 @@ class Console extends Application implements ContextAware
       $config = $this->getContext()->config()->getSection('console');
       $commands = $config->getItem('commands', []);
       $patterns = $config->getItem('patterns', []);
-
-      $this->_searchPatterns = array_merge($this->_searchPatterns, $patterns);
-
-      foreach($commands as $name => $class)
-      {
-        $command = $this->getCommandByString($class);
-        if($command !== null)
-        {
-          if(!is_int($name))
-          {
-            $command->setName($name);
-          }
-          $this->add($command);
-        }
-        else
-        {
-          $output->writeln(
-            '<error>Command [' . $name . '] does not reference a valid class</error>'
-          );
-        }
-      }
     }
     catch(\Throwable $e)
     {
+      $commands = $patterns = [];
     }
+
+    $this->_searchPatterns = array_merge($this->_searchPatterns, $patterns);
+
+    foreach($commands as $name => $class)
+    {
+      $command = $this->getCommandByString($class);
+      if($command !== null)
+      {
+        if(!is_int($name))
+        {
+          $command->setName($name);
+        }
+        $this->add($command);
+      }
+      else
+      {
+        $output->writeln(
+          '<error>Command [' . $name . '] does not reference a valid class</error>'
+        );
+      }
+    }
+
     $this->_configured = true;
     return $this;
   }

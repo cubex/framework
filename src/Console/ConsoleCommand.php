@@ -122,13 +122,13 @@ abstract class ConsoleCommand extends Command implements ContextAware
       }
 
       $description = '';
-      if(isset($descriptions[$parameter->getName()]))
+      if(isset($descriptions[$parameter->name]))
       {
-        $description = $descriptions[$parameter->getName()];
+        $description = $descriptions[$parameter->name];
       }
 
       $this->addArgument(
-        $parameter->getName(),
+        $parameter->name,
         $parameter->isArray() ? $mode | InputArgument::IS_ARRAY : $mode,
         $description,
         $default
@@ -178,7 +178,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
       {
         $mode = InputOption::VALUE_NONE;
       }
-      $this->addOption($property->getName(), $short, $mode, $description, $property->getValue($this));
+      $this->addOption($property->name, $short, $mode, $description, $property->getValue($this));
     }
     return null;
   }

@@ -16,7 +16,7 @@ trait ContextAwareTrait
   /**
    * @param Context $context
    *
-   * @return ContextAwareTrait
+   * @return static
    */
   public function setContext(Context $context)
   {
