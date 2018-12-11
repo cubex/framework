@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
+  const EVENT_CONSOLE_CREATE = 'console.create';
   const EVENT_CONSOLE_PREPARE = 'console.pre.run';
   const EVENT_HANDLE_START = 'handle.start';
   const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
@@ -82,6 +83,23 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     return $ctx;
   }
 
+  protected $_console;
+
+  /**
+   * @return Console
+   */
+  public function getConsole()
+  {
+    if(!$this->_console)
+    {
+      $this->_console = new Console("Cubex Console", "3.0");
+      $this->_console->setAutoExit(false);
+      $this->_console->setContext($this->getContext());
+      $this->_triggerEvent(self::EVENT_CONSOLE_CREATE, $this->_console);
+    }
+    return $this->_console;
+  }
+
   /**
    * @param InputInterface|null  $input
    * @param OutputInterface|null $output
@@ -94,11 +112,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $input = $input ?? new ArgvInput();
     $output = $output ?? new ConsoleOutput();
 
-    $console = new Console("Cubex Console", "3.0");
-    $console->setAutoExit(false);
-    $ctx = $this->getContext();
-    $console->setContext($ctx);
-    $this->_triggerEvent(self::EVENT_CONSOLE_PREPARE, $ctx, $console, $input, $output);
+    $console = $this->getConsole();
+    $this->_triggerEvent(self::EVENT_CONSOLE_PREPARE, $console, $input, $output);
 
     try
     {
@@ -127,15 +142,15 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $c = $this->getContext();
     try
     {
-      $this->_triggerEvent(self::EVENT_HANDLE_START, $c);
+      $this->_triggerEvent(self::EVENT_HANDLE_START);
       $handler = $router->getHandler($c->getRequest());
       if($handler === null || !($handler instanceof Handler))
       {
         throw new \RuntimeException(self::ERROR_NO_HANDLER, 500);
       }
-      $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $c, $handler);
+      $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $handler);
       $r = $handler->handle($c);
-      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $c, $r);
+      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $r);
       $r->prepare($c->getRequest());
     }
     catch(\Throwable $e)
@@ -154,7 +169,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     try
     {
-      $this->_triggerEvent(self::EVENT_HANDLE_COMPLETE, $c, $r);
+      $this->_triggerEvent(self::EVENT_HANDLE_COMPLETE, $r);
     }
     catch(\Throwable $e)
     {
@@ -185,13 +200,13 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     return $this;
   }
 
-  protected function _triggerEvent($eventAlias, Context $c, ...$data)
+  protected function _triggerEvent($eventAlias, ...$data)
   {
     if(isset($this->_listeners[$eventAlias]))
     {
       foreach($this->_listeners[$eventAlias] as $callback)
       {
-        $callback($c, ...$data);
+        $callback($this->getContext(), ...$data);
       }
     }
   }

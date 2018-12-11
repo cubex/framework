@@ -4,6 +4,7 @@ namespace Cubex\Console;
 use Cubex\Console\Commands\BuiltInWebServer;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
+use Packaged\Config\ConfigProviderInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,7 +28,7 @@ class Console extends Application implements ContextAware
    */
   public function doRun(InputInterface $input, OutputInterface $output)
   {
-    $this->configure($input, $output);
+    $this->configure($this->getContext()->config());
     return parent::doRun($input, $output);
   }
 
@@ -35,12 +36,11 @@ class Console extends Application implements ContextAware
    * Pull the configuration from cubex and setup resolving patterns and
    * defined command lists
    *
-   * @param InputInterface  $input
-   * @param OutputInterface $output
+   * @param ConfigProviderInterface $cfg
    *
    * @return $this
    */
-  public function configure(InputInterface $input, OutputInterface $output)
+  public function configure(ConfigProviderInterface $cfg)
   {
     if($this->_configured)
     {
@@ -49,7 +49,7 @@ class Console extends Application implements ContextAware
 
     try
     {
-      $config = $this->getContext()->config()->getSection('console');
+      $config = $cfg->getSection('console');
       $commands = $config->getItem('commands', []);
       $patterns = $config->getItem('patterns', []);
     }
@@ -70,12 +70,6 @@ class Console extends Application implements ContextAware
           $command->setName($name);
         }
         $this->add($command);
-      }
-      else
-      {
-        $output->writeln(
-          '<error>Command [' . $name . '] does not reference a valid class</error>'
-        );
       }
     }
 
