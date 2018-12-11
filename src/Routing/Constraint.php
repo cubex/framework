@@ -34,39 +34,34 @@ class Constraint implements Condition
     return true;
   }
 
-  protected function _matchConstraint(Request $request, $matchOn, $matchWith, $matchType)
+  protected function _matchValue(Request $request, $on)
   {
-    switch($matchOn)
+    switch($on)
     {
       case self::PATH;
-        $value = $request->path();
-        break;
+        return $request->path();
       case self::SUBDOMAIN;
-        $value = $request->subDomain();
-        break;
+        return $request->subDomain();
       case self::DOMAIN;
-        $value = $request->domain();
-        break;
+        return $request->domain();
       case self::TLD;
-        $value = $request->tld();
-        break;
+        return $request->tld();
       case self::PROTOCOL;
-        $value = $request->protocol();
-        break;
+        return $request->protocol();
       case self::PORT;
-        $value = $request->port();
-        break;
+        return $request->port();
       case self::METHOD;
-        $value = $request->getRealMethod();
-        break;
+        return $request->getRealMethod();
       case self::AJAX;
-        $value = $request->isXmlHttpRequest();
-        break;
+        return $request->isXmlHttpRequest();
       default:
-        $value = null;
-        break;
+        return null;
     }
+  }
 
+  protected function _matchConstraint(Request $request, $matchOn, $matchWith, $matchType)
+  {
+    $value = $this->_matchValue($request, $matchOn);
     switch($matchType)
     {
       case self::TYPE_START:
