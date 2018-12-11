@@ -2,11 +2,15 @@
 namespace Cubex\Tests\Supporting\Controller;
 
 use Cubex\Controller\Controller;
+use Cubex\Tests\Supporting\Container\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
+use Exception;
 use Packaged\Http\Response;
 
 class TestController extends Controller
 {
+  protected $_authResponse;
+
   public function getRoutes()
   {
     return [
@@ -15,7 +19,21 @@ class TestController extends Controller
       self::route('/buffered', 'buffered'),
       self::route('/response', 'response'),
       self::route('/missing', 'missing'),
+      self::route('/exception', 'exception'),
+      self::route('/sub', SubTestController::class),
+      self::route('/badsub', TestObject::class),
     ];
+  }
+
+  public function canProcess()
+  {
+    return $this->_authResponse ?? parent::canProcess();
+  }
+
+  public function setAuthResponse($authResponse)
+  {
+    $this->_authResponse = $authResponse;
+    return $this;
   }
 
   public function postRoute()
@@ -49,5 +67,10 @@ class TestController extends Controller
   public function getResponse()
   {
     return Response::create('Fixed Response');
+  }
+
+  public function getException()
+  {
+    throw new Exception("Broken");
   }
 }

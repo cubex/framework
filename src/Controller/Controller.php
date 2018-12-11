@@ -16,6 +16,10 @@ abstract class Controller implements Handler, ContextAware
 {
   use ContextAwareTrait;
 
+  const ERROR_ACCESS_DENIED = "you are not permitted to access this url";
+  const ERROR_NO_ROUTE = "unable to handle your request";
+  const ERROR_INVALID_ROUTE_CLASS = "unable to process your request";
+
   /**
    * @return Route[]
    */
@@ -63,11 +67,13 @@ abstract class Controller implements Handler, ContextAware
     $authResponse = $this->canProcess();
     if($authResponse instanceof Response)
     {
+      ob_end_clean();
       return $authResponse;
     }
     else if($authResponse !== true)
     {
-      throw new \Exception("unable to process your request", 403);
+      ob_end_clean();
+      throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
     $result = null;
@@ -92,10 +98,12 @@ abstract class Controller implements Handler, ContextAware
 
         if($obj instanceof Handler)
         {
+          ob_end_clean();
           return $obj->handle($c);
         }
 
-        throw new \RuntimeException("unable to handle your request", 500);
+        ob_end_clean();
+        throw new \RuntimeException(self::ERROR_INVALID_ROUTE_CLASS, 500);
       }
       ob_end_clean();
 
@@ -117,7 +125,7 @@ abstract class Controller implements Handler, ContextAware
       }
     }
 
-    throw new \RuntimeException("unable to handle your request", 404);
+    throw new \RuntimeException(self::ERROR_NO_ROUTE, 404);
   }
 
   protected function _bindContext($object)
