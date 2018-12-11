@@ -15,7 +15,7 @@ class UiElement extends Element implements ContextAware
     if($this->_templateFilePath === null && $this->hasContext())
     {
 
-      if($this->hasContext())
+      if($this->hasContext() && $this->getContext()->hasCubex())
       {
         try
         {
@@ -36,11 +36,6 @@ class UiElement extends Element implements ContextAware
       }
     }
 
-    if($this->_templateFilePath === null)
-    {
-      return parent::getTemplateFilePath();
-    }
-
-    return $this->_templateFilePath;
+    return $this->_templateFilePath ?? parent::getTemplateFilePath();
   }
 }

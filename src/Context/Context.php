@@ -66,6 +66,14 @@ class Context
   }
 
   /**
+   * @return bool
+   */
+  public function hasCubex()
+  {
+    return $this->_cubex instanceof Cubex;
+  }
+
+  /**
    * @param Cubex $cubex
    *
    * @return Context

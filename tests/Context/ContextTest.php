@@ -44,8 +44,11 @@ class ContextTest extends TestCase
   public function testCubexAware()
   {
     $ctx = new Context();
+    $this->assertFalse($ctx->hasCubex());
+
     $cubex = new Cubex(__DIR__, null, false);
     $ctx->setCubex($cubex);
+    $this->assertTrue($ctx->hasCubex());
     $this->assertSame($cubex, $ctx->getCubex());
   }
 
