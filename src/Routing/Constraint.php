@@ -24,67 +24,70 @@ class Constraint implements Condition
 
   public function match(Request $request): bool
   {
-    if(!empty($this->_constraints))
+    foreach($this->_constraints as $match)
     {
-      $matched = true;
-      foreach($this->_constraints as $match)
+      if(!$this->_matchConstraint($request, $match[0], $match[1], $match[2]))
       {
-        [$matchOn, $matchWith, $matchType] = $match;
-        switch($matchOn)
-        {
-          case self::PATH;
-            $value = $request->path();
-            break;
-          case self::SUBDOMAIN;
-            $value = $request->subDomain();
-            break;
-          case self::DOMAIN;
-            $value = $request->domain();
-            break;
-          case self::TLD;
-            $value = $request->tld();
-            break;
-          case self::PROTOCOL;
-            $value = $request->protocol();
-            break;
-          case self::PORT;
-            $value = $request->port();
-            break;
-          case self::METHOD;
-            $value = $request->getRealMethod();
-            break;
-          case self::AJAX;
-            $value = $request->isXmlHttpRequest();
-            break;
-          default:
-            $value = null;
-            break;
-        }
-
-        switch($matchType)
-        {
-          case self::TYPE_START:
-            if(!Strings::startsWith($value, $matchWith))
-            {
-              $matched = false;
-            }
-            break;
-          case self::TYPE_START_CASEI:
-            if(!Strings::startsWith($value, $matchWith, false))
-            {
-              $matched = false;
-            }
-            break;
-          case self::TYPE_EXACT:
-          default:
-            if($value !== $matchWith)
-            {
-              $matched = false;
-            }
-            break;
-        }
+        return false;
       }
-      return $matched;
+    }
+    return true;
+  }
+
+  protected function _matchConstraint(Request $request, $matchOn, $matchWith, $matchType)
+  {
+    switch($matchOn)
+    {
+      case self::PATH;
+        $value = $request->path();
+        break;
+      case self::SUBDOMAIN;
+        $value = $request->subDomain();
+        break;
+      case self::DOMAIN;
+        $value = $request->domain();
+        break;
+      case self::TLD;
+        $value = $request->tld();
+        break;
+      case self::PROTOCOL;
+        $value = $request->protocol();
+        break;
+      case self::PORT;
+        $value = $request->port();
+        break;
+      case self::METHOD;
+        $value = $request->getRealMethod();
+        break;
+      case self::AJAX;
+        $value = $request->isXmlHttpRequest();
+        break;
+      default:
+        $value = null;
+        break;
+    }
+
+    switch($matchType)
+    {
+      case self::TYPE_START:
+        if(!Strings::startsWith($value, $matchWith))
+        {
+          return false;
+        }
+        break;
+      case self::TYPE_START_CASEI:
+        if(!Strings::startsWith($value, $matchWith, false))
+        {
+          return false;
+        }
+        break;
+      case self::TYPE_EXACT:
+      default:
+        if($value !== $matchWith)
+        {
+          return false;
+        }
+        break;
     }
     return true;
   }
