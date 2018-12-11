@@ -172,10 +172,14 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
   }
 
+  /**
+   * @param LoggerInterface $logger
+   *
+   * @return void
+   */
   public function setLogger(LoggerInterface $logger)
   {
     $this->share(LoggerInterface::class, $logger);
-    return $this;
   }
 
   /**
