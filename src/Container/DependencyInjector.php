@@ -17,7 +17,16 @@ class DependencyInjector
 
   public function share($abstract, $instance)
   {
-    $this->_instances[$abstract] = $instance;
+    if($instance !== null)
+    {
+      $this->_instances[$abstract] = $instance;
+    }
+    return $this;
+  }
+
+  public function removeShared($abstract)
+  {
+    unset($this->_instances[$abstract]);
     return $this;
   }
 

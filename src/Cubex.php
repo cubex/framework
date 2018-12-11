@@ -16,15 +16,21 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
+  const EVENT_CONSOLE_PREPARE = 'console.pre.run';
   const EVENT_HANDLE_START = 'handle.start';
   const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
   const EVENT_HANDLE_RESPONSE_PREPARE = 'handle.response.prepare';
   const EVENT_HANDLE_COMPLETE = 'handle.complete';
+
+  const ERROR_NO_HANDLER = 'No handler was available to process your request';
+
   protected $_listeners = [];
 
   /** @var Cubex */
@@ -34,11 +40,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
     //Setup Context
-    $this->setupContext($projectRoot);
-    if($loader !== null)
-    {
-      $this->share(ClassLoader::class, $loader);
-    }
+    $this->share(ClassLoader::class, $loader);
+    $this->share(Context::class, $this->_newContext($projectRoot));
 
     if($global && self::$_cubex === null)
     {
@@ -46,36 +49,56 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
   }
 
-  protected function setupContext($projectRoot)
+  protected function _newContext($projectRoot = null)
   {
     $ctx = new Context(Request::createFromGlobals());
-    $this->share(Context::class, $ctx);
-    $ctx->setProjectRoot($projectRoot);
     $ctx->setCubex($this);
+
+    if($projectRoot !== null)
+    {
+      $ctx->setProjectRoot($projectRoot);
+      try
+      {
+        $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
+      }
+      catch(\Throwable $e)
+      {
+        //If no config file exists, thats fine
+      }
+    }
+    return $ctx;
+  }
+
+  public function getContext(): Context
+  {
     try
     {
-      $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
+      $ctx = $this->retrieve(Context::class);
     }
-    catch(\Throwable $e)
+    catch(Exception $e)
     {
-      //If no config file exists, thats fine
+      $ctx = $this->_newContext();
     }
+    return $ctx;
   }
 
   /**
+   * @param InputInterface|null  $input
+   * @param OutputInterface|null $output
+   *
    * @return int
    * @throws Exception
    */
-  public function cli()
+  public function cli(InputInterface $input = null, OutputInterface $output = null)
   {
+    $input = $input ?? new ArgvInput();
+    $output = $output ?? new ConsoleOutput();
+
     $console = new Console("Cubex Console", "3.0");
-    $ctx = $this->retrieve(Context::class);
-    if($ctx instanceof Context)
-    {
-      $console->setContext($ctx);
-    }
-    $input = new ArgvInput();
-    $output = new ConsoleOutput();
+    $console->setAutoExit(false);
+    $ctx = $this->getContext();
+    $console->setContext($ctx);
+    $this->_triggerEvent(self::EVENT_CONSOLE_PREPARE, $ctx, $console, $input, $output);
 
     try
     {
@@ -88,7 +111,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $exitCode = 1;
     }
 
-    return $exitCode;
+    return $exitCode > 255 ? 255 : $exitCode;
   }
 
   /**
@@ -101,18 +124,14 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    */
   public function handle(Router $router, $sendResponse = true, $catchExceptions = true)
   {
-    $c = $this->retrieve(Context::class);
-    if(!($c instanceof Context))
-    {
-      throw new \Exception("Cubex context missing");
-    }
+    $c = $this->getContext();
     try
     {
       $this->_triggerEvent(self::EVENT_HANDLE_START, $c);
       $handler = $router->getHandler($c->getRequest());
       if($handler === null || !($handler instanceof Handler))
       {
-        throw new \RuntimeException("No handler was available to process your request");
+        throw new \RuntimeException(self::ERROR_NO_HANDLER, 500);
       }
       $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $c, $handler);
       $r = $handler->handle($c);
@@ -123,9 +142,9 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     {
       if(!$catchExceptions)
       {
-        $this->getLogger()->error($e->getMessage());
         throw $e;
       }
+      $this->getLogger()->error($e->getMessage());
       $r = (new ExceptionHandler($e))->handle($c);
       $r->prepare($c->getRequest());
     }
@@ -139,6 +158,10 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     catch(\Throwable $e)
     {
+      if(!$catchExceptions)
+      {
+        throw $e;
+      }
       $this->getLogger()->error($e->getMessage());
     }
     return $r;
@@ -213,5 +236,10 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   public static function instance()
   {
     return self::$_cubex;
+  }
+
+  public static function destroyGlobalInstance()
+  {
+    self::$_cubex = null;
   }
 }
