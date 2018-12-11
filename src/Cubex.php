@@ -12,12 +12,19 @@ use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Helpers\Path;
 use Packaged\Http\Request;
+use Psr\Log\NullLogger;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpFoundation\Response;
 
 class Cubex extends DependencyInjector
 {
+  const EVENT_HANDLE_START = 'handle.start';
+  const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
+  const EVENT_HANDLE_RESPONSE_PREPARE = 'handle.response.prepare';
+  const EVENT_HANDLE_COMPLETE = 'handle.complete';
+  protected $_listeners = [];
+
   public function __construct($projectRoot, ClassLoader $loader = null)
   {
     //Setup Context
@@ -34,6 +41,7 @@ class Cubex extends DependencyInjector
     $this->share(Context::class, $ctx);
     $ctx->setProjectRoot($projectRoot);
     $ctx->setCubex($this);
+    $ctx->setLogger(new NullLogger());
     try
     {
       $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
@@ -89,12 +97,15 @@ class Cubex extends DependencyInjector
     }
     try
     {
+      $this->_triggerEvent(self::EVENT_HANDLE_START, $c);
       $handler = $router->getHandler($c->getRequest());
       if($handler === null || !($handler instanceof Handler))
       {
         throw new \RuntimeException("No handler was available to process your request");
       }
+      $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $c, $handler);
       $r = $handler->handle($c);
+      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $c, $r);
       $r->prepare($c->getRequest());
     }
     catch(\Throwable $e)
@@ -110,6 +121,43 @@ class Cubex extends DependencyInjector
     {
       $r->send();
     }
+    try
+    {
+      $this->_triggerEvent(self::EVENT_HANDLE_COMPLETE, $c, $r);
+    }
+    catch(\Throwable $e)
+    {
+      $c->log()->error($e->getMessage());
+    }
     return $r;
+  }
+
+  /**
+   * Listen to a Cubex Event
+   *
+   * @param          $eventAlias
+   * @param callable $callback
+   *
+   * @return $this
+   */
+  public function listen($eventAlias, callable $callback)
+  {
+    if(!isset($this->_listeners[$eventAlias]))
+    {
+      $this->_listeners[$eventAlias] = [];
+    }
+    $this->_listeners[$eventAlias][] = $callback;
+    return $this;
+  }
+
+  protected function _triggerEvent($eventAlias, Context $c, ...$data)
+  {
+    if(isset($this->_listeners[$eventAlias]))
+    {
+      foreach($this->_listeners[$eventAlias] as $callback)
+      {
+        $callback($c, ...$data);
+      }
+    }
   }
 }

@@ -26,7 +26,8 @@
     "packaged/http": "~1.1",
     "packaged/ui": "~0.0",
     "phpdocumentor/reflection-docblock": "~2.0",
-    "symfony/console": "~4.2"
+    "symfony/console": "~4.2",
+    "psr/log": "~1.1"
   },
   "require-dev": {
   },
