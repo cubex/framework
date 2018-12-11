@@ -40,9 +40,9 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->share(ClassLoader::class, $loader);
     }
 
-    if($global && static::$_cubex === null)
+    if($global && self::$_cubex === null)
     {
-      static::$_cubex = $this;
+      self::$_cubex = $this;
     }
   }
 
@@ -198,7 +198,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    */
   public static function log()
   {
-    return static::$_cubex->getLogger();
+    return self::$_cubex->getLogger();
   }
 
   /**
@@ -206,6 +206,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    */
   public static function instance()
   {
-    return static::$_cubex;
+    return self::$_cubex;
   }
 }
