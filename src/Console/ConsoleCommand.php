@@ -65,8 +65,8 @@ abstract class ConsoleCommand extends Command implements ContextAware
       }
     }
 
-    $argsAdded = $this->createFromActionableMethod($reflect);
-    $this->createOptionsFromPublic($reflect, $argsAdded);
+    $this->createFromActionableMethod($reflect);
+    $this->createOptionsFromPublic($reflect);
   }
 
   /**
@@ -145,11 +145,9 @@ abstract class ConsoleCommand extends Command implements ContextAware
    *
    * @param \ReflectionClass $class
    *
-   * @param                  $args
-   *
    * @return null
    */
-  protected function createOptionsFromPublic(\ReflectionClass $class, $args)
+  protected function createOptionsFromPublic(\ReflectionClass $class)
   {
     $properties = $class->getProperties(\ReflectionProperty::IS_PUBLIC);
     if(empty($properties))

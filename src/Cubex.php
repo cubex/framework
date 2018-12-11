@@ -58,6 +58,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     catch(\Throwable $e)
     {
+      //If no config file exists, thats fine
     }
   }
 

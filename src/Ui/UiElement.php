@@ -31,6 +31,7 @@ class UiElement extends Element implements ContextAware
         }
         catch(\Throwable $e)
         {
+          //If we cant get a file path, allow the parent method to be called
         }
       }
     }
