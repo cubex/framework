@@ -9,6 +9,7 @@ class Constraint implements Condition
   private $_constraints = [];
 
   const PROTOCOL = 'protocol';
+  const SCHEME = 'scheme';
   const PORT = 'port';
   const PATH = 'path';
   const DOMAIN = 'domain';
@@ -48,6 +49,8 @@ class Constraint implements Condition
         return $request->tld();
       case self::PROTOCOL;
         return $request->protocol();
+      case self::SCHEME;
+        return $request->getScheme();
       case self::PORT;
         return $request->port();
       case self::METHOD;
@@ -116,6 +119,13 @@ class Constraint implements Condition
   {
     $cond = new static();
     $cond->add(self::PROTOCOL, $protocol);
+    return $cond;
+  }
+
+  public static function scheme($protocol)
+  {
+    $cond = new static();
+    $cond->add(self::SCHEME, $protocol);
     return $cond;
   }
 
