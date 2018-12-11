@@ -115,6 +115,16 @@ class ControllerTest extends TestCase
     $controller->handle($cubex->getContext());
   }
 
+  public function testNoRoute()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $controller = new TestController();
+    $request = Request::create("/not-found");
+    $cubex->share(Context::class, new Context($request));
+    $this->expectExceptionMessage(Controller::ERROR_NO_ROUTE);
+    $controller->handle($cubex->getContext());
+  }
+
   public function testExceptionalRoute()
   {
     $cubex = new Cubex(__DIR__, null, false);

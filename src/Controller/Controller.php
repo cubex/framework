@@ -60,19 +60,16 @@ abstract class Controller implements Handler, ContextAware
    */
   public function handle(Context $c): Response
   {
-    ob_start();
     $this->setContext($c);
 
     //Verify the request can be processed
     $authResponse = $this->canProcess();
     if($authResponse instanceof Response)
     {
-      ob_end_clean();
       return $authResponse;
     }
     else if($authResponse !== true)
     {
-      ob_end_clean();
       throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
@@ -84,7 +81,6 @@ abstract class Controller implements Handler, ContextAware
       {
         return $this->_executeClass($c, $result);
       }
-      ob_end_clean();
 
       $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->getRequest(), $result);
       if(is_callable($callable))
@@ -199,11 +195,9 @@ abstract class Controller implements Handler, ContextAware
 
     if($obj instanceof Handler)
     {
-      ob_end_clean();
       return $obj->handle($c);
     }
 
-    ob_end_clean();
     throw new \RuntimeException(self::ERROR_INVALID_ROUTE_CLASS, 500);
   }
 }
