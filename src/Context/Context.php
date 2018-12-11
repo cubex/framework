@@ -31,6 +31,8 @@ class Context
   const ENV_STAGE = 'stage';
   const ENV_PROD = 'prod';
 
+  const _ENV_VAR = 'CUBEX_ENV';
+
   public final function __construct(Request $request = null)
   {
     // Give this context an ID
@@ -41,10 +43,10 @@ class Context
     $this->_cfg = new ConfigProvider();
 
     //Calculate the environment
-    $this->_env = getenv('CUBEX_ENV');
-    if(($this->_env === null || !$this->_env) && isset($_ENV['CUBEX_ENV']))
+    $this->_env = getenv(static::_ENV_VAR);
+    if(($this->_env === null || !$this->_env) && isset($_ENV[static::_ENV_VAR]))
     {
-      $this->_env = $_ENV['CUBEX_ENV'];
+      $this->_env = $_ENV[static::_ENV_VAR];
     }
     if($this->_env === null || !$this->_env)//If there is no environment available, assume local
     {
