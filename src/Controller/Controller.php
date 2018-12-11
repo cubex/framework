@@ -21,6 +21,9 @@ abstract class Controller implements Handler, ContextAware
    */
   abstract public function getRoutes();
 
+  /**
+   * @return bool|Response
+   */
   public function canProcess()
   {
     return true;
