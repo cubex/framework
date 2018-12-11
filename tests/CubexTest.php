@@ -37,7 +37,7 @@ class CubexTest extends TestCase
     $cubex = $this->_cubex();
     $this->assertInstanceOf(NullLogger::class, $cubex->getLogger());
     $logger = new NullLogger();
-    $this->assertNull($cubex->setLogger($logger));
+    $cubex->setLogger($logger);
     $this->assertEquals($logger, $cubex->getLogger());
   }
 
