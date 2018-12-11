@@ -51,6 +51,9 @@ class CubexTest extends TestCase
     $this->assertNull(Cubex::instance());
   }
 
+  /**
+   * @throws Throwable
+   */
   public function testContextConfig()
   {
     $cubex = new Cubex(__DIR__, null, false);
@@ -61,6 +64,9 @@ class CubexTest extends TestCase
     $this->assertInstanceOf(ConfigProvider::class, $cubex->getContext()->config());
   }
 
+  /**
+   * @throws Throwable
+   */
   public function testHandle()
   {
     $cubex = $this->_cubex();
@@ -72,6 +78,9 @@ class CubexTest extends TestCase
     $this->assertEquals('All OK', $response->getSendResult());
   }
 
+  /**
+   * @throws Throwable
+   */
   public function testHandleCompleteException()
   {
     $cubex = $this->_cubex();
@@ -81,7 +90,7 @@ class CubexTest extends TestCase
     $router->handle('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
     $cubex->listen(
       Cubex::EVENT_HANDLE_COMPLETE,
-      function (Context $c) { throw new Exception("Complete Exception", 500); }
+      function () { throw new Exception("Complete Exception", 500); }
     );
     $cubex->handle($router);
     $this->assertTrue($logger->hasError("Complete Exception"));
@@ -125,6 +134,9 @@ class CubexTest extends TestCase
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_COMPLETE));
   }
 
+  /**
+   * @throws Throwable
+   */
   public function testNoHandler()
   {
     $cubex = $this->_cubex();
@@ -132,6 +144,9 @@ class CubexTest extends TestCase
     $cubex->handle(new Router(), false, false);
   }
 
+  /**
+   * @throws Throwable
+   */
   public function testExceptionHandler()
   {
     $cubex = $this->_cubex();
@@ -184,6 +199,7 @@ class CubexTest extends TestCase
       function (Context $context, Console $console) {
         $console->setCatchExceptions(false);
         $console->add(new ExceptionCommand());
+        $context->meta()->set('ExceptionCommand', true);
       }
     );
     $input = new ArgvInput(['', 'ExceptionCommand']);
