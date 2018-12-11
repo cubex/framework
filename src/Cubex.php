@@ -122,6 +122,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     {
       if(!$catchExceptions)
       {
+        $this->getLogger()->error($e->getMessage());
         throw $e;
       }
       $r = (new ExceptionHandler($e))->handle($c);
@@ -137,7 +138,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     catch(\Throwable $e)
     {
-      $c->log()->error($e->getMessage());
+      $this->getLogger()->error($e->getMessage());
     }
     return $r;
   }
