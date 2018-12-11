@@ -76,52 +76,20 @@ abstract class Controller implements Handler, ContextAware
       throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
-    $result = null;
-    foreach($this->getRoutes() as $route)
-    {
-      if($route instanceof Route && $route->match($this->getContext()->getRequest()))
-      {
-        $result = $route->getHandler();
-        break;
-      }
-    }
+    $result = $this->_getRoute();
 
     if($result !== null && is_string($result))
     {
       if(strstr($result, '\\') && class_exists($result))
       {
-        $obj = new $result();
-        if($obj instanceof ContextAware)
-        {
-          $obj->setContext($c);
-        }
-
-        if($obj instanceof Handler)
-        {
-          ob_end_clean();
-          return $obj->handle($c);
-        }
-
-        ob_end_clean();
-        throw new \RuntimeException(self::ERROR_INVALID_ROUTE_CLASS, 500);
+        return $this->_executeClass($c, $result);
       }
       ob_end_clean();
 
       $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->getRequest(), $result);
       if(is_callable($callable))
       {
-        ob_start();
-        try
-        {
-          $callableResponse = $callable();
-        }
-        catch(\Throwable $e)
-        {
-          ob_end_clean();
-          throw $e;
-        }
-
-        return $this->_handleResponse($callableResponse, ob_get_clean());
+        return $this->_executeCallable($callable);
       }
     }
 
@@ -176,5 +144,66 @@ abstract class Controller implements Handler, ContextAware
       }
     }
     return null;
+  }
+
+  /**
+   * @return callable|Handler|null|string
+   */
+  protected function _getRoute()
+  {
+    foreach($this->getRoutes() as $route)
+    {
+      if($route instanceof Route && $route->match($this->getContext()->getRequest()))
+      {
+        return $route->getHandler();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @param $callable
+   *
+   * @return Response
+   * @throws \Throwable
+   */
+  protected function _executeCallable($callable): Response
+  {
+    ob_start();
+    try
+    {
+      $callableResponse = $callable();
+    }
+    catch(\Throwable $e)
+    {
+      ob_end_clean();
+      throw $e;
+    }
+
+    return $this->_handleResponse($callableResponse, ob_get_clean());
+  }
+
+  /**
+   * @param Context $c
+   * @param         $result
+   *
+   * @return Response
+   */
+  protected function _executeClass(Context $c, $result): Response
+  {
+    $obj = new $result();
+    if($obj instanceof ContextAware)
+    {
+      $obj->setContext($c);
+    }
+
+    if($obj instanceof Handler)
+    {
+      ob_end_clean();
+      return $obj->handle($c);
+    }
+
+    ob_end_clean();
+    throw new \RuntimeException(self::ERROR_INVALID_ROUTE_CLASS, 500);
   }
 }
