@@ -19,9 +19,6 @@ class ConstraintTest extends TestCase
     $this->assertTrue(Constraint::port(8080)->match($ctx));
     $this->assertFalse(Constraint::port(9898)->match($ctx));
 
-    $this->assertTrue(Constraint::protocol('http://')->match($ctx));
-    $this->assertFalse(Constraint::protocol('https://')->match($ctx));
-
     $this->assertTrue(Constraint::scheme('http')->match($ctx));
     $this->assertFalse(Constraint::scheme('https')->match($ctx));
 
