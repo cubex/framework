@@ -9,7 +9,6 @@ class Constraint implements Condition
 {
   private $_constraints = [];
 
-  const PROTOCOL = 'protocol';
   const SCHEME = 'scheme';
   const PORT = 'port';
   const PATH = 'path';
@@ -67,8 +66,6 @@ class Constraint implements Condition
         return $context->getRequest()->domain();
       case self::TLD;
         return $context->getRequest()->tld();
-      case self::PROTOCOL;
-        return $context->getRequest()->protocol();
       case self::SCHEME;
         return $context->getRequest()->getScheme();
       case self::PORT;
@@ -165,13 +162,6 @@ class Constraint implements Condition
     return $cond;
   }
 
-  public static function protocol($protocol)
-  {
-    $cond = new static();
-    $cond->add(self::PROTOCOL, $protocol);
-    return $cond;
-  }
-
   public static function scheme($protocol)
   {
     $cond = new static();
@@ -234,7 +224,21 @@ class Constraint implements Condition
     }
 
     $flags = 'u';
-    $path = '#^' . $this->_pathDataRegex($path);
+    if(strstr($path, '{'))
+    {
+      $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
+      $repl = [
+        "/{" . "$idPat\@alphanum}/" => "(?P<$1>\w+)",
+        "/{" . "$idPat\@alnum}/"    => "(?P<$1>\w+)",
+        "/{" . "$idPat\@alpha}/"    => "(?P<$1>[a-zA-Z]+)",
+        "/{" . "$idPat\@all}/"      => "(?P<$1>[^\/]+)",
+        "/{" . "$idPat\@num}/"      => "(?P<$1>\d+)",
+        "/{" . "$idPat}/"           => "(?P<$1>.+)",
+      ];
+      $path = preg_replace(array_keys($repl), array_values($repl), $path);
+    }
+
+    $path = '#^' . $path;
     switch($type)
     {
       case self::TYPE_START:
@@ -253,24 +257,5 @@ class Constraint implements Condition
     }
 
     return $path . '#' . $flags;
-  }
-
-  protected function _pathDataRegex($path)
-  {
-    if(strstr($path, '{'))
-    {
-      $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
-      $repl = [
-        "/{" . "$idPat\@alphanum}/" => "(?P<$1>\w+)",
-        "/{" . "$idPat\@alnum}/"    => "(?P<$1>\w+)",
-        "/{" . "$idPat\@alpha}/"    => "(?P<$1>[a-zA-Z]+)",
-        "/{" . "$idPat\@all}/"      => "(?P<$1>[^\/]+)",
-        "/{" . "$idPat\@num}/"      => "(?P<$1>\d+)",
-        "/{" . "$idPat}/"           => "(?P<$1>.+)",
-      ];
-      $path = preg_replace(array_keys($repl), array_values($repl), $path);
-    }
-
-    return str_replace('//', '/', $path);
   }
 }

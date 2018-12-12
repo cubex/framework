@@ -51,7 +51,7 @@ class ConstraintTest extends TestCase
     $ctx = new Context($request);
     $this->assertTrue(Constraint::path('/INV{invoiceNumber@num}', Constraint::TYPE_MATCH)->match($ctx));
     $this->assertFalse(Constraint::path('/INV{invoiceNumber@num}', Constraint::TYPE_EXACT)->match($ctx));
-    $this->assertTrue(Constraint::path('/INV')->add(Constraint::PROTOCOL, 'http', Constraint::TYPE_START)->match($ctx));
+    $this->assertTrue(Constraint::path('/INV')->add(Constraint::SCHEME, 'http', Constraint::TYPE_START)->match($ctx));
     $this->assertTrue(Constraint::path('/INV')->add(Constraint::PORT, 9090, Constraint::TYPE_EXACT)->match($ctx));
     $this->assertFalse(Constraint::path('/INV')->add(Constraint::PORT, "9090", Constraint::TYPE_EXACT)->match($ctx));
     $this->assertFalse(Constraint::path('/')->add(Constraint::DOMAIN, "Ates", Constraint::TYPE_START)->match($ctx));
