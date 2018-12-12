@@ -15,6 +15,7 @@ class Context
   protected $_env;
   protected $_cfg;
   protected $_meta;
+  protected $_routeData;
   protected $_cubex;
   private $_request;
 
@@ -40,6 +41,7 @@ class Context
 
     $this->_request = $request ?: Request::createFromGlobals();
     $this->_meta = new ParameterBag();
+    $this->_routeData = new ParameterBag();
     $this->_cfg = new ConfigProvider();
 
     //Calculate the environment
@@ -129,6 +131,14 @@ class Context
   public function meta()
   {
     return $this->_meta;
+  }
+
+  /**
+   * @return ParameterBag
+   */
+  public function routeData()
+  {
+    return $this->_routeData;
   }
 
   /**

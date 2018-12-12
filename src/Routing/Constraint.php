@@ -20,13 +20,16 @@ class Constraint implements Condition
   const AJAX = 'xmlhttprequest';
   const LANGUAGE = 'language';
 
+  const TYPE_MATCH = 'match';
   const TYPE_EXACT = 'exact';
   const TYPE_START = 'start';
   const TYPE_START_CASEI = 'start.casei';
+  const TYPE_REGEX = 'regex';
 
   const META_ROUTED_PATH = '_routing_routed_path';
 
   protected $_routedPath;
+  protected $_extractedData = [];
 
   public function match(Context $context): bool
   {
@@ -39,6 +42,10 @@ class Constraint implements Condition
       }
     }
     $context->meta()->set(self::META_ROUTED_PATH, $this->_routedPath);
+    if(!empty($this->_extractedData))
+    {
+      $context->routeData()->add($this->_extractedData);
+    }
     return true;
   }
 
@@ -71,21 +78,34 @@ class Constraint implements Condition
 
   protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
   {
-    if($matchOn == self::PATH && $matchWith[0] !== '/')
+    if($matchOn == self::PATH)
     {
-      $matchWith = Path::build($this->_routedPath, $matchWith);
+      if($matchWith[0] !== '/')
+      {
+        $matchWith = Path::build($this->_routedPath, $matchWith);
+      }
+      $matchWith = $this->_convertPathToRegex($matchWith, $matchType);
+      $matchType = self::TYPE_REGEX;
     }
     $value = $this->_matchValue($context, $matchOn);
+    $matches = [];
     switch($matchType)
     {
-      case self::TYPE_START:
-        if(!Strings::startsWith($value, $matchWith))
+      case self::TYPE_REGEX:
+        if(!preg_match($matchWith, $value, $matches))
         {
           return false;
         }
         break;
+      case self::TYPE_START:
       case self::TYPE_START_CASEI:
-        if(!Strings::startsWith($value, $matchWith, false))
+        if(!Strings::startsWith($value, $matchWith, $matchType == self::TYPE_START))
+        {
+          return false;
+        }
+        break;
+      case self::TYPE_MATCH:
+        if($value != $matchWith)
         {
           return false;
         }
@@ -99,9 +119,16 @@ class Constraint implements Condition
         break;
     }
 
-    if($matchOn == self::PATH && $matchWith[0] == '/')
+    if($matchOn == self::PATH && !empty($matches[0]))
     {
-      $this->_routedPath = $matchWith;
+      $this->_routedPath = $matches[0];
+      foreach($matches as $k => $v)
+      {
+        if(!is_numeric($k))
+        {
+          $this->_extractedData[$k] = $v;
+        }
+      }
     }
 
     return true;
@@ -114,7 +141,7 @@ class Constraint implements Condition
    *
    * @return $this
    */
-  final public function add($on, $with, $type = self::TYPE_EXACT)
+  final public function add($on, $with, $type = self::TYPE_MATCH)
   {
     $this->_constraints[] = [$on, $with, $type];
     return $this;
@@ -191,5 +218,48 @@ class Constraint implements Condition
       $cond->add(self::TLD, $tld);
     }
     return $cond;
+  }
+
+  protected function _convertPathToRegex($path, $type)
+  {
+    $flags = 'u';
+    $path = '#^' . $this->_pathDataRegex($path);
+    switch($type)
+    {
+      case self::TYPE_START:
+        break;
+      case self::TYPE_EXACT:
+        $path .= '$';
+        break;
+      case self::TYPE_MATCH:
+        $path .= '$';
+        $flags .= 'i';
+        break;
+      case self::TYPE_START_CASEI:
+      default:
+        $flags .= 'i';
+        break;
+    }
+
+    return $path . '#' . $flags;
+  }
+
+  protected function _pathDataRegex($path)
+  {
+    if(strstr($path, '{'))
+    {
+      $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
+      $repl = [
+        "/{" . "$idPat\@alphanum}/" => "(?P<$1>\w+)",
+        "/{" . "$idPat\@alnum}/"    => "(?P<$1>\w+)",
+        "/{" . "$idPat\@alpha}/"    => "(?P<$1>[a-zA-Z]+)",
+        "/{" . "$idPat\@all}/"      => "(?P<$1>[^\/]+)",
+        "/{" . "$idPat\@num}/"      => "(?P<$1>\d+)",
+        "/{" . "$idPat}/"           => "(?P<$1>.+)",
+      ];
+      $path = preg_replace(array_keys($repl), array_values($repl), $path);
+    }
+
+    return str_replace('//', '/', $path);
   }
 }
