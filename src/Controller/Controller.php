@@ -5,7 +5,7 @@ use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
-use Cubex\Routing\Constraint;
+use Cubex\Routing\HttpConstraint;
 use Cubex\Routing\Route;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
@@ -41,7 +41,7 @@ abstract class Controller implements Handler, ContextAware
    */
   public static function route($path, $result)
   {
-    return Route::with(Constraint::path($path))->setHandler($result);
+    return Route::with(HttpConstraint::path($path))->setHandler($result);
   }
 
   /**

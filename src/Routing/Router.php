@@ -25,7 +25,7 @@ class Router
 
   public function handle($path, Handler $handler): Constraint
   {
-    $condition = Constraint::path($path);
+    $condition = HttpConstraint::path($path);
     $route = Route::with($condition);
     $this->handleCondition($route->setHandler($handler));
     return $condition;
