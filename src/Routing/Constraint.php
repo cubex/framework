@@ -2,6 +2,7 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
+use Packaged\Helpers\Path;
 use Packaged\Helpers\Strings;
 
 class Constraint implements Condition
@@ -23,8 +24,13 @@ class Constraint implements Condition
   const TYPE_START = 'start';
   const TYPE_START_CASEI = 'start.casei';
 
+  const META_ROUTED_PATH = '_routing_routed_path';
+
+  protected $_routedPath;
+
   public function match(Context $context): bool
   {
+    $this->_routedPath = $context->meta()->get(self::META_ROUTED_PATH, '/');
     foreach($this->_constraints as $match)
     {
       if(!$this->_matchConstraint($context, $match[0], $match[1], $match[2]))
@@ -32,6 +38,7 @@ class Constraint implements Condition
         return false;
       }
     }
+    $context->meta()->set(self::META_ROUTED_PATH, $this->_routedPath);
     return true;
   }
 
@@ -64,6 +71,10 @@ class Constraint implements Condition
 
   protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
   {
+    if($matchOn == self::PATH && $matchWith[0] !== '/')
+    {
+      $matchWith = Path::build($this->_routedPath, $matchWith);
+    }
     $value = $this->_matchValue($context, $matchOn);
     switch($matchType)
     {
@@ -87,6 +98,12 @@ class Constraint implements Condition
         }
         break;
     }
+
+    if($matchOn == self::PATH && $matchWith[0] == '/')
+    {
+      $this->_routedPath = $matchWith;
+    }
+
     return true;
   }
 
