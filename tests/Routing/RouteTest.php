@@ -2,6 +2,7 @@
 
 namespace Cubex\Tests\Routing;
 
+use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Routing\Constraint;
 use Cubex\Routing\Route;
@@ -17,11 +18,11 @@ class RouteTest extends TestCase
     $route->setHandler($handler);
     $this->assertSame($handler, $route->getHandler());
 
-    $request = Request::create('/route');
-    $this->assertTrue($route->match($request));
+    $ctx = new Context(Request::create('/route'));
+    $this->assertTrue($route->match($ctx));
     $route->add(Constraint::path('/route'));
-    $this->assertTrue($route->match($request));
+    $this->assertTrue($route->match($ctx));
     $route->add(Constraint::port('8484'));
-    $this->assertFalse($route->match($request));
+    $this->assertFalse($route->match($ctx));
   }
 }

@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Routing;
 
+use Cubex\Context\Context;
 use Cubex\Http\Handler;
-use Packaged\Http\Request;
 
 class Route implements ConditionHandler
 {
@@ -39,11 +39,11 @@ class Route implements ConditionHandler
     return $this;
   }
 
-  public function match(Request $request): bool
+  public function match(Context $context): bool
   {
     foreach($this->_conditions as $condition)
     {
-      if(!$condition->match($request))
+      if(!$condition->match($context))
       {
         return false;
       }

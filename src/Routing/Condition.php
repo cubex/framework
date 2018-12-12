@@ -1,9 +1,9 @@
 <?php
 namespace Cubex\Routing;
 
-use Packaged\Http\Request;
+use Cubex\Context\Context;
 
 interface Condition
 {
-  public function match(Request $request): bool;
+  public function match(Context $context): bool;
 }

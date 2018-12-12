@@ -1,9 +1,9 @@
 <?php
 namespace Cubex\Routing;
 
+use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
-use Packaged\Http\Request;
 
 class Router
 {
@@ -36,11 +36,11 @@ class Router
     return $this->handle($path, new FuncHandler($handleFunc));
   }
 
-  public function getHandler(Request $request)
+  public function getHandler(Context $context)
   {
     foreach($this->_conditions as $condition)
     {
-      if($condition->match($request))
+      if($condition->match($context))
       {
         return $condition->getHandler();
       }

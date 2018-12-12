@@ -143,7 +143,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     try
     {
       $this->_triggerEvent(self::EVENT_HANDLE_START);
-      $handler = $router->getHandler($c->getRequest());
+      $handler = $router->getHandler($c);
       if($handler === null || !($handler instanceof Handler))
       {
         throw new \RuntimeException(self::ERROR_NO_HANDLER, 500);

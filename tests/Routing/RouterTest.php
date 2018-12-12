@@ -16,11 +16,11 @@ class RouterTest extends TestCase
     $router = Router::i();
     $handler = new FuncHandler(function () { return Response::create('OK'); });
     $router->handle('/route', $handler);
-    $this->assertSame($handler, $router->getHandler(Request::create('/route')));
-    $this->assertNull($router->getHandler(Request::create('/not-found')));
+    $this->assertSame($handler, $router->getHandler(new Context(Request::create('/route'))));
+    $this->assertNull($router->getHandler(new Context(Request::create('/not-found)'))));
 
     $router->handleFunc('/func', function () { return Response::create('OK'); });
-    $handler = $router->getHandler(Request::create('/func'));
+    $handler = $router->getHandler(new Context(Request::create('/func')));
     $result = $handler->handle(new Context());
     $this->assertEquals('OK', $result->getContent());
   }

@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Routing;
 
+use Cubex\Context\Context;
 use Packaged\Helpers\Strings;
-use Packaged\Http\Request;
 
 class Constraint implements Condition
 {
@@ -23,11 +23,11 @@ class Constraint implements Condition
   const TYPE_START = 'start';
   const TYPE_START_CASEI = 'start.casei';
 
-  public function match(Request $request): bool
+  public function match(Context $context): bool
   {
     foreach($this->_constraints as $match)
     {
-      if(!$this->_matchConstraint($request, $match[0], $match[1], $match[2]))
+      if(!$this->_matchConstraint($context, $match[0], $match[1], $match[2]))
       {
         return false;
       }
@@ -35,36 +35,36 @@ class Constraint implements Condition
     return true;
   }
 
-  protected function _matchValue(Request $request, $on)
+  protected function _matchValue(Context $context, $on)
   {
     switch($on)
     {
       case self::PATH;
-        return $request->path();
+        return $context->getRequest()->path();
       case self::SUBDOMAIN;
-        return $request->subDomain();
+        return $context->getRequest()->subDomain();
       case self::DOMAIN;
-        return $request->domain();
+        return $context->getRequest()->domain();
       case self::TLD;
-        return $request->tld();
+        return $context->getRequest()->tld();
       case self::PROTOCOL;
-        return $request->protocol();
+        return $context->getRequest()->protocol();
       case self::SCHEME;
-        return $request->getScheme();
+        return $context->getRequest()->getScheme();
       case self::PORT;
-        return $request->port();
+        return $context->getRequest()->port();
       case self::METHOD;
-        return $request->getRealMethod();
+        return $context->getRequest()->getRealMethod();
       case self::AJAX;
-        return $request->isXmlHttpRequest();
+        return $context->getRequest()->isXmlHttpRequest();
       default:
         return null;
     }
   }
 
-  protected function _matchConstraint(Request $request, $matchOn, $matchWith, $matchType)
+  protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
   {
-    $value = $this->_matchValue($request, $matchOn);
+    $value = $this->_matchValue($context, $matchOn);
     switch($matchType)
     {
       case self::TYPE_START:

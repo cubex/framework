@@ -149,7 +149,7 @@ abstract class Controller implements Handler, ContextAware
   {
     foreach($this->getRoutes() as $route)
     {
-      if($route instanceof Route && $route->match($this->getContext()->getRequest()))
+      if($route instanceof Route && $route->match($this->getContext()))
       {
         return $route->getHandler();
       }
