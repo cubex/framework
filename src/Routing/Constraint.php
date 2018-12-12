@@ -36,6 +36,12 @@ class Constraint implements Condition
     $this->_routedPath = $context->meta()->get(self::META_ROUTED_PATH, '/');
     foreach($this->_constraints as $match)
     {
+      if($match[0] == self::PATH)
+      {
+        $match[1] = $this->_convertPathToRegex($match[1], $match[2]);
+        $match[2] = self::TYPE_REGEX;
+      }
+
       if(!$this->_matchConstraint($context, $match[0], $match[1], $match[2]))
       {
         return false;
@@ -78,15 +84,6 @@ class Constraint implements Condition
 
   protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
   {
-    if($matchOn == self::PATH)
-    {
-      if($matchWith[0] !== '/')
-      {
-        $matchWith = Path::build($this->_routedPath, $matchWith);
-      }
-      $matchWith = $this->_convertPathToRegex($matchWith, $matchType);
-      $matchType = self::TYPE_REGEX;
-    }
     $value = $this->_matchValue($context, $matchOn);
     $matches = [];
     switch($matchType)
@@ -119,6 +116,17 @@ class Constraint implements Condition
         break;
     }
 
+    $this->_processMatches($matchOn, $matches);
+
+    return true;
+  }
+
+  /**
+   * @param $matchOn
+   * @param $matches
+   */
+  protected function _processMatches($matchOn, $matches): void
+  {
     if($matchOn == self::PATH && !empty($matches[0]))
     {
       $this->_routedPath = $matches[0];
@@ -130,8 +138,6 @@ class Constraint implements Condition
         }
       }
     }
-
-    return true;
   }
 
   /**
@@ -222,6 +228,11 @@ class Constraint implements Condition
 
   protected function _convertPathToRegex($path, $type)
   {
+    if($path[0] !== '/')
+    {
+      $path = Path::build($this->_routedPath, $path);
+    }
+
     $flags = 'u';
     $path = '#^' . $this->_pathDataRegex($path);
     switch($type)
