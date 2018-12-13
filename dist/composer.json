@@ -10,7 +10,8 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "cubex/framework": "dev-master"
+    "cubex/framework": "dev-master",
+    "filp/whoops": "^2.3"
   },
   "require-dev": {
   },

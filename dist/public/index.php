@@ -4,6 +4,8 @@ define('PHP_START', microtime(true));
 use Cubex\Cubex;
 use Cubex\Routing\Router;
 use Project\DefaultHandler;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
 
 $loader = require_once(dirname(__DIR__) . '/vendor/autoload.php');
 $launcher = new Cubex(dirname(__DIR__), $loader);
@@ -16,5 +18,7 @@ try
 }
 catch(Throwable $e)
 {
-  die("Your request could not be handled");
+  $handler = new Run();
+  $handler->pushHandler(new PrettyPageHandler());
+  $handler->handleException($e);
 }
