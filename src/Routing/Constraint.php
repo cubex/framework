@@ -154,7 +154,7 @@ class Constraint implements Condition
   {
     if($path[0] !== '/')
     {
-      $path = Path::build($this->_routedPath, $path);
+      $path = Path::url($this->_routedPath, $path);
     }
 
     $flags = 'u';

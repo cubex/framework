@@ -60,7 +60,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $ctx->setProjectRoot($projectRoot);
       try
       {
-        $ctx->setConfig(new IniConfigProvider(Path::build($ctx->getProjectRoot(), "conf", "defaults.ini")));
+        $ctx->setConfig(new IniConfigProvider(Path::system($ctx->getProjectRoot(), "conf", "defaults.ini")));
       }
       catch(\Throwable $e)
       {
