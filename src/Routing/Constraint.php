@@ -152,7 +152,7 @@ class Constraint implements Condition
 
   protected function _convertPathToRegex($path, $type)
   {
-    if($path[0] !== '/')
+    if(empty($path) || $path[0] !== '/')
     {
       $path = Path::url($this->_routedPath, $path);
     }
