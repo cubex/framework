@@ -28,6 +28,9 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   const EVENT_HANDLE_START = 'handle.start';
   const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
   const EVENT_HANDLE_RESPONSE_PREPARE = 'handle.response.prepare';
+  const EVENT_HANDLE_RESPONSE_PREPARED = 'handle.response.prepared';
+  const EVENT_HANDLE_RESPONSE_PRE_SEND_HEADERS = 'handle.response.send.headers';
+  const EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT = 'handle.response.send.content';
   const EVENT_HANDLE_COMPLETE = 'handle.complete';
 
   const ERROR_NO_HANDLER = 'No handler was available to process your request';
@@ -131,13 +134,15 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
   /**
    * @param Router $router
-   * @param bool   $catchExceptions
    * @param bool   $sendResponse
+   *
+   * @param bool   $catchExceptions
+   * @param bool   $flushHeaders
    *
    * @return Response
    * @throws \Throwable
    */
-  public function handle(Router $router, $sendResponse = true, $catchExceptions = true)
+  public function handle(Router $router, $sendResponse = true, $catchExceptions = true, $flushHeaders = true)
   {
     $c = $this->getContext();
     try
@@ -152,6 +157,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $r = $handler->handle($c);
       $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $r);
       $r->prepare($c->getRequest());
+      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARED, $r);
     }
     catch(\Throwable $e)
     {
@@ -165,6 +171,14 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     if($sendResponse)
     {
+      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PRE_SEND_HEADERS, $r);
+      $r->sendHeaders();
+      if($flushHeaders)
+      {
+        ob_flush();
+        flush();
+      }
+      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT, $r);
       $r->send();
     }
     try
