@@ -115,6 +115,17 @@ class ControllerTest extends TestCase
     $controller->handle($cubex->getContext());
   }
 
+  public function testResponseClass()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $controller = new TestController();
+    $request = Request::create("/default-response");
+    $cubex->share(Context::class, new Context($request));
+    $response = $controller->handle($cubex->getContext());
+    $this->assertStringContainsString('Access Denied', $response->getContent());
+    $this->assertEquals(403, $response->getStatusCode());
+  }
+
   public function testInvalidRoute()
   {
     $cubex = new Cubex(__DIR__, null, false);

@@ -85,7 +85,7 @@ abstract class Controller implements Handler, ContextAware
       $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->getRequest(), $result);
       if(is_callable($callable))
       {
-        return $this->_executeCallable($callable);
+        return $this->_executeCallable($c, $callable);
       }
     }
 
@@ -101,15 +101,11 @@ abstract class Controller implements Handler, ContextAware
     return $object;
   }
 
-  protected function _handleResponse($response, ?string $buffer): Response
+  protected function _handleResponse($response, ?string $buffer = null): Response
   {
     if($response === null)
     {
       $response = $buffer;
-    }
-    else if($response instanceof ContextAware)
-    {
-      $response->setContext($this->getContext());
     }
 
     if($response instanceof Response)
@@ -131,6 +127,7 @@ abstract class Controller implements Handler, ContextAware
     }
 
     $prefixes[] = strtolower($r->getMethod());
+    $prefixes[] = 'process'; //support for all methods
 
     foreach($prefixes as $prefix)
     {
@@ -158,12 +155,13 @@ abstract class Controller implements Handler, ContextAware
   }
 
   /**
-   * @param $callable
+   * @param Context $c
+   * @param         $callable
    *
    * @return Response
    * @throws \Throwable
    */
-  protected function _executeCallable($callable): Response
+  protected function _executeCallable(Context $c, $callable): Response
   {
     ob_start();
     try
@@ -176,6 +174,7 @@ abstract class Controller implements Handler, ContextAware
       throw $e;
     }
 
+    $this->_prepareResponse($c, $callableResponse);
     return $this->_handleResponse($callableResponse, ob_get_clean());
   }
 
@@ -188,16 +187,28 @@ abstract class Controller implements Handler, ContextAware
   protected function _executeClass(Context $c, $result): Response
   {
     $obj = new $result();
-    if($obj instanceof ContextAware)
-    {
-      $obj->setContext($c);
-    }
+
+    $this->_prepareResponse($c, $obj);
 
     if($obj instanceof Handler)
     {
       return $obj->handle($c);
     }
 
+    if($obj instanceof Response)
+    {
+      return $obj;
+    }
+
     throw new \RuntimeException(self::ERROR_INVALID_ROUTE_CLASS, 500);
+  }
+
+  protected function _prepareResponse(Context $c, $obj)
+  {
+    if($obj instanceof ContextAware)
+    {
+      $obj->setContext($c);
+    }
+    return $obj;
   }
 }

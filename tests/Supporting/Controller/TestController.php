@@ -6,6 +6,7 @@ use Cubex\Tests\Supporting\Container\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
 use Exception;
 use Packaged\Http\Response;
+use Packaged\Http\Responses\AccessDeniedResponse;
 
 class TestController extends Controller
 {
@@ -22,6 +23,7 @@ class TestController extends Controller
       self::route('/exception', 'exception'),
       self::route('/sub', SubTestController::class),
       self::route('/badsub', TestObject::class),
+      self::route('/default-response', AccessDeniedResponse::class),
     ];
   }
 
