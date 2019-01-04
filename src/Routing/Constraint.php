@@ -165,9 +165,9 @@ class Constraint implements Condition
         "/{" . "$idPat\@alphanum}/" => "(?P<$1>\w+)",
         "/{" . "$idPat\@alnum}/"    => "(?P<$1>\w+)",
         "/{" . "$idPat\@alpha}/"    => "(?P<$1>[a-zA-Z]+)",
-        "/{" . "$idPat\@all}/"      => "(?P<$1>[^\/]+)",
+        "/{" . "$idPat\@all}/"      => "(?P<$1>.+)",
         "/{" . "$idPat\@num}/"      => "(?P<$1>\d+)",
-        "/{" . "$idPat}/"           => "(?P<$1>.+)",
+        "/{" . "$idPat}/"           => "(?P<$1>[^\/]+)",
       ];
       $path = preg_replace(array_keys($repl), array_values($repl), $path);
     }

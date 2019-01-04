@@ -62,13 +62,16 @@ class ConstraintTest extends TestCase
 
   public function testRouteData()
   {
-    $request = Request::create('http://www.test.com:8080/one/two/three/4/5/s1x/s3^eN!/uncaptured', 'POST');
+    $request = Request::create(
+      'http://www.test.com:8080/one/two/three/4/5/s1x/s3^eN!/all/remain/path/end/finished',
+      'POST'
+    );
     $ctx = new Context($request);
 
     $this->assertTrue(
-      HttpConstraint::path('/{one}/{two@alpha}/{three}/{four@num}/{five@alphanum}/{six@alphanum}/{seven@all}')->match(
-        $ctx
-      )
+      HttpConstraint::path(
+        '/{one}/{two@alpha}/{three}/{four@num}/{five@alphanum}/{six@alphanum}/{seven}/{remain@all}/end'
+      )->match($ctx)
     );
     $this->assertEquals("one", $ctx->routeData()->get('one'));
     $this->assertEquals("two", $ctx->routeData()->get('two'));
@@ -77,7 +80,11 @@ class ConstraintTest extends TestCase
     $this->assertEquals("5", $ctx->routeData()->get('five'));
     $this->assertEquals("s1x", $ctx->routeData()->get('six'));
     $this->assertEquals("s3^eN!", $ctx->routeData()->get('seven'));
-    $this->assertEquals('/one/two/three/4/5/s1x/s3^eN!', $ctx->meta()->get(Constraint::META_ROUTED_PATH));
+    $this->assertEquals("all/remain/path", $ctx->routeData()->get('remain'));
+    $this->assertEquals(
+      '/one/two/three/4/5/s1x/s3^eN!/all/remain/path/end',
+      $ctx->meta()->get(Constraint::META_ROUTED_PATH)
+    );
 
     $request = Request::create('http://www.test.com:8080/INV123');
     $ctx = new Context($request);
