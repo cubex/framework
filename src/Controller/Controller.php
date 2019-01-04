@@ -193,9 +193,7 @@ abstract class Controller implements Handler, ContextAware
       ob_end_clean();
       throw $e;
     }
-
-    $this->_prepareResponse($c, $callableResponse);
-    return $this->_handleResponse($c, $callableResponse, ob_get_clean());
+    return $this->_handleResponse($c, $this->_prepareResponse($c, $callableResponse), ob_get_clean());
   }
 
   /**
@@ -208,8 +206,7 @@ abstract class Controller implements Handler, ContextAware
   protected function _executeClass(Context $c, $result): Response
   {
     $obj = new $result();
-    $this->_prepareResponse($c, $obj);
-    return $this->_handleResponse($c, $obj);
+    return $this->_handleResponse($c, $this->_prepareResponse($c, $obj));
   }
 
   protected function _prepareResponse(Context $c, $obj)
