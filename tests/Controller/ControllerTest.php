@@ -111,7 +111,7 @@ class ControllerTest extends TestCase
     $controller = new TestController();
     $request = Request::create("/badsub");
     $cubex->share(Context::class, new Context($request));
-    $this->expectExceptionMessage(Controller::ERROR_INVALID_ROUTE_CLASS);
+    $this->expectExceptionMessage(Controller::ERROR_INVALID_ROUTE_RESPONSE);
     $controller->handle($cubex->getContext());
   }
 

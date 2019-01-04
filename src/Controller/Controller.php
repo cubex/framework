@@ -7,6 +7,8 @@ use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
 use Cubex\Routing\HttpConstraint;
 use Cubex\Routing\Route;
+use Exception;
+use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
 use Packaged\Ui\Renderable;
@@ -18,7 +20,7 @@ abstract class Controller implements Handler, ContextAware
 
   const ERROR_ACCESS_DENIED = "you are not permitted to access this url";
   const ERROR_NO_ROUTE = "unable to handle your request";
-  const ERROR_INVALID_ROUTE_CLASS = "unable to process your request";
+  const ERROR_INVALID_ROUTE_RESPONSE = "unable to process your request";
 
   /**
    * @return Route[]
@@ -101,11 +103,16 @@ abstract class Controller implements Handler, ContextAware
     return $object;
   }
 
-  protected function _handleResponse($response, ?string $buffer = null): Response
+  protected function _handleResponse(Context $c, $response, ?string $buffer = null): Response
   {
     if($response === null)
     {
       $response = $buffer;
+    }
+
+    if($response instanceof Handler)
+    {
+      return $response->handle($c);
     }
 
     if($response instanceof Response)
@@ -113,7 +120,20 @@ abstract class Controller implements Handler, ContextAware
       return $response;
     }
 
-    return new CubexResponse($response instanceof Renderable ? $response->render() : $response);
+    if($response instanceof Renderable)
+    {
+      return new CubexResponse($response->render());
+    }
+
+    try
+    {
+      Strings::stringable($response);
+      return new CubexResponse($response);
+    }
+    catch(\InvalidArgumentException $e)
+    {
+    }
+    throw new \RuntimeException(self::ERROR_INVALID_ROUTE_RESPONSE, 500);
   }
 
   private function _getMethod(Request $r, $method)
@@ -175,7 +195,7 @@ abstract class Controller implements Handler, ContextAware
     }
 
     $this->_prepareResponse($c, $callableResponse);
-    return $this->_handleResponse($callableResponse, ob_get_clean());
+    return $this->_handleResponse($c, $callableResponse, ob_get_clean());
   }
 
   /**
@@ -183,24 +203,13 @@ abstract class Controller implements Handler, ContextAware
    * @param         $result
    *
    * @return Response
+   * @throws Exception
    */
   protected function _executeClass(Context $c, $result): Response
   {
     $obj = new $result();
-
     $this->_prepareResponse($c, $obj);
-
-    if($obj instanceof Handler)
-    {
-      return $obj->handle($c);
-    }
-
-    if($obj instanceof Response)
-    {
-      return $obj;
-    }
-
-    throw new \RuntimeException(self::ERROR_INVALID_ROUTE_CLASS, 500);
+    return $this->_handleResponse($c, $obj);
   }
 
   protected function _prepareResponse(Context $c, $obj)
