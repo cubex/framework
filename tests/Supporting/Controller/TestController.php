@@ -2,6 +2,7 @@
 namespace Cubex\Tests\Supporting\Controller;
 
 use Cubex\Controller\Controller;
+use Cubex\Http\FuncHandler;
 use Cubex\Tests\Supporting\Container\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
 use Exception;
@@ -24,6 +25,14 @@ class TestController extends Controller
       self::route('/sub', SubTestController::class),
       self::route('/badsub', TestObject::class),
       self::route('/default-response', AccessDeniedResponse::class),
+      self::route(
+        '/handler-route',
+        new FuncHandler(
+          function () {
+            return Response::create('handled route');
+          }
+        )
+      ),
     ];
   }
 

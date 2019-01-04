@@ -156,6 +156,16 @@ class ControllerTest extends TestCase
     $controller->handle($cubex->getContext());
   }
 
+  public function testHandlerRoute()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $controller = new TestController();
+    $request = Request::create("/handler-route");
+    $cubex->share(Context::class, new Context($request));
+    $response = $controller->handle($cubex->getContext());
+    $this->assertEquals($response->getContent(), 'handled route');
+  }
+
   public function testAuthResponse()
   {
     $cubex = new Cubex(__DIR__, null, false);
