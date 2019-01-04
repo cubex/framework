@@ -77,6 +77,11 @@ abstract class Controller implements Handler, ContextAware
 
     $result = $this->_getRoute();
 
+    if($result instanceof Handler)
+    {
+      return $result->handle($c);
+    }
+
     if($result !== null && is_string($result))
     {
       if(strstr($result, '\\') && class_exists($result))
