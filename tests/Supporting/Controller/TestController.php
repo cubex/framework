@@ -22,6 +22,7 @@ class TestController extends Controller
       self::route('/response', 'response'),
       self::route('/missing', 'missing'),
       self::route('/exception', 'exception'),
+      self::route('/sub/call', [SubTestController::class, 'remoteCall']),
       self::route('/sub', SubTestController::class),
       self::route('/badsub', TestObject::class),
       self::route('/default-response', AccessDeniedResponse::class),

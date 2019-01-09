@@ -23,4 +23,9 @@ class SubTestController extends Controller
     return 'Router';
   }
 
+  public static function remoteCall()
+  {
+    return 'Remote';
+  }
+
 }

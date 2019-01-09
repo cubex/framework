@@ -105,6 +105,16 @@ class ControllerTest extends TestCase
     $this->assertStringContainsString('Router', $response->getContent());
   }
 
+  public function testCallableRoute()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $controller = new TestController();
+    $request = Request::create("/sub/call");
+    $cubex->share(Context::class, new Context($request));
+    $response = $controller->handle($cubex->getContext());
+    $this->assertStringContainsString('Remote', $response->getContent());
+  }
+
   public function testInvalidSubClass()
   {
     $cubex = new Cubex(__DIR__, null, false);

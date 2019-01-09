@@ -82,6 +82,11 @@ abstract class Controller implements Handler, ContextAware
       return $result->handle($c);
     }
 
+    if(is_callable($result))
+    {
+      return $this->_executeCallable($c, $result);
+    }
+
     if($result !== null && is_string($result))
     {
       if(strstr($result, '\\') && class_exists($result))
