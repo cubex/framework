@@ -127,44 +127,6 @@ abstract class Controller implements Handler, ContextAware
     return $object;
   }
 
-  protected function _handleResponse(Context $c, $response, ?string $buffer = null): Response
-  {
-    if($response === null)
-    {
-      $response = $buffer;
-    }
-
-    if($response instanceof Handler)
-    {
-      return $response->handle($c);
-    }
-
-    if($response instanceof Response)
-    {
-      return $response;
-    }
-
-    if($response instanceof Renderable)
-    {
-      $result = new CubexResponse($response->render());
-      if($this->_callStartTime)
-      {
-        $result->setCallStartTime($this->_callStartTime);
-      }
-      return $result;
-    }
-
-    try
-    {
-      Strings::stringable($response);
-      return new CubexResponse($response);
-    }
-    catch(\InvalidArgumentException $e)
-    {
-    }
-    throw new \RuntimeException(self::ERROR_INVALID_ROUTE_RESPONSE, 500);
-  }
-
   private function _getMethod(Request $r, $method)
   {
     $method = ucfirst($method);
@@ -222,7 +184,7 @@ abstract class Controller implements Handler, ContextAware
       ob_end_clean();
       throw $e;
     }
-    return $this->_handleResponse($c, $this->_prepareResponse($c, $callableResponse), ob_get_clean());
+    return $this->_handleAndPrepareResponse($c, $callableResponse, ob_get_clean());
   }
 
   /**
@@ -235,9 +197,55 @@ abstract class Controller implements Handler, ContextAware
   protected function _executeClass(Context $c, $result): Response
   {
     $obj = new $result();
-    return $this->_handleResponse($c, $this->_prepareResponse($c, $obj));
+    return $this->_handleAndPrepareResponse($c, $obj);
   }
 
+  protected function _handleResponse(Context $c, $response, ?string $buffer = null): Response
+  {
+    if($response === null)
+    {
+      $response = $buffer;
+    }
+
+    if($response instanceof Handler)
+    {
+      return $response->handle($c);
+    }
+
+    if($response instanceof Response)
+    {
+      return $response;
+    }
+
+    if($response instanceof Renderable)
+    {
+      $result = new CubexResponse($response->render());
+      if($this->_callStartTime)
+      {
+        $result->setCallStartTime($this->_callStartTime);
+      }
+      return $result;
+    }
+
+    try
+    {
+      Strings::stringable($response);
+      return new CubexResponse($response);
+    }
+    catch(\InvalidArgumentException $e)
+    {
+    }
+    throw new \RuntimeException(self::ERROR_INVALID_ROUTE_RESPONSE, 500);
+  }
+
+  /**
+   * Prepare a response before handling the result
+   *
+   * @param Context $c
+   * @param         $obj
+   *
+   * @return mixed
+   */
   protected function _prepareResponse(Context $c, $obj)
   {
     if($obj instanceof ContextAware)
@@ -245,5 +253,10 @@ abstract class Controller implements Handler, ContextAware
       $obj->setContext($c);
     }
     return $obj;
+  }
+
+  protected function _handleAndPrepareResponse(Context $c, $response, ?string $buffer = null): Response
+  {
+    return $this->_handleResponse($c, $this->_prepareResponse($c, $response), $buffer);
   }
 }
