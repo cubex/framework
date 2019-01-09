@@ -22,6 +22,8 @@ abstract class Controller implements Handler, ContextAware
   const ERROR_NO_ROUTE = "unable to handle your request";
   const ERROR_INVALID_ROUTE_RESPONSE = "unable to process your request";
 
+  protected $_callStartTime;
+
   /**
    * @return Route[]
    */
@@ -76,6 +78,8 @@ abstract class Controller implements Handler, ContextAware
     }
 
     $result = $this->_getRoute();
+
+    $this->_callStartTime = microtime(true);
 
     if($result instanceof Handler)
     {
@@ -142,7 +146,12 @@ abstract class Controller implements Handler, ContextAware
 
     if($response instanceof Renderable)
     {
-      return new CubexResponse($response->render());
+      $result = new CubexResponse($response->render());
+      if($this->_callStartTime)
+      {
+        $result->setCallStartTime($this->_callStartTime);
+      }
+      return $result;
     }
 
     try
