@@ -103,11 +103,9 @@ abstract class Controller implements Handler, ContextAware
       {
         return $this->_executeCallable($c, $callable);
       }
-
-      return $this->_processRoute($result);
     }
 
-    throw new \RuntimeException(self::ERROR_NO_ROUTE, 404);
+    return $this->_processRoute($result);
   }
 
   /**
