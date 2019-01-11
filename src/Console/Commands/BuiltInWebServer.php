@@ -15,6 +15,16 @@ class BuiltInWebServer extends ConsoleCommand
   public $showfig = true;
   public $router = 'public/index.php';
 
+  /**
+   * @short d
+   * @flag
+   */
+  public $debug;
+  /**
+   * @short idekey
+   */
+  public $debugIdeKey = 'PHPSTORM';
+
   protected $_executeMethod = 'passthru';
 
   protected function configure()
@@ -46,10 +56,19 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write(':' . $this->port);
     $output->writeln("");
 
+    $phpCommand = 'php';
+    if($this->debug)
+    {
+      $phpCommand .= ' -d xdebug.remote_enable=1';
+      $phpCommand .= ' -d xdebug.remote_autostart=1';
+      $phpCommand .= ' -d xdebug.remote_connect_back=1';
+      $phpCommand .= ' -d xdebug.idekey=' . $this->debugIdeKey;
+    }
+
     $projectRoot = trim($this->getContext()->getProjectRoot());
     $projectRoot = $projectRoot ? '"' . $projectRoot . '"' : '';
 
-    $command = ["php -S $this->host:$this->port -t"];
+    $command = [$phpCommand . " -S $this->host:$this->port -t"];
     $command[] = $projectRoot;
     $command[] = trim($this->router);
     $command = implode(' ', array_filter($command));
