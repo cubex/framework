@@ -15,6 +15,16 @@ class BuiltInWebServer extends ConsoleCommand
   public $showfig = true;
   public $router = 'public/index.php';
 
+  /**
+   * @short d
+   * @flag
+   */
+  public $debug;
+  /**
+   * @short idekey
+   */
+  public $debugIdeKey = 'PHPSTORM';
+
   protected $_executeMethod = 'passthru';
 
   protected function configure()
@@ -44,15 +54,24 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write("http://");
     $output->write($this->host == '0.0.0.0' ? 'localhost' : $this->host);
     $output->write(':' . $this->port);
-    $output->writeLn("");
+    $output->writeln("");
+
+    $phpCommand = 'php';
+    if($this->debug)
+    {
+      $phpCommand .= ' -d xdebug.remote_enable=1';
+      $phpCommand .= ' -d xdebug.remote_autostart=1';
+      $phpCommand .= ' -d xdebug.remote_connect_back=1';
+      $phpCommand .= ' -d xdebug.idekey=' . $this->debugIdeKey;
+    }
 
     $projectRoot = trim($this->getCubex()->getProjectRoot());
     $projectRoot = $projectRoot ? '"' . $projectRoot . '"' : '';
 
-    $command   = ["php -S $this->host:$this->port -t"];
+    $command = [$phpCommand . " -S $this->host:$this->port -t"];
     $command[] = $projectRoot;
     $command[] = trim($this->router);
-    $command   = implode(' ', array_filter($command));
+    $command = implode(' ', array_filter($command));
 
     $output->writeln(["", "\tRaw Command: $command", ""]);
 
@@ -62,7 +81,7 @@ class BuiltInWebServer extends ConsoleCommand
   protected function runCommand($command)
   {
     $exitCode = 0;
-    $method   = $this->_executeMethod;
+    $method = $this->_executeMethod;
     if(System::commandExists('bash'))
     {
       // Use bash to execute if available,
