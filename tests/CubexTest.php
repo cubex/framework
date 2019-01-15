@@ -7,7 +7,7 @@ use Cubex\Context\Context;
 use Cubex\Cubex;
 use Cubex\Http\FuncHandler;
 use Cubex\Routing\Router;
-use Cubex\Tests\Supporting\Console\ExceptionCommand;
+use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
 use Packaged\Config\Provider\ConfigProvider;
@@ -194,11 +194,11 @@ class CubexTest extends TestCase
       Cubex::EVENT_CONSOLE_PREPARE,
       function (Context $context, Console $console) {
         $console->setCatchExceptions(false);
-        $console->add(new ExceptionCommand());
-        $context->meta()->set('ExceptionCommand', true);
+        $console->add(new TestExceptionCommand());
+        $context->meta()->set('TestExceptionCommand', true);
       }
     );
-    $input = new ArgvInput(['', 'ExceptionCommand']);
+    $input = new ArgvInput(['', 'TestExceptionCommand']);
     $output = new BufferedOutput();
     $result = $cubex->cli($input, $output);
     $this->assertIsInt($result);

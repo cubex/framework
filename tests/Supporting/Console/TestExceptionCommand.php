@@ -4,7 +4,7 @@ namespace Cubex\Tests\Supporting\Console;
 use Cubex\Console\ConsoleCommand;
 use Exception;
 
-class ExceptionCommand extends ConsoleCommand
+class TestExceptionCommand extends ConsoleCommand
 {
   /**
    * @throws Exception

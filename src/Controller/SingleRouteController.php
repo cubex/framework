@@ -14,6 +14,6 @@ class SingleRouteController extends Controller
 {
   public function getRoutes()
   {
-    return [self::route('', 'req')];
+    return 'req';
   }
 }

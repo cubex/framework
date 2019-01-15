@@ -8,11 +8,13 @@ use Cubex\Http\Handler;
 use Cubex\Routing\HttpConstraint;
 use Cubex\Routing\Route;
 use Exception;
+use Generator;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
 use Packaged\Ui\Renderable;
 use Symfony\Component\HttpFoundation\Response;
+use Traversable;
 
 abstract class Controller implements Handler, ContextAware
 {
@@ -153,13 +155,27 @@ abstract class Controller implements Handler, ContextAware
    */
   protected function _getRoute()
   {
-    foreach($this->getRoutes() as $route)
+    $routes = $this->getRoutes();
+    if($routes instanceof Traversable || is_array($routes))
     {
-      if($route instanceof Route && $route->match($this->getContext()))
+      foreach($routes as $route)
       {
-        return $route->getHandler();
+        if($route instanceof Route && $route->match($this->getContext()))
+        {
+          return $route->getHandler();
+        }
+      }
+
+      if($routes instanceof Generator)
+      {
+        return $routes->getReturn();
       }
     }
+    else if($routes instanceof Handler || is_callable($routes) || is_string($routes))
+    {
+      return $routes;
+    }
+
     return null;
   }
 

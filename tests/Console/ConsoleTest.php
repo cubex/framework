@@ -2,8 +2,8 @@
 namespace Cubex\Tests\Console;
 
 use Cubex\Cubex;
-use Cubex\Tests\Supporting\Console\ExceptionCommand;
 use Cubex\Tests\Supporting\Console\TestConsoleCommand;
+use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Packaged\Config\Provider\ConfigSection;
 use Packaged\Config\Provider\Test\TestConfigProvider;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +46,7 @@ class ConsoleTest extends TestCase
     $console->configure($cfg);
     //Ensure config does not get re-run
     $console->configure(new TestConfigProvider());
-    $this->assertInstanceOf(ExceptionCommand::class, $console->find('ExceptionCommand'));
+    $this->assertInstanceOf(TestExceptionCommand::class, $console->find('TestExceptionCommand'));
     $this->assertInstanceOf(TestConsoleCommand::class, $console->find('Tester'));
   }
 
@@ -88,7 +88,7 @@ class ConsoleTest extends TestCase
     return [
       ['\Cubex\Console\Commands\BuiltInWebServer', 'serve'],
       [null, 'missing.service-x', true],
-      [ExceptionCommand::class, 'Cubex.Tests.Supporting.Console.ExceptionCommand'],
+      [TestExceptionCommand::class, 'Cubex.Tests.Supporting.Console.TestExceptionCommand'],
       ['\namespaced\TheRoutable', 'namespaced.TheRoutable', true],
     ];
   }

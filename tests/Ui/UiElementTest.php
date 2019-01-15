@@ -4,7 +4,7 @@ namespace Cubex\Tests\Ui;
 
 use Cubex\Context\Context;
 use Cubex\Cubex;
-use Cubex\Tests\Supporting\Ui\TestElement\FakeLoader;
+use Cubex\Tests\Supporting\Ui\TestElement\TestFakeLoader;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +37,7 @@ class UiElementTest extends TestCase
     $element->setContext($ctx);
     $this->_assertTemplate($element);
 
-    $loader = new FakeLoader();
+    $loader = new TestFakeLoader();
     $cubex = new Cubex(__DIR__, $loader, false);
     $ctx->setCubex($cubex);
 

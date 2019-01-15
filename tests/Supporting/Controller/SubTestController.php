@@ -7,10 +7,8 @@ class SubTestController extends Controller
 {
   public function getRoutes()
   {
-    return [
-      self::route('/sub/router', 'router'),
-      self::route('route', 'default'),
-    ];
+    yield self::route('/sub/router', 'router');
+    yield self::route('route', 'default');
   }
 
   public function getDefault()

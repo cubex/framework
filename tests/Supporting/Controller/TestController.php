@@ -15,26 +15,18 @@ class TestController extends Controller
 
   public function getRoutes()
   {
-    return [
-      self::route('/route', 'route'),
-      self::route('/ui', 'ui'),
-      self::route('/buffered', 'buffered'),
-      self::route('/response', 'response'),
-      self::route('/missing', 'missing'),
-      self::route('/exception', 'exception'),
-      self::route('/sub/call', [SubTestController::class, 'remoteCall']),
-      self::route('/sub', SubTestController::class),
-      self::route('/badsub', TestObject::class),
-      self::route('/default-response', AccessDeniedResponse::class),
-      self::route(
-        '/handler-route',
-        new FuncHandler(
-          function () {
-            return Response::create('handled route');
-          }
-        )
-      ),
-    ];
+    yield self::route('/route', 'route');
+    yield self::route('/ui', 'ui');
+    yield self::route('/buffered', 'buffered');
+    yield self::route('/response', 'response');
+    yield self::route('/missing', 'missing');
+    yield self::route('/exception', 'exception');
+    yield self::route('/sub/call', [SubTestController::class, 'remoteCall']);
+    yield self::route('/sub', SubTestController::class);
+    yield self::route('/badsub', TestObject::class);
+    yield self::route('/default-response', AccessDeniedResponse::class);
+    yield self::route('/handler-route', new FuncHandler(function () { return Response::create('handled route'); }));
+    return 'DEFAULT ROUTE';
   }
 
   public function canProcess()

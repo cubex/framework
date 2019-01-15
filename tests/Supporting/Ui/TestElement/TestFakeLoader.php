@@ -3,7 +3,7 @@ namespace Cubex\Tests\Supporting\Ui\TestElement;
 
 use Composer\Autoload\ClassLoader;
 
-class FakeLoader extends ClassLoader
+class TestFakeLoader extends ClassLoader
 {
   public function findFile($class)
   {

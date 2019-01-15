@@ -4,7 +4,7 @@ namespace Cubex\Tests\Context;
 
 use Cubex\Context\Context;
 use Cubex\Cubex;
-use Cubex\Tests\Supporting\ContextAwareObject;
+use Cubex\Tests\Supporting\TestContextAwareObject;
 use Packaged\Config\Provider\ConfigProvider;
 use Packaged\Helpers\Arrays;
 use PHPUnit\Framework\TestCase;
@@ -54,7 +54,7 @@ class ContextTest extends TestCase
 
   public function testContextAware()
   {
-    $obj = new ContextAwareObject();
+    $obj = new TestContextAwareObject();
     $ctx = new Context();
     $this->assertFalse($obj->hasContext());
     $obj->setContext($ctx);
