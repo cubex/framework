@@ -63,6 +63,22 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
+  public function testGetSafeHtml(Controller $controller)
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $request = Request::create("/safe-html");
+    $cubex->share(Context::class, new Context($request));
+    $response = $controller->handle($cubex->getContext());
+    $this->assertStringContainsString('<b>Test</b>', $response->getContent());
+  }
+
+  /**
+   * @dataProvider controllersProvider
+   *
+   * @param $controller
+   *
+   * @throws \Throwable
+   */
   public function testPostRoute(Controller $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);

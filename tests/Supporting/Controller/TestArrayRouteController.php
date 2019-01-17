@@ -17,6 +17,7 @@ class TestArrayRouteController extends TestController
       self::route('/response', 'response'),
       self::route('/missing', 'missing'),
       self::route('/exception', 'exception'),
+      self::route('/safe-html', 'safeHtml'),
       self::route('/sub/call', [SubTestController::class, 'remoteCall']),
       self::route('/sub', SubTestController::class),
       self::route('/badsub', TestObject::class),

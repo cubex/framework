@@ -12,6 +12,7 @@ use Generator;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
+use Packaged\SafeHtml\ISafeHtmlProducer;
 use Packaged\Ui\Renderable;
 use Symfony\Component\HttpFoundation\Response;
 use Traversable;
@@ -233,23 +234,33 @@ abstract class Controller implements Handler, ContextAware
 
     if($response instanceof Renderable)
     {
-      $result = new CubexResponse($response->render());
-      if($this->_callStartTime)
-      {
-        $result->setCallStartTime($this->_callStartTime);
-      }
-      return $result;
+      return $this->_makeCubexResponse($response->render());
+    }
+
+    if($response instanceof ISafeHtmlProducer)
+    {
+      return $this->_makeCubexResponse($response->produceSafeHTML()->getContent());
     }
 
     try
     {
       Strings::stringable($response);
-      return new CubexResponse($response);
+      return $this->_makeCubexResponse($response);
     }
     catch(\InvalidArgumentException $e)
     {
     }
     throw new \RuntimeException(self::ERROR_INVALID_ROUTE_RESPONSE, 500);
+  }
+
+  protected function _makeCubexResponse($content)
+  {
+    $result = new CubexResponse($content);
+    if($this->_callStartTime)
+    {
+      $result->setCallStartTime($this->_callStartTime);
+    }
+    return $result;
   }
 
   /**

@@ -5,6 +5,7 @@ use Cubex\Controller\Controller;
 use Cubex\Http\FuncHandler;
 use Cubex\Tests\Supporting\Container\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
+use Cubex\Tests\Supporting\Ui\TestSafeHtmlProducer;
 use Exception;
 use Packaged\Http\Response;
 use Packaged\Http\Responses\AccessDeniedResponse;
@@ -21,6 +22,7 @@ class TestController extends Controller
     yield self::route('/response', 'response');
     yield self::route('/missing', 'missing');
     yield self::route('/exception', 'exception');
+    yield self::route('/safe-html', 'safeHtml');
     yield self::route('/sub/call', [SubTestController::class, 'remoteCall']);
     yield self::route('/sub', SubTestController::class);
     yield self::route('/badsub', TestObject::class);
@@ -53,6 +55,11 @@ class TestController extends Controller
   public function ajaxGetRoute()
   {
     return 'AJAX GET ROUTE';
+  }
+
+  public function getSafeHtml()
+  {
+    return new TestSafeHtmlProducer();
   }
 
   public function getUi()
