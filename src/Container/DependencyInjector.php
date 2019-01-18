@@ -4,14 +4,20 @@ namespace Cubex\Container;
 class DependencyInjector
 {
   //Generators
-  protected $_generators = [];
+  protected $_factories = [];
 
   //Shared Instances
   protected $_instances = [];
 
   public function factory($abstract, callable $generator)
   {
-    $this->_generators[$abstract] = $generator;
+    $this->_factories[$abstract] = $generator;
+    return $this;
+  }
+
+  public function removeFactory($abstract)
+  {
+    unset($this->_factories[$abstract]);
     return $this;
   }
 
@@ -44,9 +50,9 @@ class DependencyInjector
     {
       return $this->_instances[$abstract];
     }
-    if(isset($this->_generators[$abstract]))
+    if(isset($this->_factories[$abstract]))
     {
-      $instance = $this->_generators[$abstract](...$parameters);
+      $instance = $this->_factories[$abstract](...$parameters);
       if($instance !== null)
       {
         if($shared)
@@ -68,8 +74,8 @@ class DependencyInjector
   {
     if($shared === false)
     {
-      return isset($this->_generators[$abstract]);
+      return isset($this->_factories[$abstract]);
     }
-    return isset($this->_generators[$abstract]) || isset($this->_instances[$abstract]);
+    return isset($this->_factories[$abstract]) || isset($this->_instances[$abstract]);
   }
 }

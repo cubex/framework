@@ -11,6 +11,7 @@ use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
 use Packaged\Config\Provider\ConfigProvider;
+use Packaged\Http\Request;
 use Packaged\Http\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -165,9 +166,16 @@ class CubexTest extends TestCase
   public function testGetContext()
   {
     $cubex = $this->_cubex();
+
     $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
     $cubex->removeShared(Context::class);
+
+    $cubex->factory(Context::class, function () { return new Context(); });
     $this->assertNull($cubex->getContext()->getProjectRoot());
+
+    $cubex->removeShared(Context::class);
+    $cubex->removeFactory(Context::class);
+    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
   }
 
   /**
@@ -204,5 +212,18 @@ class CubexTest extends TestCase
     $this->assertIsInt($result);
     $this->assertEquals(1, $result);
     $this->assertContains('GENERIC EXCEPTION', $output->fetch());
+  }
+
+  public function testContextFactory()
+  {
+    $factory = function () {
+      $ctx = new Context(Request::createFromGlobals());
+      $ctx->meta()->set("abc", 'xyz');
+      return $ctx;
+    };
+    $cubex = $this->_cubex();
+    $cubex->factory(Context::class, $factory);
+    $ctx = $cubex->getContext();
+    $this->assertEquals("xyz", $ctx->meta()->get('abc'));
   }
 }

@@ -41,11 +41,17 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   private static $_cubex;
   protected $_logger;
 
+  /**
+   * @var callable
+   */
+  private $_projectRoot;
+
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
+    $this->_projectRoot = $projectRoot;
     //Setup Context
     $this->share(ClassLoader::class, $loader);
-    $this->share(Context::class, $this->_newContext($projectRoot));
+    $this->factory(Context::class, $this->_defaultContextFactory());
 
     if($global && self::$_cubex === null)
     {
@@ -53,14 +59,18 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
   }
 
-  protected function _newContext($projectRoot = null)
+  protected function _defaultContextFactory()
   {
-    $ctx = new Context(Request::createFromGlobals());
+    return function () { return $this->prepareContext(new Context(Request::createFromGlobals())); };
+  }
+
+  public function prepareContext(Context $ctx): Context
+  {
     $ctx->setCubex($this);
 
-    if($projectRoot !== null)
+    if($this->_projectRoot !== null)
     {
-      $ctx->setProjectRoot($projectRoot);
+      $ctx->setProjectRoot($this->_projectRoot);
       try
       {
         $ctx->setConfig(new IniConfigProvider(Path::system($ctx->getProjectRoot(), "conf", "defaults.ini")));
@@ -81,7 +91,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     catch(Exception $e)
     {
-      $ctx = $this->_newContext();
+      $ctx = $this->_defaultContextFactory()();
     }
     return $ctx;
   }
