@@ -10,7 +10,7 @@ use Cubex\Routing\Router;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
-use Packaged\Config\Provider\ConfigProvider;
+use Packaged\Config\ConfigProviderInterface;
 use Packaged\Http\Request;
 use Packaged\Http\Response;
 use PHPUnit\Framework\TestCase;
@@ -62,7 +62,8 @@ class CubexTest extends TestCase
     $this->assertEquals('value1', $cubex->getContext()->config()->getItem('testing', 'key_one'));
 
     $cubex = new Cubex('missing_directory 1', null, false);
-    $this->assertInstanceOf(ConfigProvider::class, $cubex->getContext()->config());
+    $this->assertEmpty($cubex->getContext()->config()->getSections());
+    $this->assertInstanceOf(ConfigProviderInterface::class, $cubex->getContext()->config());
   }
 
   /**
