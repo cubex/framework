@@ -8,14 +8,18 @@ class DefaultHandler extends Controller
 {
   public function getRoutes()
   {
-    return [
-      self::route("/hello/world", WorldHandler::class),
-      self::route("/hello", "page"),
-    ];
+    yield self::route("/hello/world", WorldHandler::class);
+    yield self::route("/hello", "page");
+    yield self::route("/", "echo");
   }
 
   public function getPage()
   {
     return new Layout();
+  }
+
+  public function getEcho()
+  {
+    echo "Start Page";
   }
 }

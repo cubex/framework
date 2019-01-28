@@ -7,9 +7,7 @@ class WorldHandler extends Controller
 {
   public function getRoutes()
   {
-    return [
-      self::route("", "page"),
-    ];
+    yield self::route("", "page");
   }
 
   public function getPage()
