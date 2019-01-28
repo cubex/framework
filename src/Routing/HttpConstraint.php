@@ -8,7 +8,7 @@ class HttpConstraint
     return new Constraint();
   }
 
-  public static function path($path, $type = Constraint::TYPE_START_CASEI)
+  public static function path($path, $type = Constraint::TYPE_MATCH)
   {
     $cond = new Constraint();
     $cond->add(Constraint::PATH, $path, $type);

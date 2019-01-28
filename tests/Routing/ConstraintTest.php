@@ -50,14 +50,36 @@ class ConstraintTest extends TestCase
     $this->assertTrue(HttpConstraint::path('/INV{invoiceNumber@num}', Constraint::TYPE_MATCH)->match($ctx));
     $this->assertFalse(HttpConstraint::path('/INV{invoiceNumber@num}', Constraint::TYPE_EXACT)->match($ctx));
     $this->assertTrue(
-      HttpConstraint::path('/INV')->add(Constraint::SCHEME, 'http', Constraint::TYPE_START)->match($ctx)
+      HttpConstraint::path('/INV', Constraint::TYPE_START_CASEI)
+        ->add(Constraint::SCHEME, 'http', Constraint::TYPE_START)
+        ->match($ctx)
     );
-    $this->assertTrue(HttpConstraint::path('/INV')->add(Constraint::PORT, 9090, Constraint::TYPE_EXACT)->match($ctx));
+    $this->assertTrue(
+      HttpConstraint::path('/INV', Constraint::TYPE_START_CASEI)
+        ->add(Constraint::PORT, 9090, Constraint::TYPE_EXACT)
+        ->match($ctx)
+    );
     $this->assertFalse(
-      HttpConstraint::path('/INV')->add(Constraint::PORT, "9090", Constraint::TYPE_EXACT)->match($ctx)
+      HttpConstraint::path('/INV', Constraint::TYPE_START_CASEI)
+        ->add(Constraint::PORT, "9090", Constraint::TYPE_EXACT)
+        ->match($ctx)
     );
-    $this->assertFalse(HttpConstraint::path('/')->add(Constraint::DOMAIN, "Ates", Constraint::TYPE_START)->match($ctx));
-    $this->assertTrue(HttpConstraint::path('/')->add(Constraint::DOMAIN, "tes", Constraint::TYPE_START)->match($ctx));
+
+    $request = Request::create('HTTPS://www.tesT.com:9090/');
+    $request->server->set('HTTPS', 'on');
+    $ctx = new Context($request);
+    $this->assertTrue(
+      HttpConstraint::path('/')->add(Constraint::DOMAIN, "tes", Constraint::TYPE_START)->match($ctx)
+    );
+    $this->assertFalse(
+      HttpConstraint::path('/page')->add(Constraint::DOMAIN, "tes", Constraint::TYPE_START)->match($ctx)
+    );
+    $this->assertFalse(
+      HttpConstraint::path('')->add(Constraint::DOMAIN, "Ates", Constraint::TYPE_START)->match($ctx)
+    );
+    $this->assertTrue(
+      HttpConstraint::path('')->add(Constraint::DOMAIN, "tes", Constraint::TYPE_START)->match($ctx)
+    );
   }
 
   public function testRouteData()

@@ -25,4 +25,15 @@ class RouteTest extends TestCase
     $route->add(HttpConstraint::port('8484'));
     $this->assertFalse($route->match($ctx));
   }
+
+  public function testRouteExtra()
+  {
+    $route = new Route();
+    $handler = new FuncHandler(function () { });
+    $route->setHandler($handler);
+
+    $ctx = new Context(Request::create('/route_extra'));
+    $route->add(HttpConstraint::path('/route'));
+    $this->assertFalse($route->match($ctx));
+  }
 }
