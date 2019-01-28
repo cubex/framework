@@ -181,7 +181,8 @@ class Constraint implements Condition
         $path .= '$';
         break;
       case self::TYPE_MATCH:
-        $path .= '$';
+        // path should always match full parts, so check ends with slash or end of string
+        $path .= '(?=/|$)';
         $flags .= 'i';
         break;
       case self::TYPE_START_CASEI:
