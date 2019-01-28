@@ -20,7 +20,7 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
-    "packaged/config": "~1.3",
+    "packaged/config": "~1.4",
     "packaged/figlet": "~0.0",
     "packaged/helpers": "~1.9",
     "packaged/http": "~1.2",
