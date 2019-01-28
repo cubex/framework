@@ -5,10 +5,8 @@ use Cubex\Context\Context;
 use Packaged\Helpers\Path;
 use Packaged\Helpers\Strings;
 
-class Constraint implements Condition
+class RequestConstraint implements Condition
 {
-  private $_constraints = [];
-
   const SCHEME = 'scheme';
   const PORT = 'port';
   const PATH = 'path';
@@ -18,6 +16,10 @@ class Constraint implements Condition
   const METHOD = 'method';
   const AJAX = 'xmlhttprequest';
   const LANGUAGE = 'language';
+  const ROOT_DOMAIN = 'rootdomain';
+  const HOSTNAME = 'hostname';
+  const QUERY_KEY = 'querykey';
+  const QUERY_VALUE = 'queryvalue';
 
   const TYPE_MATCH = 'match';
   const TYPE_EXACT = 'exact';
@@ -29,6 +31,79 @@ class Constraint implements Condition
 
   protected $_routedPath;
   protected $_extractedData = [];
+
+  protected $_constraints = [];
+
+  protected function _add($on, $with, $type = self::TYPE_MATCH)
+  {
+    $this->_constraints[] = [$on, $with, $type];
+    return $this;
+  }
+
+  public static function i()
+  {
+    return new static();
+  }
+
+  public function path($path, $type = self::TYPE_MATCH)
+  {
+    return $this->_add(self::PATH, $path, $type);
+  }
+
+  public function scheme($protocol, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::SCHEME, $protocol, $matchType);
+  }
+
+  public function port($port, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::PORT, $port, $matchType);
+  }
+
+  public function method($method, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::METHOD, $method, $matchType);
+  }
+
+  public function ajax()
+  {
+    return $this->_add(self::AJAX, true);
+  }
+
+  public function domain($domain, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::DOMAIN, $domain, $matchType);
+  }
+
+  public function tld($tld, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::TLD, $tld, $matchType);
+  }
+
+  public function rootDomain($rootDomain, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::ROOT_DOMAIN, $rootDomain, $matchType);
+  }
+
+  public function subDomain($subdomain, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::SUBDOMAIN, $subdomain, $matchType);
+  }
+
+  public function hostname($hostname, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::HOSTNAME, $hostname, $matchType);
+  }
+
+  public function hasQueryKey($key, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::QUERY_KEY, $key, $matchType);
+  }
+
+  public function hasQueryValue($key, $value, $matchType = self::TYPE_MATCH)
+  {
+    return $this->_add(self::QUERY_VALUE, [$key, $value], $matchType);
+  }
 
   public function match(Context $context): bool
   {
@@ -54,7 +129,7 @@ class Constraint implements Condition
     return true;
   }
 
-  protected function _matchValue(Context $context, $on)
+  protected function _matchValue(Context $context, $on, $matchWith)
   {
     switch($on)
     {
@@ -62,6 +137,8 @@ class Constraint implements Condition
         return $context->getRequest()->path();
       case self::SUBDOMAIN;
         return $context->getRequest()->subDomain();
+      case self::ROOT_DOMAIN;
+        return $context->getRequest()->urlSprintf('%d.%t');
       case self::DOMAIN;
         return $context->getRequest()->domain();
       case self::TLD;
@@ -74,14 +151,25 @@ class Constraint implements Condition
         return $context->getRequest()->getRealMethod();
       case self::AJAX;
         return $context->getRequest()->isXmlHttpRequest();
-      default:
-        return null;
+      case self::QUERY_KEY;
+        return $context->getRequest()->query->has($matchWith) ? $matchWith : null;
+      case self::QUERY_VALUE;
+        return $context->getRequest()->query->get($matchWith[0]);
+      case self::HOSTNAME;
+        return $context->getRequest()->getHost();
     }
+    // @codeCoverageIgnoreStart
+    return null;
+    // @codeCoverageIgnoreEnd
   }
 
   protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
   {
-    $value = $this->_matchValue($context, $matchOn);
+    $value = $this->_matchValue($context, $matchOn, $matchWith);
+    if($matchOn == self::QUERY_VALUE)
+    {
+      $matchWith = $matchWith[1];
+    }
     $matches = [];
     switch($matchType)
     {
@@ -110,7 +198,6 @@ class Constraint implements Condition
         {
           return false;
         }
-        break;
     }
 
     $this->_processMatches($matchOn, $matches);
@@ -135,19 +222,6 @@ class Constraint implements Condition
         }
       }
     }
-  }
-
-  /**
-   * @param        $on string self::*
-   * @param        $with
-   * @param string $type
-   *
-   * @return $this
-   */
-  final public function add($on, $with, $type = self::TYPE_MATCH)
-  {
-    $this->_constraints[] = [$on, $with, $type];
-    return $this;
   }
 
   protected function _convertPathToRegex($path, $type)

@@ -4,7 +4,7 @@ namespace Cubex\Tests\Routing;
 
 use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
-use Cubex\Routing\HttpConstraint;
+use Cubex\Routing\RequestConstraint;
 use Cubex\Routing\Route;
 use Packaged\Http\Request;
 use PHPUnit\Framework\TestCase;
@@ -13,16 +13,16 @@ class RouteTest extends TestCase
 {
   public function testRoute()
   {
-    $route = new Route();
+    $route = Route::i();
     $handler = new FuncHandler(function () { });
     $route->setHandler($handler);
     $this->assertSame($handler, $route->getHandler());
 
     $ctx = new Context(Request::create('/route'));
     $this->assertTrue($route->match($ctx));
-    $route->add(HttpConstraint::path('/route'));
+    $route->add(RequestConstraint::i()->path('/route'));
     $this->assertTrue($route->match($ctx));
-    $route->add(HttpConstraint::port('8484'));
+    $route->add(RequestConstraint::i()->port('8484'));
     $this->assertFalse($route->match($ctx));
   }
 
@@ -33,7 +33,7 @@ class RouteTest extends TestCase
     $route->setHandler($handler);
 
     $ctx = new Context(Request::create('/route_extra'));
-    $route->add(HttpConstraint::path('/route'));
+    $route->add(RequestConstraint::i()->path('/route'));
     $this->assertFalse($route->match($ctx));
   }
 }
