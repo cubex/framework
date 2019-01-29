@@ -108,15 +108,22 @@ class RequestConstraint implements Condition
   public function match(Context $context): bool
   {
     $this->_routedPath = $context->meta()->get(self::META_ROUTED_PATH, '/');
-    foreach($this->_constraints as $match)
+    foreach($this->_constraints as [$matchOn, $matchWith, $matchType])
     {
-      if($match[0] == self::PATH)
+      if($matchOn == self::PATH)
       {
-        $match[1] = $this->_convertPathToRegex($match[1], $match[2]);
-        $match[2] = self::TYPE_REGEX;
+        if($matchWith === '/')
+        {
+          $matchType = self::TYPE_START;
+        }
+        else
+        {
+          $matchWith = $this->_convertPathToRegex($matchWith, $matchType);
+          $matchType = self::TYPE_REGEX;
+        }
       }
 
-      if(!$this->_matchConstraint($context, $match[0], $match[1], $match[2]))
+      if(!$this->_matchConstraint($context, $matchOn, $matchWith, $matchType))
       {
         return false;
       }

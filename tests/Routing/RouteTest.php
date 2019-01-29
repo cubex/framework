@@ -22,6 +22,8 @@ class RouteTest extends TestCase
     $this->assertTrue($route->match($ctx));
     $route->add(RequestConstraint::i()->path('/route'));
     $this->assertTrue($route->match($ctx));
+    $route->add(RequestConstraint::i()->path('/'));
+    $this->assertTrue($route->match($ctx));
     $route->add(RequestConstraint::i()->port('8484'));
     $this->assertFalse($route->match($ctx));
   }
