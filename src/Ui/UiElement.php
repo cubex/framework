@@ -10,7 +10,7 @@ class UiElement extends Element implements ContextAware
 {
   use ContextAwareTrait;
 
-  protected function getTemplateFilePath()
+  protected function _getTemplateFilePath()
   {
     if($this->_templateFilePath === null && $this->hasContext())
     {
@@ -36,6 +36,6 @@ class UiElement extends Element implements ContextAware
       }
     }
 
-    return $this->_templateFilePath ?? parent::getTemplateFilePath();
+    return $this->_templateFilePath ?? parent::_getTemplateFilePath();
   }
 }
