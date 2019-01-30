@@ -28,7 +28,7 @@ abstract class Controller implements Handler, ContextAware
   protected $_callStartTime;
 
   /**
-   * @return Route[]
+   * @return Route[]|Generator|string|Handler|callable
    */
   abstract public function getRoutes();
 
