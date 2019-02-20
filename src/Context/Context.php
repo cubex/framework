@@ -57,6 +57,13 @@ class Context
 
     //Is running as CLI?
     $this->_isCli = !System::isFunctionDisabled('php_sapi_name') && php_sapi_name() === 'cli';
+
+    $this->_construct();
+  }
+
+  protected function _construct()
+  {
+    //This method will be called after the context has been constructed
   }
 
   /**

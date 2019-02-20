@@ -6,7 +6,7 @@ use Packaged\SafeHtml\SafeHtml;
 
 class TestSafeHtmlProducer implements ISafeHtmlProducer
 {
-  public function produceSafeHTML()
+  public function produceSafeHTML(): SafeHtml
   {
     return new SafeHtml('<b>Test</b>');
   }
