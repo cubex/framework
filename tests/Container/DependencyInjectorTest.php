@@ -91,8 +91,49 @@ class DependencyInjectorTest extends TestCase
     $i2 = $di->retrieve('F', ['a', 'b', 'c'], true);
     $this->assertEquals(3, $i2->paramCount());
     $this->assertTrue($di->hasShared('F'));
+    $this->assertTrue($di->hasShared('F', DependencyInjector::MODE_MUTABLE));
 
     $i3 = $di->retrieve('F');
     $this->assertSame($i2, $i3);
+  }
+
+  /**
+   * @throws \Exception
+   */
+  public function testImmutableFactory()
+  {
+    $di = new DependencyInjector();
+    $this->assertFalse($di->isAvailable('F'));
+    $this->assertFalse($di->isAvailable('F', false));
+    $this->assertFalse($di->isAvailable('F', true));
+    $di->factory(
+      'F',
+      function (...$params) {
+        $instance = new TestObject($params);
+        return $instance;
+      },
+      DependencyInjector::MODE_IMMUTABLE
+    );
+    $this->assertTrue($di->isAvailable('F'));
+    $this->assertTrue($di->isAvailable('F', false));
+    $this->assertTrue($di->isAvailable('F', true));
+    $this->assertFalse($di->hasShared('F'));
+
+    /** @var TestObject $i */
+    $i = $di->retrieve('F', ['one', 'two']);
+    $this->assertInstanceOf(TestObject::class, $i);
+    $this->assertEquals(2, $i->paramCount());
+    $this->assertTrue($di->hasShared('F', DependencyInjector::MODE_IMMUTABLE));
+    $this->assertFalse($di->hasShared('F', DependencyInjector::MODE_MUTABLE));
+    $this->assertTrue($di->hasShared('F'));
+    /** @var TestObject $i2 */
+    $i2 = $di->retrieve('F', ['a', 'b', 'c']);
+    $this->assertEquals(2, $i2->paramCount());
+    $this->assertTrue($di->hasShared('F'));
+    $this->assertSame($i, $i2);
+
+    $i3 = $di->retrieve('F', ['a', 'z', 'x', 'y'], false);
+    $this->assertEquals(4, $i3->paramCount());
+    $this->assertNotSame($i2, $i3);
   }
 }

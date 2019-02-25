@@ -12,9 +12,9 @@ class DependencyInjector
   //Shared Instances
   protected $_instances = [];
 
-  public function factory($abstract, callable $generator)
+  public function factory($abstract, callable $generator, $mode = self::MODE_MUTABLE)
   {
-    $this->_factories[$abstract] = $generator;
+    $this->_factories[$abstract] = ['generator' => $generator, 'mode' => $mode];
     return $this;
   }
 
@@ -61,12 +61,12 @@ class DependencyInjector
     }
     if(isset($this->_factories[$abstract]))
     {
-      $instance = $this->_factories[$abstract](...$parameters);
+      $instance = $this->_factories[$abstract]['generator'](...$parameters);
       if($instance !== null)
       {
         if($shared)
         {
-          $this->share($abstract, $instance);
+          $this->share($abstract, $instance, $this->_factories[$abstract]['mode']);
         }
         return $instance;
       }
@@ -77,8 +77,8 @@ class DependencyInjector
   /**
    * Check to see if an abstract has a shared instance already bound
    *
-   * @param      $abstract
-   * @param null $checkMode optionally check the correct mode is also set
+   * @param             $abstract
+   * @param string|null $checkMode optionally check the correct mode is also set
    *
    * @return bool
    */
