@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Container;
 
+use Packaged\Helpers\Objects;
+
 class DependencyInjector
 {
   const MODE_IMMUTABLE = 'i';
@@ -57,7 +59,7 @@ class DependencyInjector
   {
     if($shared && isset($this->_instances[$abstract]))
     {
-      return $this->_instances[$abstract]['instance'];
+      return $this->_buildInstance($this->_instances[$abstract]['instance'], $parameters);
     }
     if(isset($this->_factories[$abstract]))
     {
@@ -72,6 +74,15 @@ class DependencyInjector
       }
     }
     throw new \Exception("Unable to retrieve");
+  }
+
+  protected function _buildInstance($instance, array $parameters = [])
+  {
+    if(is_scalar($instance) && class_exists($instance))
+    {
+      return Objects::create($instance, $parameters);
+    }
+    return $instance;
   }
 
   /**

@@ -28,6 +28,13 @@ class DependencyInjectorTest extends TestCase
     $this->assertSame($class, $di->retrieve('S'));
     $di->removeShared('S');
     $this->assertFalse($di->hasShared('S'));
+
+    $di->share("TEST", TestObject::class);
+    $this->assertInstanceOf(TestObject::class, $di->retrieve("TEST"));
+    $di->share("TEST", TestObject::class);
+    /** @var TestObject $result */
+    $result = $di->retrieve("TEST", [[1, 2, 3]]);
+    $this->assertEquals(3, $result->paramCount());
   }
 
   /**
