@@ -75,6 +75,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
    * @param \ReflectionClass $class
    *
    * @return bool|null
+   * @throws \ReflectionException
    */
   protected function createFromActionableMethod(\ReflectionClass $class)
   {

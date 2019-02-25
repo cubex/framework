@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Context
 {
-  protected $_id;
+  private $_id;
   protected $_projectRoot;
   protected $_env;
   protected $_cfg;
@@ -18,11 +18,6 @@ class Context
   protected $_routeData;
   protected $_cubex;
   private $_request;
-
-  /**
-   * @var bool
-   */
-  protected $_isCli;
 
   const ENV_PHPUNIT = 'phpunit';
   const ENV_LOCAL = 'local';
@@ -37,7 +32,7 @@ class Context
   public final function __construct(Request $request = null)
   {
     // Give this context an ID
-    $this->_id = uniqid('ctx-', true);
+    $this->_id = $this->_generateId();
 
     $this->_request = $request ?: Request::createFromGlobals();
     $this->_meta = new ParameterBag();
@@ -55,10 +50,12 @@ class Context
       $this->_env = self::ENV_LOCAL;
     }
 
-    //Is running as CLI?
-    $this->_isCli = !System::isFunctionDisabled('php_sapi_name') && php_sapi_name() === 'cli';
-
     $this->_construct();
+  }
+
+  protected function _generateId()
+  {
+    return uniqid('ctx-', true);
   }
 
   protected function _construct()
@@ -104,9 +101,10 @@ class Context
     return $this->_projectRoot;
   }
 
-  public function getId()
+  public function setEnvironment($env)
   {
-    return $this->_id;
+    $this->_env = $env;
+    return $this;
   }
 
   public function getEnvironment()
@@ -119,17 +117,46 @@ class Context
     return $this->getEnvironment() === $env;
   }
 
+  public function isCli()
+  {
+    return !System::isFunctionDisabled('php_sapi_name') && php_sapi_name() === 'cli';
+  }
+
+  /**
+   * @param ConfigProviderInterface $config
+   *
+   * @return $this
+   */
+  public function setConfig(ConfigProviderInterface $config)
+  {
+    $this->_cfg = $config;
+    return $this;
+  }
+
+  /**
+   * @return ConfigProviderInterface
+   */
+  public function getConfig()
+  {
+    return $this->_cfg;
+  }
+
+  /**
+   * Unique ID for this context
+   *
+   * @return string
+   */
+  public function id()
+  {
+    return $this->_id;
+  }
+
   /**
    * @return Request
    */
-  public function getRequest()
+  public function request()
   {
     return $this->_request;
-  }
-
-  public function isCli()
-  {
-    return $this->_isCli;
   }
 
   /**
@@ -146,17 +173,6 @@ class Context
   public function routeData()
   {
     return $this->_routeData;
-  }
-
-  /**
-   * @param ConfigProviderInterface $config
-   *
-   * @return $this
-   */
-  public function setConfig(ConfigProviderInterface $config)
-  {
-    $this->_cfg = $config;
-    return $this;
   }
 
   /**

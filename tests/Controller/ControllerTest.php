@@ -37,7 +37,7 @@ class ControllerTest extends TestCase
     $cubex->share(Context::class, new Context($request));
 
     $controller->setContext($cubex->getContext());
-    $this->assertSame($request, $controller->getRequest());
+    $this->assertSame($request, $controller->request());
   }
 
   /**
@@ -208,6 +208,23 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
+  public function testRouteData(Controller $controller)
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $request = Request::create("/subs/testing");
+    $cubex->share(Context::class, new Context($request));
+    $response = $controller->handle($cubex->getContext());
+    $this->assertEquals('testing', $controller->routeData()->get('dynamic'));
+    $this->assertStringContainsString('Default', $response->getContent());
+  }
+
+  /**
+   * @dataProvider controllersProvider
+   *
+   * @param $controller
+   *
+   * @throws \Throwable
+   */
   public function testInvalidSubClass(Controller $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
@@ -301,7 +318,7 @@ class ControllerTest extends TestCase
   /**
    * @dataProvider controllersProvider
    *
-   * @param $controller
+   * @param Controller|TestController|TestArrayRouteController $controller
    *
    * @throws \Throwable
    */
@@ -326,6 +343,9 @@ class ControllerTest extends TestCase
     $controller->handle($cubex->getContext());
   }
 
+  /**
+   * @throws \Throwable
+   */
   public function testIncompleteController()
   {
     $cubex = new Cubex(__DIR__, null, false);

@@ -17,10 +17,11 @@ class ContextTest extends TestCase
     $ctx = new Context();
     $this->assertInstanceOf(ParameterBag::class, $ctx->meta());
     $this->assertInstanceOf(ConfigProvider::class, $ctx->config());
+    $this->assertInstanceOf(ConfigProvider::class, $ctx->getConfig());
     $this->assertEquals(Context::ENV_LOCAL, $ctx->getEnvironment());
     $this->assertTrue($ctx->isCli());
     $this->assertNull($ctx->getCubex());
-    $this->assertStringStartsWith('ctx-', $ctx->getId());
+    $this->assertStringStartsWith('ctx-', $ctx->id());
   }
 
   public function testEnvironment()
@@ -39,6 +40,9 @@ class ContextTest extends TestCase
     {
       $_ENV[Context::_ENV_VAR] = $pre;
     }
+    $this->assertFalse($ctx->isEnv(Context::ENV_QA));
+    $ctx->setEnvironment(Context::ENV_QA);
+    $this->assertTrue($ctx->isEnv(Context::ENV_QA));
   }
 
   public function testCubexAware()

@@ -141,29 +141,29 @@ class RequestConstraint implements Condition
     switch($on)
     {
       case self::PATH;
-        return $context->getRequest()->path();
+        return $context->request()->path();
       case self::SUBDOMAIN;
-        return $context->getRequest()->subDomain();
+        return $context->request()->subDomain();
       case self::ROOT_DOMAIN;
-        return $context->getRequest()->urlSprintf('%d.%t');
+        return $context->request()->urlSprintf('%d.%t');
       case self::DOMAIN;
-        return $context->getRequest()->domain();
+        return $context->request()->domain();
       case self::TLD;
-        return $context->getRequest()->tld();
+        return $context->request()->tld();
       case self::SCHEME;
-        return $context->getRequest()->getScheme();
+        return $context->request()->getScheme();
       case self::PORT;
-        return $context->getRequest()->port();
+        return $context->request()->port();
       case self::METHOD;
-        return $context->getRequest()->getRealMethod();
+        return $context->request()->getRealMethod();
       case self::AJAX;
-        return $context->getRequest()->isXmlHttpRequest();
+        return $context->request()->isXmlHttpRequest();
       case self::QUERY_KEY;
-        return $context->getRequest()->query->has($matchWith) ? $matchWith : null;
+        return $context->request()->query->has($matchWith) ? $matchWith : null;
       case self::QUERY_VALUE;
-        return $context->getRequest()->query->get($matchWith[0]);
+        return $context->request()->query->get($matchWith[0]);
       case self::HOSTNAME;
-        return $context->getRequest()->getHost();
+        return $context->request()->getHost();
     }
     // @codeCoverageIgnoreStart
     return null;

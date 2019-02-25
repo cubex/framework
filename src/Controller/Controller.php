@@ -14,6 +14,7 @@ use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
 use Packaged\SafeHtml\ISafeHtmlProducer;
 use Packaged\Ui\Renderable;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
 use Traversable;
 
@@ -54,9 +55,17 @@ abstract class Controller implements Handler, ContextAware
   /**
    * @return Request
    */
-  public function getRequest()
+  public function request()
   {
-    return $this->getContext()->getRequest();
+    return $this->getContext()->request();
+  }
+
+  /**
+   * @return ParameterBag
+   */
+  public function routeData()
+  {
+    return $this->getContext()->routeData();
   }
 
   /**
@@ -101,7 +110,7 @@ abstract class Controller implements Handler, ContextAware
         return $this->_executeClass($c, $result);
       }
 
-      $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->getRequest(), $result);
+      $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->request(), $result);
       if(is_callable($callable))
       {
         return $this->_executeCallable($c, $callable);

@@ -101,6 +101,9 @@ class CubexTest extends TestCase
     $cubex->handle($router, true, false);
   }
 
+  /**
+   * @throws Throwable
+   */
   public function testHandleEvents()
   {
     $cubex = $this->_cubex();

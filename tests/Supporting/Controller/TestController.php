@@ -23,6 +23,7 @@ class TestController extends Controller
     yield self::route('/missing', 'missing');
     yield self::route('/exception', 'exception');
     yield self::route('/safe-html', 'safeHtml');
+    yield self::route('/subs/{dynamic}', SubTestController::class);
     yield self::route('/sub/call', [SubTestController::class, 'remoteCall']);
     yield self::route('/sub', SubTestController::class);
     yield self::route('/badsub', TestObject::class);
@@ -80,6 +81,9 @@ class TestController extends Controller
     return Response::create('Fixed Response');
   }
 
+  /**
+   * @throws Exception
+   */
   public function getException()
   {
     throw new Exception("Broken");

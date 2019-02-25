@@ -3,6 +3,9 @@ namespace Cubex\Container;
 
 class DependencyInjector
 {
+  const MODE_IMMUTABLE = 'i';
+  const MODE_MUTABLE = 'm';
+
   //Generators
   protected $_factories = [];
 
@@ -21,18 +24,24 @@ class DependencyInjector
     return $this;
   }
 
-  public function share($abstract, $instance)
+  public function share($abstract, $instance, $mode = self::MODE_MUTABLE)
   {
     if($instance !== null)
     {
-      $this->_instances[$abstract] = $instance;
+      if(!isset($this->_instances[$abstract]) || $this->_instances[$abstract]['mode'] !== self::MODE_IMMUTABLE)
+      {
+        $this->_instances[$abstract] = ['instance' => $instance, 'mode' => $mode];
+      }
     }
     return $this;
   }
 
   public function removeShared($abstract)
   {
-    unset($this->_instances[$abstract]);
+    if(isset($this->_instances[$abstract]) && $this->_instances[$abstract]['mode'] !== self::MODE_IMMUTABLE)
+    {
+      unset($this->_instances[$abstract]);
+    }
     return $this;
   }
 
@@ -48,7 +57,7 @@ class DependencyInjector
   {
     if($shared && isset($this->_instances[$abstract]))
     {
-      return $this->_instances[$abstract];
+      return $this->_instances[$abstract]['instance'];
     }
     if(isset($this->_factories[$abstract]))
     {
@@ -57,7 +66,7 @@ class DependencyInjector
       {
         if($shared)
         {
-          $this->_instances[$abstract] = $instance;
+          $this->share($abstract, $instance);
         }
         return $instance;
       }
@@ -65,9 +74,18 @@ class DependencyInjector
     throw new \Exception("Unable to retrieve");
   }
 
-  public function hasShared($abstract)
+  /**
+   * Check to see if an abstract has a shared instance already bound
+   *
+   * @param      $abstract
+   * @param null $checkMode optionally check the correct mode is also set
+   *
+   * @return bool
+   */
+  public function hasShared($abstract, $checkMode = null)
   {
-    return isset($this->_instances[$abstract]);
+    $exists = isset($this->_instances[$abstract]);
+    return !$exists || $checkMode === null ? $exists : $this->_instances[$abstract]['mode'] === $checkMode;
   }
 
   public function isAvailable($abstract, $shared = null)

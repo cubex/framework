@@ -30,6 +30,40 @@ class DependencyInjectorTest extends TestCase
     $this->assertFalse($di->hasShared('S'));
   }
 
+  /**
+   * @throws \Exception
+   */
+  public function testShareImmutable()
+  {
+    $di = new DependencyInjector();
+    $this->assertFalse($di->hasShared('S'));
+    $this->assertFalse($di->hasShared('S', DependencyInjector::MODE_IMMUTABLE));
+    $this->assertFalse($di->isAvailable('S'));
+    $this->assertFalse($di->isAvailable('S', true));
+    $di->share('S', null);
+    $this->assertFalse($di->hasShared('S'));
+    $class = new stdClass();
+    $class->x = 'y';
+    $di->share('S', $class, DependencyInjector::MODE_IMMUTABLE);
+    $this->assertTrue($di->hasShared('S'));
+    $this->assertTrue($di->hasShared('S', DependencyInjector::MODE_IMMUTABLE));
+    $this->assertFalse($di->hasShared('S', DependencyInjector::MODE_MUTABLE));
+    $this->assertTrue($di->isAvailable('S'));
+    $this->assertFalse($di->isAvailable('S', false));
+    $this->assertSame($class, $di->retrieve('S'));
+    $di->removeShared('S');
+    $this->assertSame($class, $di->retrieve('S'));
+    $this->assertTrue($di->hasShared('S'));
+    $this->assertTrue($di->hasShared('S', DependencyInjector::MODE_IMMUTABLE));
+    $class2 = new stdClass();
+    $class2->x = 'z';
+    $di->share('S', $class2, DependencyInjector::MODE_IMMUTABLE);
+    $this->assertSame($class, $di->retrieve('S'));
+  }
+
+  /**
+   * @throws \Exception
+   */
   public function testFactory()
   {
     $di = new DependencyInjector();

@@ -170,7 +170,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $handler);
       $r = $handler->handle($c);
       $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $r);
-      $r->prepare($c->getRequest());
+      $r->prepare($c->request());
       $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARED, $r);
     }
     catch(\Throwable $e)
@@ -181,7 +181,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       }
       $this->getLogger()->error($e->getMessage());
       $r = (new ExceptionHandler($e))->handle($c);
-      $r->prepare($c->getRequest());
+      $r->prepare($c->request());
     }
     if($sendResponse)
     {

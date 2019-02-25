@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 
 class SingleRouteControllerTest extends TestCase
 {
+  /**
+   * @throws \Throwable
+   */
   public function testGetRoute()
   {
     $cubex = new Cubex(__DIR__, null, false);
@@ -20,6 +23,9 @@ class SingleRouteControllerTest extends TestCase
     $this->assertStringContainsString('GET REQ', $response->getContent());
   }
 
+  /**
+   * @throws \Throwable
+   */
   public function testPostRoute()
   {
     $cubex = new Cubex(__DIR__, null, false);
@@ -30,6 +36,9 @@ class SingleRouteControllerTest extends TestCase
     $this->assertStringContainsString('POST REQ', $response->getContent());
   }
 
+  /**
+   * @throws \Throwable
+   */
   public function testAjaxRoute()
   {
     $cubex = new Cubex(__DIR__, null, false);
@@ -41,6 +50,9 @@ class SingleRouteControllerTest extends TestCase
     $this->assertStringContainsString('AJAX REQ', $response->getContent());
   }
 
+  /**
+   * @throws \Throwable
+   */
   public function testDeleteRoute()
   {
     $cubex = new Cubex(__DIR__, null, false);
