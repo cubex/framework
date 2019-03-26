@@ -24,7 +24,7 @@
     "packaged/figlet": "~0.0",
     "packaged/helpers": "~2.0",
     "packaged/http": "~1.3",
-    "packaged/ui": "~0.0",
+    "packaged/ui": "~0.2",
     "phpdocumentor/reflection-docblock": "~2.0",
     "symfony/console": "~4.2",
     "psr/log": "~1.1"

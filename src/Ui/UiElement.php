@@ -12,30 +12,23 @@ class UiElement extends Element implements ContextAware
 
   protected function _getTemplateFilePath()
   {
-    if($this->_templateFilePath === null && $this->hasContext())
+    //Set the classLoader on Element if we have it available in DI
+    if($this->_templateFilePath === null && $this->_classLoader === null
+      && $this->hasContext() && $this->getContext()->hasCubex())
     {
-
-      if($this->hasContext() && $this->getContext()->hasCubex())
+      try
       {
-        try
+        $loader = $this->getContext()->getCubex()->retrieve(ClassLoader::class);
+        if($loader instanceof ClassLoader)
         {
-          $loader = $this->getContext()->getCubex()->retrieve(ClassLoader::class);
-          if($loader instanceof ClassLoader)
-          {
-            $filePath = $loader->findFile(static::class);
-            if($filePath)
-            {
-              $this->_templateFilePath = realpath(substr($filePath, 0, -3) . 'phtml');
-            }
-          }
+          $this->_setClassLoader($loader);
         }
-        catch(\Throwable $e)
-        {
-          //If we cant get a file path, allow the parent method to be called
-        }
+      }
+      catch(\Exception $e)
+      {
       }
     }
 
-    return $this->_templateFilePath ?? parent::_getTemplateFilePath();
+    return parent::_getTemplateFilePath();
   }
 }
