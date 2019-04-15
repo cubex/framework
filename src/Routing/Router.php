@@ -5,7 +5,7 @@ use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
 
-class Router
+class Router extends ConditionSelector
 {
   public static function i()
   {
@@ -16,35 +16,43 @@ class Router
    * @var ConditionHandler[]
    */
   protected $_conditions = [];
+  protected $_defaultHandler;
 
-  public function handleCondition(ConditionHandler $condition): Router
+  protected function _getConditions()
+  {
+    foreach($this->_conditions as $condition)
+    {
+      yield $condition;
+    }
+    return $this->_defaultHandler;
+  }
+
+  public function addCondition(ConditionHandler $condition): Router
   {
     $this->_conditions[] = $condition;
     return $this;
   }
 
-  public function handle($path, Handler $handler): Condition
+  public function setDefaultHandler(Handler $handler)
+  {
+    $this->_defaultHandler = $handler;
+    return $this;
+  }
+
+  public function onPath($path, Handler $handler): Condition
   {
     $condition = RequestConstraint::i()->path($path);
-    $route = Route::with($condition);
-    $this->handleCondition($route->setHandler($handler));
+    $this->addCondition(Route::with($condition)->setHandler($handler));
     return $condition;
   }
 
-  public function handleFunc($path, callable $handleFunc): Condition
+  public function onPathFunc($path, callable $handleFunc): Condition
   {
-    return $this->handle($path, new FuncHandler($handleFunc));
+    return $this->onPath($path, new FuncHandler($handleFunc));
   }
 
   public function getHandler(Context $context)
   {
-    foreach($this->_conditions as $condition)
-    {
-      if($condition->match($context))
-      {
-        return $condition->getHandler();
-      }
-    }
-    return null;
+    return parent::_getHandler($context);
   }
 }

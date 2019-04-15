@@ -8,7 +8,7 @@ use Packaged\Http\Responses\AccessDeniedResponse;
 
 class TestArrayRouteController extends TestController
 {
-  public function getRoutes()
+  protected function _getConditions()
   {
     return [
       self::route('/route', 'route'),

@@ -19,7 +19,7 @@ class ControllerTest extends TestCase
   {
     return [
       [new TestController()],
-      [new TestArrayRouteController()],
+      //[new TestArrayRouteController()],
     ];
   }
 

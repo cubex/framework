@@ -6,6 +6,7 @@ use Cubex\Console\Console;
 use Cubex\Context\Context;
 use Cubex\Cubex;
 use Cubex\Http\FuncHandler;
+use Cubex\Routing\ConditionHandler;
 use Cubex\Routing\Router;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
@@ -73,7 +74,7 @@ class CubexTest extends TestCase
   {
     $cubex = $this->_cubex();
     $router = new Router();
-    $router->handle('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
+    $router->onPath('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
     /** @var TestResponse $response */
     $response = $cubex->handle($router);
     $this->assertInstanceOf(TestResponse::class, $response);
@@ -89,7 +90,7 @@ class CubexTest extends TestCase
     $logger = new TestLogger();
     $cubex->setLogger($logger);
     $router = new Router();
-    $router->handle('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
+    $router->onPath('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
     $cubex->listen(
       Cubex::EVENT_HANDLE_COMPLETE,
       function () { throw new Exception("Complete Exception", 500); }
@@ -109,10 +110,6 @@ class CubexTest extends TestCase
     $cubex = $this->_cubex();
     $context = $cubex->getContext();
     $cubex->listen(
-      Cubex::EVENT_HANDLE_START,
-      function (Context $c) { $c->meta()->set(Cubex::EVENT_HANDLE_START, true); }
-    );
-    $cubex->listen(
       Cubex::EVENT_HANDLE_PRE_EXECUTE,
       function (Context $c) { $c->meta()->set(Cubex::EVENT_HANDLE_PRE_EXECUTE, true); }
     );
@@ -126,10 +123,9 @@ class CubexTest extends TestCase
     );
 
     $router = new Router();
-    $router->handle('/', new FuncHandler(function () { return new Response('All OK'); }));
+    $router->onPath('/', new FuncHandler(function () { return new Response('All OK'); }));
     $cubex->handle($router, false, true);
 
-    $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_START));
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_PRE_EXECUTE));
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_RESPONSE_PREPARE));
     $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_COMPLETE));
@@ -141,7 +137,7 @@ class CubexTest extends TestCase
   public function testNoHandler()
   {
     $cubex = $this->_cubex();
-    $this->expectExceptionMessage(Cubex::ERROR_NO_HANDLER);
+    $this->expectExceptionMessage(ConditionHandler::ERROR_NO_HANDLER);
     $cubex->handle(new Router(), false, false);
   }
 
@@ -153,7 +149,7 @@ class CubexTest extends TestCase
     $cubex = $this->_cubex();
     $response = $cubex->handle(new Router(), false);
     $this->assertEquals(500, $response->getStatusCode());
-    $this->assertContains(Cubex::ERROR_NO_HANDLER, $response->getContent());
+    $this->assertContains(ConditionHandler::ERROR_NO_HANDLER, $response->getContent());
   }
 
   public function testLog()
