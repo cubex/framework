@@ -3,10 +3,8 @@ namespace Cubex\Console;
 
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
-use Packaged\Helpers\Arrays;
+use Packaged\DocBlock\DocBlockParser;
 use Packaged\Helpers\ValueAs;
-use phpDocumentor\Reflection\DocBlock;
-use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,11 +40,11 @@ abstract class ConsoleCommand extends Command implements ContextAware
   public function __construct($name = null)
   {
     $reflect = new \ReflectionClass($this);
-    $docBlock = new DocBlock($reflect);
+    $docBlock = new  DocBlockParser($reflect->getDocComment());
 
     $names = [
       $name,
-      $docBlock->hasTag('name') ? Arrays::first($docBlock->getTagsByName('name'))->getDescription() : null,
+      $docBlock->hasTag('name') ? $docBlock->getTag('name') : null,
       strtolower(basename(str_replace('\\', '/', get_called_class()))),
     ];
 
@@ -54,19 +52,19 @@ abstract class ConsoleCommand extends Command implements ContextAware
 
     if($this->getDescription() === null)
     {
-      $description = Arrays::first($docBlock->getTagsByName('description'));
+      $description = $docBlock->getTag('description');
       if($description)
       {
-        $this->setDescription($description->getDescription());
+        $this->setDescription($description);
       }
       else
       {
-        $this->setDescription($docBlock->getShortDescription());
+        $this->setDescription($docBlock->getSummary());
       }
     }
 
-    $this->createFromActionableMethod($reflect);
-    $this->createOptionsFromPublic($reflect);
+    $this->_createFromActionableMethod($reflect);
+    $this->_createOptionsFromPublic($reflect);
   }
 
   /**
@@ -77,7 +75,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
    * @return bool|null
    * @throws \ReflectionException
    */
-  protected function createFromActionableMethod(\ReflectionClass $class)
+  protected function _createFromActionableMethod(\ReflectionClass $class)
   {
     if($class->hasMethod('executeCommand'))
     {
@@ -96,15 +94,12 @@ abstract class ConsoleCommand extends Command implements ContextAware
 
     $addedArguments = false;
 
-    $propBlock = new DocBlock($method);
+    $propBlock = new DocBlockParser($method->getDocComment());
     $descriptions = [];
-    foreach($propBlock->getTags() as $tag)
+    foreach($propBlock->getTags() as $name => $description)
     {
-      if($tag instanceof ParamTag)
-      {
-        $tagName = substr($tag->getVariableName(), 1);
-        $descriptions[$tagName] = $tag->getDescription();
-      }
+      $tagName = $name;
+      $descriptions[$tagName] = $description;
     }
 
     foreach($method->getParameters() as $paramNum => $parameter)
@@ -148,7 +143,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
    *
    * @return null
    */
-  protected function createOptionsFromPublic(\ReflectionClass $class)
+  protected function _createOptionsFromPublic(\ReflectionClass $class)
   {
     $properties = $class->getProperties(\ReflectionProperty::IS_PUBLIC);
     if(empty($properties))
@@ -157,17 +152,17 @@ abstract class ConsoleCommand extends Command implements ContextAware
     }
     foreach($properties as $property)
     {
-      $propBlock = new DocBlock($property);
+      $propBlock = new DocBlockParser($property->getDocComment());
       $short = null;
-      $description = $propBlock->getShortDescription();
+      $description = $propBlock->getSummary();
       $mode = InputOption::VALUE_OPTIONAL;
       if($propBlock->hasTag('short'))
       {
-        $short = Arrays::first($propBlock->getTagsByName('short'))->getDescription();
+        $short = $propBlock->getTag('short');
       }
       if($propBlock->hasTag('description'))
       {
-        $description = Arrays::first($propBlock->getTagsByName('description'))->getDescription();
+        $description = $propBlock->getTag('description');
       }
       if($propBlock->hasTag('valuerequired'))
       {

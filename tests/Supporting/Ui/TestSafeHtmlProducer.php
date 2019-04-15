@@ -10,5 +10,4 @@ class TestSafeHtmlProducer implements ISafeHtmlProducer
   {
     return new SafeHtml('<b>Test</b>');
   }
-
 }
