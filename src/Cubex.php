@@ -7,7 +7,7 @@ use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
 use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
-use Cubex\Routing\Router;
+use Cubex\Routing\ConditionSelector;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Helpers\Path;
@@ -147,22 +147,24 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
-   * @param Router $router
-   * @param bool   $sendResponse
+   * @param ConditionSelector $selector
+   * @param bool              $sendResponse
    *
-   * @param bool   $catchExceptions
-   * @param bool   $flushHeaders
+   * @param bool              $catchExceptions
+   * @param bool              $flushHeaders
    *
    * @return Response
    * @throws \Throwable
    */
-  public function handle(Router $router, $sendResponse = true, $catchExceptions = true, $flushHeaders = true)
+  public function handle(
+    ConditionSelector $selector, $sendResponse = true, $catchExceptions = true, $flushHeaders = true
+  )
   {
     $c = $this->getContext();
     try
     {
       $this->_triggerEvent(self::EVENT_HANDLE_START);
-      $handler = $router->getHandler($c);
+      $handler = ($selector instanceof Handler) ? $selector : $selector->getHandler($c);
       if($handler === null || !($handler instanceof Handler))
       {
         throw new \RuntimeException(self::ERROR_NO_HANDLER, 500);

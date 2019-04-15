@@ -14,7 +14,7 @@ class TestController extends Controller
 {
   protected $_authResponse;
 
-  public function getRoutes()
+  protected function _getConditions()
   {
     yield self::route('/route', 'route');
     yield self::route('/ui', 'ui');

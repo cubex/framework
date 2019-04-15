@@ -1,11 +1,10 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
 
-class Router
+class Router extends ConditionSelector
 {
   public static function i()
   {
@@ -16,10 +15,26 @@ class Router
    * @var ConditionHandler[]
    */
   protected $_conditions = [];
+  protected $_defaultHandler;
+
+  protected function _getConditions()
+  {
+    foreach($this->_conditions as $condition)
+    {
+      yield $condition;
+    }
+    return $this->_defaultHandler;
+  }
 
   public function handleCondition(ConditionHandler $condition): Router
   {
     $this->_conditions[] = $condition;
+    return $this;
+  }
+
+  public function setDefaultHandler(Handler $handler)
+  {
+    $this->_defaultHandler = $handler;
     return $this;
   }
 
@@ -34,17 +49,5 @@ class Router
   public function handleFunc($path, callable $handleFunc): Condition
   {
     return $this->handle($path, new FuncHandler($handleFunc));
-  }
-
-  public function getHandler(Context $context)
-  {
-    foreach($this->_conditions as $condition)
-    {
-      if($condition->match($context))
-      {
-        return $condition->getHandler();
-      }
-    }
-    return null;
   }
 }

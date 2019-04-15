@@ -5,10 +5,10 @@ use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
+use Cubex\Routing\ConditionSelector;
 use Cubex\Routing\RequestConstraint;
 use Cubex\Routing\Route;
 use Exception;
-use Generator;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
@@ -16,9 +16,8 @@ use Packaged\SafeHtml\ISafeHtmlProducer;
 use Packaged\Ui\Renderable;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
-use Traversable;
 
-abstract class Controller implements Handler, ContextAware
+abstract class Controller extends ConditionSelector implements Handler, ContextAware
 {
   use ContextAwareTrait;
 
@@ -29,11 +28,8 @@ abstract class Controller implements Handler, ContextAware
   protected $_callStartTime;
 
   /**
-   * @return Route[]|Generator|string|Handler|callable
-   */
-  abstract public function getRoutes();
-
-  /**
+   * Is this request permitted to process
+   *
    * @return bool|Response
    */
   public function canProcess()
@@ -50,22 +46,6 @@ abstract class Controller implements Handler, ContextAware
   public static function route($path, $result)
   {
     return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
-  }
-
-  /**
-   * @return Request
-   */
-  public function request()
-  {
-    return $this->getContext()->request();
-  }
-
-  /**
-   * @return ParameterBag
-   */
-  public function routeData()
-  {
-    return $this->getContext()->routeData();
   }
 
   /**
@@ -89,7 +69,7 @@ abstract class Controller implements Handler, ContextAware
       throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
-    $result = $this->_getRoute();
+    $result = $this->getHandler($c);
 
     $this->_callStartTime = microtime(true);
 
@@ -121,6 +101,8 @@ abstract class Controller implements Handler, ContextAware
   }
 
   /**
+   * If all else fails, push the route result through this method
+   *
    * @param string $routeResult Result of the located route
    */
   protected function _processRoute($routeResult)
@@ -157,35 +139,6 @@ abstract class Controller implements Handler, ContextAware
         return [$this, $prefix . $method];
       }
     }
-    return null;
-  }
-
-  /**
-   * @return callable|Handler|null|string
-   */
-  protected function _getRoute()
-  {
-    $routes = $this->getRoutes();
-    if($routes instanceof Traversable || is_array($routes))
-    {
-      foreach($routes as $route)
-      {
-        if($route instanceof Route && $route->match($this->getContext()))
-        {
-          return $route->getHandler();
-        }
-      }
-
-      if($routes instanceof Generator)
-      {
-        return $routes->getReturn();
-      }
-    }
-    else if($routes instanceof Handler || is_callable($routes) || is_string($routes))
-    {
-      return $routes;
-    }
-
     return null;
   }
 
@@ -292,5 +245,21 @@ abstract class Controller implements Handler, ContextAware
   protected function _handleAndPrepareResponse(Context $c, $response, ?string $buffer = null): Response
   {
     return $this->_handleResponse($c, $this->_prepareResponse($c, $response), $buffer);
+  }
+
+  /**
+   * @return Request
+   */
+  public function request()
+  {
+    return $this->getContext()->request();
+  }
+
+  /**
+   * @return ParameterBag
+   */
+  public function routeData()
+  {
+    return $this->getContext()->routeData();
   }
 }
