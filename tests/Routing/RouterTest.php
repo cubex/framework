@@ -20,10 +20,10 @@ class RouterTest extends TestCase
     $this->assertEquals('Default', $handler->handle(new Context())->getContent());
 
     $handler = new FuncHandler(function () { return Response::create('OK'); });
-    $router->handle('/route', $handler);
+    $router->onPath('/route', $handler);
     $this->assertSame($handler, $router->getHandler(new Context(Request::create('/route'))));
 
-    $router->handleFunc('/func', function () { return Response::create('OK'); });
+    $router->onPathFunc('/func', function () { return Response::create('OK'); });
     $handler = $router->getHandler(new Context(Request::create('/func')));
     $result = $handler->handle(new Context());
     $this->assertEquals('OK', $result->getContent());

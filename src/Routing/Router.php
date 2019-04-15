@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Routing;
 
+use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
 
@@ -26,7 +27,7 @@ class Router extends ConditionSelector
     return $this->_defaultHandler;
   }
 
-  public function handleCondition(ConditionHandler $condition): Router
+  public function addCondition(ConditionHandler $condition): Router
   {
     $this->_conditions[] = $condition;
     return $this;
@@ -38,16 +39,20 @@ class Router extends ConditionSelector
     return $this;
   }
 
-  public function handle($path, Handler $handler): Condition
+  public function onPath($path, Handler $handler): Condition
   {
     $condition = RequestConstraint::i()->path($path);
-    $route = Route::with($condition);
-    $this->handleCondition($route->setHandler($handler));
+    $this->addCondition(Route::with($condition)->setHandler($handler));
     return $condition;
   }
 
-  public function handleFunc($path, callable $handleFunc): Condition
+  public function onPathFunc($path, callable $handleFunc): Condition
   {
-    return $this->handle($path, new FuncHandler($handleFunc));
+    return $this->onPath($path, new FuncHandler($handleFunc));
+  }
+
+  public function getHandler(Context $context)
+  {
+    return parent::_getHandler($context);
   }
 }

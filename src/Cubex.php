@@ -7,7 +7,6 @@ use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
 use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
-use Cubex\Routing\ConditionSelector;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Helpers\Path;
@@ -25,15 +24,12 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
   const EVENT_CONSOLE_CREATE = 'console.create';
   const EVENT_CONSOLE_PREPARE = 'console.pre.run';
-  const EVENT_HANDLE_START = 'handle.start';
   const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
   const EVENT_HANDLE_RESPONSE_PREPARE = 'handle.response.prepare';
   const EVENT_HANDLE_RESPONSE_PREPARED = 'handle.response.prepared';
   const EVENT_HANDLE_RESPONSE_PRE_SEND_HEADERS = 'handle.response.send.headers';
   const EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT = 'handle.response.send.content';
   const EVENT_HANDLE_COMPLETE = 'handle.complete';
-
-  const ERROR_NO_HANDLER = 'No handler was available to process your request';
 
   protected $_listeners = [];
 
@@ -147,28 +143,22 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
-   * @param ConditionSelector $selector
-   * @param bool              $sendResponse
+   * @param Handler $handler
+   * @param bool    $sendResponse
    *
-   * @param bool              $catchExceptions
-   * @param bool              $flushHeaders
+   * @param bool    $catchExceptions
+   * @param bool    $flushHeaders
    *
    * @return Response
    * @throws \Throwable
    */
   public function handle(
-    ConditionSelector $selector, $sendResponse = true, $catchExceptions = true, $flushHeaders = true
+    Handler $handler, $sendResponse = true, $catchExceptions = true, $flushHeaders = true
   )
   {
     $c = $this->getContext();
     try
     {
-      $this->_triggerEvent(self::EVENT_HANDLE_START);
-      $handler = ($selector instanceof Handler) ? $selector : $selector->getHandler($c);
-      if($handler === null || !($handler instanceof Handler))
-      {
-        throw new \RuntimeException(self::ERROR_NO_HANDLER, 500);
-      }
       $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $handler);
       $r = $handler->handle($c);
       $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $r);

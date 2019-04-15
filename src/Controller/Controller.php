@@ -6,8 +6,6 @@ use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
 use Cubex\Http\Handler;
 use Cubex\Routing\ConditionSelector;
-use Cubex\Routing\RequestConstraint;
-use Cubex\Routing\Route;
 use Exception;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
@@ -38,17 +36,6 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
   }
 
   /**
-   * @param                         $path
-   * @param string|callable|Handler $result
-   *
-   * @return Route
-   */
-  public static function route($path, $result)
-  {
-    return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
-  }
-
-  /**
    * @param Context $c
    *
    * @return Response
@@ -69,7 +56,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
       throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
-    $result = $this->getHandler($c);
+    $result = $this->_getHandler($c);
 
     $this->_callStartTime = microtime(true);
 
