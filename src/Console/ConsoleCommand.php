@@ -40,7 +40,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
   public function __construct($name = null)
   {
     $reflect = new \ReflectionClass($this);
-    $docBlock = new  DocBlockParser($reflect->getDocComment());
+    $docBlock = new DocBlockParser($reflect->getDocComment());
 
     $names = [
       $name,
@@ -117,16 +117,10 @@ abstract class ConsoleCommand extends Command implements ContextAware
         $default = $parameter->getDefaultValue();
       }
 
-      $description = '';
-      if(isset($descriptions[$parameter->name]))
-      {
-        $description = $descriptions[$parameter->name];
-      }
-
       $this->addArgument(
         $parameter->name,
         $parameter->isArray() ? $mode | InputArgument::IS_ARRAY : $mode,
-        $description,
+        isset($descriptions[$parameter->name]) ? $descriptions[$parameter->name] : '',
         $default
       );
 
