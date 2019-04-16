@@ -49,7 +49,7 @@ abstract class ConditionSelector implements Handler
    *
    * @return Route
    */
-  public static function route($path, $result)
+  protected static function _route($path, $result)
   {
     return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
   }
