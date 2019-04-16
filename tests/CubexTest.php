@@ -3,9 +3,15 @@
 namespace Cubex\Tests;
 
 use Cubex\Console\Console;
+use Cubex\Console\Events\ConsoleCreateEvent;
+use Cubex\Console\Events\ConsolePrepareEvent;
 use Cubex\Context\Context;
 use Cubex\Cubex;
+use Cubex\Events\Handle\HandleCompleteEvent;
+use Cubex\Events\Handle\PreExecuteEvent;
+use Cubex\Events\Handle\ResponsePrepareEvent;
 use Cubex\Http\FuncHandler;
+use Cubex\Http\Handler;
 use Cubex\Routing\ConditionHandler;
 use Cubex\Routing\Router;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
@@ -18,7 +24,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Psr\Log\Test\TestLogger;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 class CubexTest extends TestCase
@@ -92,14 +100,14 @@ class CubexTest extends TestCase
     $router = new Router();
     $router->onPath('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
     $cubex->listen(
-      Cubex::EVENT_HANDLE_COMPLETE,
+      HandleCompleteEvent::class,
       function () { throw new Exception("Complete Exception", 500); }
     );
-    $cubex->handle($router);
+    $cubex->handle($router, true, true, true, true);
     $this->assertTrue($logger->hasError("Complete Exception"));
 
     $this->expectExceptionMessage("Complete Exception");
-    $cubex->handle($router, true, false);
+    $cubex->handle($router, true, false, true, true);
   }
 
   /**
@@ -110,25 +118,31 @@ class CubexTest extends TestCase
     $cubex = $this->_cubex();
     $context = $cubex->getContext();
     $cubex->listen(
-      Cubex::EVENT_HANDLE_PRE_EXECUTE,
-      function (Context $c) { $c->meta()->set(Cubex::EVENT_HANDLE_PRE_EXECUTE, true); }
+      PreExecuteEvent::class,
+      function (PreExecuteEvent $e) {
+        $this->assertInstanceOf(Handler::class, $e->getHandler());
+        $e->getContext()->meta()->set('HANDLE_PRE_EXECUTE', true);
+      }
     );
     $cubex->listen(
-      Cubex::EVENT_HANDLE_RESPONSE_PREPARE,
-      function (Context $c) { $c->meta()->set(Cubex::EVENT_HANDLE_RESPONSE_PREPARE, true); }
+      ResponsePrepareEvent::class,
+      function (ResponsePrepareEvent $e) {
+        $this->assertInstanceOf(Response::class, $e->getResponse());
+        $e->getContext()->meta()->set('HANDLE_RESPONSE_PREPARE', true);
+      }
     );
     $cubex->listen(
-      Cubex::EVENT_HANDLE_COMPLETE,
-      function (Context $c) { $c->meta()->set(Cubex::EVENT_HANDLE_COMPLETE, true); }
+      HandleCompleteEvent::class,
+      function (HandleCompleteEvent $e) { $e->getContext()->meta()->set('HANDLE_COMPLETE', true); }
     );
 
     $router = new Router();
     $router->onPath('/', new FuncHandler(function () { return new Response('All OK'); }));
     $cubex->handle($router, false, true);
 
-    $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_PRE_EXECUTE));
-    $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_RESPONSE_PREPARE));
-    $this->assertTrue($context->meta()->has(Cubex::EVENT_HANDLE_COMPLETE));
+    $this->assertTrue($context->meta()->has('HANDLE_PRE_EXECUTE'));
+    $this->assertTrue($context->meta()->has('HANDLE_RESPONSE_PREPARE'));
+    $this->assertTrue($context->meta()->has('HANDLE_COMPLETE'));
   }
 
   /**
@@ -199,11 +213,19 @@ class CubexTest extends TestCase
   {
     $cubex = $this->_cubex();
     $cubex->listen(
-      Cubex::EVENT_CONSOLE_PREPARE,
-      function (Context $context, Console $console) {
-        $console->setCatchExceptions(false);
-        $console->add(new TestExceptionCommand());
-        $context->meta()->set('TestExceptionCommand', true);
+      ConsolePrepareEvent::class,
+      function (ConsolePrepareEvent $event) {
+        $event->getConsole()->setCatchExceptions(false);
+        $event->getConsole()->add(new TestExceptionCommand());
+        $event->getConsole()->getContext()->meta()->set('TestExceptionCommand', true);
+        $this->assertInstanceOf(InputInterface::class, $event->getInput());
+        $this->assertInstanceOf(OutputInterface::class, $event->getOutput());
+      }
+    );
+    $cubex->listen(
+      ConsoleCreateEvent::class,
+      function (ConsoleCreateEvent $event) {
+        $this->assertInstanceOf(Console::class, $event->getConsole());
       }
     );
     $input = new ArgvInput(['', 'TestExceptionCommand']);
