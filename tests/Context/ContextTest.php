@@ -15,30 +15,31 @@ class ContextTest extends TestCase
   public function testDefaults()
   {
     $ctx = new Context();
+    $ctx->setCubex(new Cubex(__DIR__, null, false));
     $this->assertInstanceOf(ParameterBag::class, $ctx->meta());
     $this->assertInstanceOf(ConfigProvider::class, $ctx->config());
     $this->assertInstanceOf(ConfigProvider::class, $ctx->getConfig());
     $this->assertEquals(Context::ENV_LOCAL, $ctx->getEnvironment());
     $this->assertTrue($ctx->isCli());
-    $this->assertNull($ctx->getCubex());
     $this->assertStringStartsWith('ctx-', $ctx->id());
   }
 
   public function testEnvironment()
   {
-    $pre = Arrays::value($_ENV, Context::_ENV_VAR);
-    $_ENV[Context::_ENV_VAR] = Context::ENV_PHPUNIT;
+    $pre = Arrays::value($_ENV, Cubex::_ENV_VAR);
+    $_ENV[Cubex::_ENV_VAR] = Context::ENV_PHPUNIT;
     $ctx = new Context();
+    $ctx->setCubex(new Cubex(__DIR__, null, false));
     $this->assertEquals(Context::ENV_PHPUNIT, $ctx->getEnvironment());
     $this->assertTrue($ctx->isEnv(Context::ENV_PHPUNIT));
     $this->assertFalse($ctx->isEnv(Context::ENV_LOCAL));
     if($pre == null)
     {
-      unset($_ENV[Context::_ENV_VAR]);
+      unset($_ENV[Cubex::_ENV_VAR]);
     }
     else
     {
-      $_ENV[Context::_ENV_VAR] = $pre;
+      $_ENV[Cubex::_ENV_VAR] = $pre;
     }
     $this->assertFalse($ctx->isEnv(Context::ENV_QA));
     $ctx->setEnvironment(Context::ENV_QA);

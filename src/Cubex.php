@@ -31,6 +31,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   const EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT = 'handle.response.send.content';
   const EVENT_HANDLE_COMPLETE = 'handle.complete';
 
+  const _ENV_VAR = 'CUBEX_ENV';
+
   protected $_listeners = [];
 
   /** @var Cubex */
@@ -93,6 +95,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     {
       $ctx = $this->_defaultContextFactory()();
     }
+
     return $ctx;
   }
 
@@ -276,5 +279,23 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   public static function destroyGlobalInstance()
   {
     self::$_cubex = null;
+  }
+
+  /**
+   * @return string Current environment set in static::_ENV_VAR
+   */
+  public function getSystemEnvironment()
+  {
+    //Calculate the environment
+    $env = getenv(static::_ENV_VAR);
+    if(($env === null || !$env) && isset($_ENV[static::_ENV_VAR]))
+    {
+      $env = (string)$_ENV[static::_ENV_VAR];
+    }
+    if($env === null || !$env)//If there is no environment available, assume local
+    {
+      $env = Context::ENV_LOCAL;
+    }
+    return $env;
   }
 }

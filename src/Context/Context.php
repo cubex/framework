@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Context;
 
+use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\ConfigProvider;
@@ -27,8 +28,6 @@ class Context
   const ENV_STAGE = 'stage';
   const ENV_PROD = 'prod';
 
-  const _ENV_VAR = 'CUBEX_ENV';
-
   public final function __construct(Request $request = null)
   {
     // Give this context an ID
@@ -38,19 +37,17 @@ class Context
     $this->_meta = new ParameterBag();
     $this->_routeData = new ParameterBag();
     $this->_cfg = new ConfigProvider();
-
-    //Calculate the environment
-    $this->_env = getenv(static::_ENV_VAR);
-    if(($this->_env === null || !$this->_env) && isset($_ENV[static::_ENV_VAR]))
-    {
-      $this->_env = $_ENV[static::_ENV_VAR];
-    }
-    if($this->_env === null || !$this->_env)//If there is no environment available, assume local
-    {
-      $this->_env = self::ENV_LOCAL;
-    }
-
     $this->_construct();
+  }
+
+  public function setCubex(Cubex $cubex)
+  {
+    $this->_cubex = $cubex;
+    if($this->_env === null)
+    {
+      $this->setEnvironment($cubex->getSystemEnvironment());
+    }
+    return $this;
   }
 
   protected function _generateId()

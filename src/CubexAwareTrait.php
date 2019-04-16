@@ -14,13 +14,13 @@ trait CubexAwareTrait
   }
 
   /**
-   * @param Cubex $Cubex
+   * @param Cubex $cubex
    *
    * @return static
    */
-  public function setCubex(Cubex $Cubex)
+  public function setCubex(Cubex $cubex)
   {
-    $this->_cubex = $Cubex;
+    $this->_cubex = $cubex;
     return $this;
   }
 
