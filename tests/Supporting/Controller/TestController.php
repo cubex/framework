@@ -16,19 +16,19 @@ class TestController extends Controller
 
   protected function _getConditions()
   {
-    yield self::route('/route', 'route');
-    yield self::route('/ui', 'ui');
-    yield self::route('/buffered', 'buffered');
-    yield self::route('/response', 'response');
-    yield self::route('/missing', 'missing');
-    yield self::route('/exception', 'exception');
-    yield self::route('/safe-html', 'safeHtml');
-    yield self::route('/subs/{dynamic}', SubTestController::class);
-    yield self::route('/sub/call', [SubTestController::class, 'remoteCall']);
-    yield self::route('/sub', SubTestController::class);
-    yield self::route('/badsub', TestObject::class);
-    yield self::route('/default-response', AccessDeniedResponse::class);
-    yield self::route('/handler-route', new FuncHandler(function () { return Response::create('handled route'); }));
+    yield self::_route('/route', 'route');
+    yield self::_route('/ui', 'ui');
+    yield self::_route('/buffered', 'buffered');
+    yield self::_route('/response', 'response');
+    yield self::_route('/missing', 'missing');
+    yield self::_route('/exception', 'exception');
+    yield self::_route('/safe-html', 'safeHtml');
+    yield self::_route('/subs/{dynamic}', SubTestController::class);
+    yield self::_route('/sub/call', [SubTestController::class, 'remoteCall']);
+    yield self::_route('/sub', SubTestController::class);
+    yield self::_route('/badsub', TestObject::class);
+    yield self::_route('/default-response', AccessDeniedResponse::class);
+    yield self::_route('/handler-route', new FuncHandler(function () { return Response::create('handled route'); }));
     return 'DEFAULT ROUTE';
   }
 

@@ -7,6 +7,6 @@ class TestIncompleteController extends Controller
 {
   protected function _getConditions()
   {
-    // TODO: Implement getRoutes() method.
+    // TODO: Implement _getConditions() method.
   }
 }

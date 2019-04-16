@@ -7,7 +7,7 @@ class SubTestController extends Controller
 {
   protected function _getConditions()
   {
-    yield self::route('/sub/router', 'router');
+    yield self::_route('/sub/router', 'router');
     return 'default';
   }
 
