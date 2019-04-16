@@ -3,6 +3,7 @@ namespace Cubex\Routing;
 
 use Cubex\Context\Context;
 use Cubex\Http\Handler;
+use Generator;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ConditionSelector implements Handler
@@ -20,26 +21,38 @@ abstract class ConditionSelector implements Handler
   protected function _getHandler(Context $context)
   {
     $conditions = $this->_getConditions();
-    if($conditions instanceof \Traversable || is_array($conditions))
+    if(is_iterable($conditions))
     {
-      foreach($conditions as $route)
-      {
-        if($route instanceof Route && $route->match($context))
-        {
-          return $route->getHandler();
-        }
-      }
-
-      if($conditions instanceof \Generator)
-      {
-        return $conditions->getReturn();
-      }
+      return $this->_traverseConditions($context, $conditions);
     }
     else if($conditions instanceof Handler || is_callable($conditions) || is_string($conditions))
     {
       return $conditions;
     }
 
+    return null;
+  }
+
+  private function _traverseConditions(Context $context, iterable $conditions)
+  {
+    foreach($conditions as $route)
+    {
+      if($route instanceof Route && $route->match($context))
+      {
+        return $route->getHandler();
+      }
+    }
+
+    if($conditions instanceof Generator)
+    {
+      $final = $conditions->getReturn();
+      if($final instanceof Generator)
+      {
+        return $this->_traverseConditions($context, $final);
+      }
+
+      return $final;
+    }
     return null;
   }
 
