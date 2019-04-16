@@ -15,19 +15,8 @@ abstract class Application extends ConditionSelector implements ContextAware
   use CubexAwareTrait;
   use ContextAwareTrait;
 
-  /**
-   * Create an application with cubex set
-   *
-   * @param Cubex $cubex
-   *
-   * @param array $constructArgs
-   *
-   * @return $this
-   */
-  public static function withCubex(Cubex $cubex, ...$constructArgs)
+  public function __construct(Cubex $cubex)
   {
-    $application = new static(...$constructArgs);
-    $application->setCubex($cubex);
-    return $application;
+    $this->setCubex($cubex);
   }
 }
