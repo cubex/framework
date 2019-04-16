@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Context;
 
-use Cubex\Cubex;
+use Cubex\CubexAwareTrait;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\ConfigProvider;
 use Packaged\Helpers\System;
@@ -10,13 +10,13 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Context
 {
+  use CubexAwareTrait;
   private $_id;
   protected $_projectRoot;
   protected $_env;
   protected $_cfg;
   protected $_meta;
   protected $_routeData;
-  protected $_cubex;
   private $_request;
 
   const ENV_PHPUNIT = 'phpunit';
@@ -61,33 +61,6 @@ class Context
   protected function _construct()
   {
     //This method will be called after the context has been constructed
-  }
-
-  /**
-   * @return Cubex
-   */
-  public function getCubex()
-  {
-    return $this->_cubex;
-  }
-
-  /**
-   * @return bool
-   */
-  public function hasCubex()
-  {
-    return $this->_cubex instanceof Cubex;
-  }
-
-  /**
-   * @param Cubex $cubex
-   *
-   * @return Context
-   */
-  public function setCubex(Cubex $cubex)
-  {
-    $this->_cubex = $cubex;
-    return $this;
   }
 
   public function setProjectRoot($root)
