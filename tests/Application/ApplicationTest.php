@@ -11,7 +11,7 @@ class ApplicationTest extends TestCase
   public function testWithCubex()
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $app = TestApplication::withCubex($cubex);
+    $app = new TestApplication($cubex);
     $this->assertEquals($cubex, $app->getCubex());
     $this->assertTrue($app->hasCubex());
     $app->clearCubex();
