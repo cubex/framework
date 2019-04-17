@@ -8,7 +8,6 @@ use Cubex\Console\Events\ConsolePrepareEvent;
 use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
 use Cubex\Events\Handle\HandleCompleteEvent;
-use Cubex\Events\Handle\PostExecuteEvent;
 use Cubex\Events\Handle\PreExecuteEvent;
 use Cubex\Events\Handle\ResponsePreparedEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
