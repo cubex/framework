@@ -198,7 +198,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         $r->sendHeaders();
         if($flushHeaders)
         {
-          ob_flush();
           flush();
         }
         $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r), $throwEventExceptions, $this);
