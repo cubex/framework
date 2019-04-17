@@ -4,8 +4,8 @@ namespace Cubex\Tests\Controller;
 
 use Cubex\Context\Context;
 use Cubex\Controller\Controller;
-use Cubex\Controller\Events\PreExecuteEvent;
 use Cubex\Cubex;
+use Cubex\Events\PreExecuteEvent;
 use Cubex\Tests\Supporting\Controller\SubTestController;
 use Cubex\Tests\Supporting\Controller\TestArrayRouteController;
 use Cubex\Tests\Supporting\Controller\TestController;
@@ -388,6 +388,6 @@ class ControllerTest extends TestCase
       }
     );
     $controller->handle($cubex->getContext());
-    $this->assertEquals(SubTestController::class, $run);
+    $this->assertInstanceOf(SubTestController::class, $run);
   }
 }

@@ -1,8 +1,7 @@
 <?php
-namespace Cubex\Controller\Events;
+namespace Cubex\Events;
 
 use Cubex\Context\Context;
-use Cubex\Events\ContextEvent;
 
 class PreExecuteEvent extends ContextEvent
 {

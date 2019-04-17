@@ -4,7 +4,7 @@ namespace Cubex\Controller;
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
-use Cubex\Controller\Events\PreExecuteEvent;
+use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Cubex\Routing\ConditionSelector;
 use Exception;
@@ -50,8 +50,6 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
   public function handle(Context $c): Response
   {
     $this->setContext($c);
-    $shouldThrow = $this->_shouldThrowEventExceptions();
-
     //Verify the request can be processed
     $authResponse = $this->canProcess();
     if($authResponse instanceof Response)
@@ -69,13 +67,12 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
 
     if($handler instanceof Handler)
     {
-      $c->events()->trigger(PreExecuteEvent::i($c, $handler), $shouldThrow);
+      $c->events()->trigger(PreExecuteEvent::i($c, $handler), $this->_shouldThrowEventExceptions());
       return $handler->handle($c);
     }
 
     if(is_callable($handler))
     {
-      $c->events()->trigger(PreExecuteEvent::i($c, $handler), $shouldThrow);
       return $this->_executeCallable($c, $handler);
     }
 
@@ -93,6 +90,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
       }
     }
 
+    $c->events()->trigger(PreExecuteEvent::i($c, $handler), $this->_shouldThrowEventExceptions());
     return $this->_processRoute($handler);
   }
 
@@ -150,6 +148,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
     ob_start();
     try
     {
+      $c->events()->trigger(PreExecuteEvent::i($c, $callable), $this->_shouldThrowEventExceptions());
       $callableResponse = $callable();
     }
     catch(\Throwable $e)

@@ -2,7 +2,7 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
-use Cubex\Controller\Events\PreExecuteEvent;
+use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Generator;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,6 +68,12 @@ abstract class ConditionSelector implements Handler
     return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
   }
 
+  /**
+   * @param Context $c
+   *
+   * @return Response
+   * @throws \Exception
+   */
   public function handle(Context $c): Response
   {
     $handler = $this->_getHandler($c);
@@ -78,7 +84,7 @@ abstract class ConditionSelector implements Handler
 
     if($handler instanceof Handler)
     {
-      $c->events()->trigger(PreExecuteEvent::i($c, $handler), false);
+      $c->events()->trigger(PreExecuteEvent::i($c, $handler), true);
       return $handler->handle($c);
     }
 
