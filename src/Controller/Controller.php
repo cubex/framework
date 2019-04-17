@@ -173,6 +173,14 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
     return $this->_handleAndPrepareResponse($c, $obj);
   }
 
+  /**
+   * @param Context     $c
+   * @param             $response
+   * @param string|null $buffer
+   *
+   * @return Response
+   * @throws Exception
+   */
   protected function _handleResponse(Context $c, $response, ?string $buffer = null): Response
   {
     if($response === null)
@@ -182,6 +190,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
 
     if($response instanceof Handler)
     {
+      $c->events()->trigger(PreExecuteEvent::i($c, $c), $this->_shouldThrowEventExceptions());
       return $response->handle($c);
     }
 
@@ -238,6 +247,14 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
     return $obj;
   }
 
+  /**
+   * @param Context     $c
+   * @param             $response
+   * @param string|null $buffer
+   *
+   * @return Response
+   * @throws Exception
+   */
   protected function _handleAndPrepareResponse(Context $c, $response, ?string $buffer = null): Response
   {
     return $this->_handleResponse($c, $this->_prepareResponse($c, $response), $buffer);
