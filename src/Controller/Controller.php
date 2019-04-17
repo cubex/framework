@@ -98,7 +98,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
   /**
    * If all else fails, push the route result through this method
    *
-   * @param string $routeResult Result of the located route
+   * @param mixed $routeResult Result of the located route
    */
   protected function _processRoute($routeResult)
   {
