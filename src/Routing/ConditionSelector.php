@@ -70,10 +70,16 @@ abstract class ConditionSelector implements Handler
   public function handle(Context $c): Response
   {
     $handler = $this->_getHandler($c);
+    if(is_string($handler) && strstr($handler, '\\') && class_exists($handler))
+    {
+      $handler = new $handler();
+    }
+
     if($handler instanceof Handler)
     {
       return $handler->handle($c);
     }
+
     throw new \RuntimeException(ConditionHandler::ERROR_NO_HANDLER, 500);
   }
 

@@ -3,12 +3,22 @@ namespace Cubex;
 
 use Composer\Autoload\ClassLoader;
 use Cubex\Console\Console;
+use Cubex\Console\Events\ConsoleCreateEvent;
+use Cubex\Console\Events\ConsolePrepareEvent;
 use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
+use Cubex\Events\Handle\HandleCompleteEvent;
+use Cubex\Events\Handle\PostExecuteEvent;
+use Cubex\Events\Handle\PreExecuteEvent;
+use Cubex\Events\Handle\ResponsePreparedEvent;
+use Cubex\Events\Handle\ResponsePrepareEvent;
+use Cubex\Events\Handle\ResponsePreSendContentEvent;
+use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
+use Packaged\Event\Channel\Channel;
 use Packaged\Helpers\Path;
 use Packaged\Http\Request;
 use Psr\Log\LoggerAwareInterface;
@@ -22,22 +32,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
-  const EVENT_CONSOLE_CREATE = 'console.create';
-  const EVENT_CONSOLE_PREPARE = 'console.pre.run';
-  const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
-  const EVENT_HANDLE_RESPONSE_PREPARE = 'handle.response.prepare';
-  const EVENT_HANDLE_RESPONSE_PREPARED = 'handle.response.prepared';
-  const EVENT_HANDLE_RESPONSE_PRE_SEND_HEADERS = 'handle.response.send.headers';
-  const EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT = 'handle.response.send.content';
-  const EVENT_HANDLE_COMPLETE = 'handle.complete';
-
   const _ENV_VAR = 'CUBEX_ENV';
-
-  protected $_listeners = [];
 
   /** @var Cubex */
   private static $_cubex;
   protected $_logger;
+  /** @var Channel */
+  protected $_eventChannel;
 
   /**
    * @var callable
@@ -47,6 +48,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
     $this->_projectRoot = $projectRoot;
+    $this->_eventChannel = new Channel('cubex');
     //Setup Context
     $this->share(ClassLoader::class, $loader);
     $this->factory(Context::class, $this->_defaultContextFactory());
@@ -111,7 +113,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_console = new Console("Cubex Console", "3.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
-      $this->_triggerEvent(self::EVENT_CONSOLE_CREATE, $this->_console);
+      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->_console), false);
     }
     return $this->_console;
   }
@@ -129,7 +131,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $output = $output ?? new ConsoleOutput();
 
     $console = $this->getConsole();
-    $this->_triggerEvent(self::EVENT_CONSOLE_PREPARE, $console, $input, $output);
+    $this->_eventChannel->trigger(ConsolePrepareEvent::i($console, $input, $output), false);
 
     try
     {
@@ -152,21 +154,23 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    * @param bool    $catchExceptions
    * @param bool    $flushHeaders
    *
+   * @param bool    $throwEventExceptions
+   *
    * @return Response
    * @throws \Throwable
    */
   public function handle(
-    Handler $handler, $sendResponse = true, $catchExceptions = true, $flushHeaders = true
+    Handler $handler, $sendResponse = true, $catchExceptions = true, $flushHeaders = true, $throwEventExceptions = false
   )
   {
     $c = $this->getContext();
     try
     {
-      $this->_triggerEvent(self::EVENT_HANDLE_PRE_EXECUTE, $handler);
+      $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler), $throwEventExceptions);
       $r = $handler->handle($c);
-      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARE, $r);
+      $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r), $throwEventExceptions);
       $r->prepare($c->request());
-      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PREPARED, $r);
+      $this->_eventChannel->trigger(ResponsePreparedEvent::i($c, $handler, $r), $throwEventExceptions);
     }
     catch(\Throwable $e)
     {
@@ -178,21 +182,20 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $r = (new ExceptionHandler($e))->handle($c);
       $r->prepare($c->request());
     }
-    if($sendResponse)
-    {
-      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PRE_SEND_HEADERS, $r);
-      $r->sendHeaders();
-      if($flushHeaders)
-      {
-        ob_flush();
-        flush();
-      }
-      $this->_triggerEvent(self::EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT, $r);
-      $r->send();
-    }
     try
     {
-      $this->_triggerEvent(self::EVENT_HANDLE_COMPLETE, $r);
+      if($sendResponse)
+      {
+        $this->_eventChannel->trigger(ResponsePreSendHeadersEvent::i($c, $handler, $r), $throwEventExceptions);
+        $r->sendHeaders();
+        if($flushHeaders)
+        {
+          flush();
+        }
+        $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r), $throwEventExceptions);
+        $r->send();
+      }
+      $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r), $throwEventExceptions);
     }
     catch(\Throwable $e)
     {
@@ -215,23 +218,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    */
   public function listen($eventAlias, callable $callback)
   {
-    if(!isset($this->_listeners[$eventAlias]))
-    {
-      $this->_listeners[$eventAlias] = [];
-    }
-    $this->_listeners[$eventAlias][] = $callback;
+    $this->_eventChannel->listen($eventAlias, $callback);
     return $this;
-  }
-
-  protected function _triggerEvent($eventAlias, ...$data)
-  {
-    if(isset($this->_listeners[$eventAlias]))
-    {
-      foreach($this->_listeners[$eventAlias] as $callback)
-      {
-        $callback($this->getContext(), ...$data);
-      }
-    }
   }
 
   /**
