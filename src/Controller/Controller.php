@@ -7,6 +7,7 @@ use Cubex\Context\ContextAwareTrait;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Cubex\Routing\ConditionSelector;
+use Cubex\Routing\Route;
 use Exception;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
@@ -274,5 +275,16 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
   public function routeData()
   {
     return $this->getContext()->routeData();
+  }
+
+  /**
+   * @param string                  $path
+   * @param string|callable|Handler $result
+   *
+   * @return Route
+   */
+  protected static function _route($path, $result)
+  {
+    return parent::_route($path, $result);
   }
 }

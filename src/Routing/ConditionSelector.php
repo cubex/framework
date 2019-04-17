@@ -58,8 +58,8 @@ abstract class ConditionSelector implements Handler
   }
 
   /**
-   * @param                         $path
-   * @param string|callable|Handler $result
+   * @param string         $path
+   * @param string|Handler $result
    *
    * @return Route
    */
