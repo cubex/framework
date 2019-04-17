@@ -1,16 +1,16 @@
 build:
   nodes:
     analysis:
-      filter:
-        paths:
-          - "src/"
-        excluded_paths:
-          - "tests/"
-        dependency_paths:
-          - "vendor/"
       tests:
         override:
           - php-scrutinizer-run
   environment:
     php:
       version: 7.2
+filter:
+  paths:
+    - "src/"
+  excluded_paths:
+    - "tests/"
+  dependency_paths:
+    - "vendor/"
