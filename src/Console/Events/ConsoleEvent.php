@@ -2,15 +2,16 @@
 namespace Cubex\Console\Events;
 
 use Cubex\Console\Console;
-use Packaged\Event\Events\AbstractEvent;
+use Cubex\Context\Context;
+use Cubex\Events\ContextEvent;
 
-abstract class ConsoleEvent extends AbstractEvent
+abstract class ConsoleEvent extends ContextEvent
 {
   private $_console;
 
-  public static function i(Console $console)
+  public static function i(Context $ctx, Console $console = null)
   {
-    $event = new static();
+    $event = parent::i($ctx);
     $event->_console = $console;
     return $event;
   }
@@ -19,10 +20,4 @@ abstract class ConsoleEvent extends AbstractEvent
   {
     return $this->_console;
   }
-
-  public function getType()
-  {
-    return static::class;
-  }
-
 }

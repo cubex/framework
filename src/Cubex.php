@@ -105,6 +105,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
   /**
    * @return Console
+   *
+   * @throws Exception
    */
   public function getConsole()
   {
@@ -113,7 +115,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_console = new Console("Cubex Console", "3.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
-      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->_console), false);
+      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console), false);
     }
     return $this->_console;
   }
@@ -131,7 +133,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $output = $output ?? new ConsoleOutput();
 
     $console = $this->getConsole();
-    $this->_eventChannel->trigger(ConsolePrepareEvent::i($console, $input, $output), false);
+    $this->_eventChannel->trigger(ConsolePrepareEvent::i($this->getContext(), $console, $input, $output), false);
 
     try
     {
