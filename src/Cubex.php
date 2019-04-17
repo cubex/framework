@@ -7,6 +7,7 @@ use Cubex\Console\Events\ConsoleCreateEvent;
 use Cubex\Console\Events\ConsolePrepareEvent;
 use Cubex\Container\DependencyInjector;
 use Cubex\Context\Context;
+use Cubex\Context\ContextAware;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\PreExecuteEvent;
 use Cubex\Events\Handle\ResponsePreparedEvent;
@@ -163,6 +164,11 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   )
   {
     $c = $this->getContext();
+    if($handler instanceof ContextAware)
+    {
+      $handler->setContext($c);
+    }
+
     try
     {
       $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler), $throwEventExceptions);
