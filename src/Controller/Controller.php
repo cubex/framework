@@ -4,7 +4,7 @@ namespace Cubex\Controller;
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
-use Cubex\Controller\Events\PreHandlerExecuteEvent;
+use Cubex\Controller\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Cubex\Routing\ConditionSelector;
 use Exception;
@@ -64,7 +64,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
     }
 
     $handler = $this->_getHandler($c);
-    $c->events()->trigger(PreHandlerExecuteEvent::i($c, $handler), $shouldThrow);
+    $c->events()->trigger(PreExecuteEvent::i($c, $handler), $shouldThrow);
 
     $this->_callStartTime = microtime(true);
 

@@ -4,7 +4,7 @@ namespace Cubex\Controller\Events;
 use Cubex\Context\Context;
 use Cubex\Events\ContextEvent;
 
-class PreHandlerExecuteEvent extends ContextEvent
+class PreExecuteEvent extends ContextEvent
 {
   private $_handler;
 

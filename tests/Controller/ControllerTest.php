@@ -4,7 +4,7 @@ namespace Cubex\Tests\Controller;
 
 use Cubex\Context\Context;
 use Cubex\Controller\Controller;
-use Cubex\Controller\Events\PreHandlerExecuteEvent;
+use Cubex\Controller\Events\PreExecuteEvent;
 use Cubex\Cubex;
 use Cubex\Tests\Supporting\Controller\SubTestController;
 use Cubex\Tests\Supporting\Controller\TestArrayRouteController;
@@ -379,8 +379,8 @@ class ControllerTest extends TestCase
     $request = Request::create("/subs/events");
     $this->_prepareCubex($cubex, $request);
     $cubex->getContext()->events()->listen(
-      PreHandlerExecuteEvent::class,
-      function (PreHandlerExecuteEvent $e) use (&$run) {
+      PreExecuteEvent::class,
+      function (PreExecuteEvent $e) use (&$run) {
         if($run === null)
         {
           $run = $e->getHandler();
