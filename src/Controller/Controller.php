@@ -190,7 +190,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
 
     if($response instanceof Handler)
     {
-      $c->events()->trigger(PreExecuteEvent::i($c, $c), $this->_shouldThrowEventExceptions());
+      $c->events()->trigger(PreExecuteEvent::i($c, $response), $this->_shouldThrowEventExceptions());
       return $response->handle($c);
     }
 
