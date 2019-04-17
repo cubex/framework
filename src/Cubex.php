@@ -18,7 +18,7 @@ use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
-use Packaged\Event\Channel\TrustedPublisherChannel;
+use Packaged\Event\Channel\Channel;
 use Packaged\Helpers\Path;
 use Packaged\Http\Request;
 use Psr\Log\LoggerAwareInterface;
@@ -32,20 +32,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
-  const EVENT_HANDLE_PRE_EXECUTE = 'handle.pre.execute';
-  const EVENT_HANDLE_RESPONSE_PREPARE = 'handle.response.prepare';
-  const EVENT_HANDLE_RESPONSE_PREPARED = 'handle.response.prepared';
-  const EVENT_HANDLE_RESPONSE_PRE_SEND_HEADERS = 'handle.response.send.headers';
-  const EVENT_HANDLE_RESPONSE_PRE_SEND_CONTENT = 'handle.response.send.content';
-  const EVENT_HANDLE_COMPLETE = 'handle.complete';
-
   const _ENV_VAR = 'CUBEX_ENV';
-
-  protected $_listeners = [];
 
   /** @var Cubex */
   private static $_cubex;
   protected $_logger;
+  /** @var Channel */
   protected $_eventChannel;
 
   /**
@@ -56,7 +48,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
     $this->_projectRoot = $projectRoot;
-    $this->_eventChannel = new TrustedPublisherChannel('cubex', $this);
+    $this->_eventChannel = new Channel('cubex');
     //Setup Context
     $this->share(ClassLoader::class, $loader);
     $this->factory(Context::class, $this->_defaultContextFactory());
@@ -121,7 +113,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_console = new Console("Cubex Console", "3.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
-      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->_console), false, $this);
+      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->_console), false);
     }
     return $this->_console;
   }
@@ -139,7 +131,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $output = $output ?? new ConsoleOutput();
 
     $console = $this->getConsole();
-    $this->_eventChannel->trigger(ConsolePrepareEvent::i($console, $input, $output), false, $this);
+    $this->_eventChannel->trigger(ConsolePrepareEvent::i($console, $input, $output), false);
 
     try
     {
@@ -174,11 +166,11 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $c = $this->getContext();
     try
     {
-      $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler), $throwEventExceptions, $this);
+      $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler), $throwEventExceptions);
       $r = $handler->handle($c);
-      $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r), $throwEventExceptions, $this);
+      $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r), $throwEventExceptions);
       $r->prepare($c->request());
-      $this->_eventChannel->trigger(ResponsePreparedEvent::i($c, $handler, $r), $throwEventExceptions, $this);
+      $this->_eventChannel->trigger(ResponsePreparedEvent::i($c, $handler, $r), $throwEventExceptions);
     }
     catch(\Throwable $e)
     {
@@ -194,16 +186,16 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     {
       if($sendResponse)
       {
-        $this->_eventChannel->trigger(ResponsePreSendHeadersEvent::i($c, $handler, $r), $throwEventExceptions, $this);
+        $this->_eventChannel->trigger(ResponsePreSendHeadersEvent::i($c, $handler, $r), $throwEventExceptions);
         $r->sendHeaders();
         if($flushHeaders)
         {
           flush();
         }
-        $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r), $throwEventExceptions, $this);
+        $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r), $throwEventExceptions);
         $r->send();
       }
-      $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r), $throwEventExceptions, $this);
+      $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r), $throwEventExceptions);
     }
     catch(\Throwable $e)
     {
