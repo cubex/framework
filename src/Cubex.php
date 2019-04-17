@@ -112,7 +112,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   {
     if(!$this->_console)
     {
-      $this->_console = new Console("Cubex Console", "3.0");
+      $this->_console = new Console("Cubex Console", "4.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
       $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console), false);
