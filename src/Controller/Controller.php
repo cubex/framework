@@ -64,17 +64,18 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
     }
 
     $handler = $this->_getHandler($c);
-    $c->events()->trigger(PreExecuteEvent::i($c, $handler), $shouldThrow);
 
     $this->_callStartTime = microtime(true);
 
     if($handler instanceof Handler)
     {
+      $c->events()->trigger(PreExecuteEvent::i($c, $handler), $shouldThrow);
       return $handler->handle($c);
     }
 
     if(is_callable($handler))
     {
+      $c->events()->trigger(PreExecuteEvent::i($c, $handler), $shouldThrow);
       return $this->_executeCallable($c, $handler);
     }
 
@@ -169,6 +170,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
   protected function _executeClass(Context $c, $result): Response
   {
     $obj = new $result();
+    $c->events()->trigger(PreExecuteEvent::i($c, $obj), $this->_shouldThrowEventExceptions());
     return $this->_handleAndPrepareResponse($c, $obj);
   }
 

@@ -2,6 +2,7 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
+use Cubex\Controller\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Generator;
 use Symfony\Component\HttpFoundation\Response;
@@ -77,6 +78,7 @@ abstract class ConditionSelector implements Handler
 
     if($handler instanceof Handler)
     {
+      $c->events()->trigger(PreExecuteEvent::i($c, $handler), false);
       return $handler->handle($c);
     }
 
