@@ -5,6 +5,7 @@ use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Config\Provider\ConfigProvider;
+use Packaged\Event\Channel\Channel;
 use Packaged\Helpers\System;
 use Packaged\Http\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -18,6 +19,7 @@ class Context
   protected $_cfg;
   protected $_meta;
   protected $_routeData;
+  private $_events;
   private $_request;
 
   const ENV_PHPUNIT = 'phpunit';
@@ -37,6 +39,7 @@ class Context
     $this->_meta = new ParameterBag();
     $this->_routeData = new ParameterBag();
     $this->_cfg = new ConfigProvider();
+    $this->_events = new Channel('context');
     $this->_construct();
   }
 
@@ -151,5 +154,15 @@ class Context
   public function config()
   {
     return $this->_cfg;
+  }
+
+  /**
+   * Events channel
+   *
+   * @return Channel
+   */
+  public function events(): Channel
+  {
+    return $this->_events;
   }
 }

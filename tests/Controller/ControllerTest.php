@@ -4,7 +4,9 @@ namespace Cubex\Tests\Controller;
 
 use Cubex\Context\Context;
 use Cubex\Controller\Controller;
+use Cubex\Controller\Events\PreHandlerExecuteEvent;
 use Cubex\Cubex;
+use Cubex\Tests\Supporting\Controller\SubTestController;
 use Cubex\Tests\Supporting\Controller\TestArrayRouteController;
 use Cubex\Tests\Supporting\Controller\TestController;
 use Cubex\Tests\Supporting\Controller\TestIncompleteController;
@@ -361,5 +363,31 @@ class ControllerTest extends TestCase
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage(Controller::ERROR_NO_ROUTE);
     $controller->handle($cubex->getContext());
+  }
+
+  /**
+   * @dataProvider controllersProvider
+   *
+   * @param Controller|TestController|TestArrayRouteController $controller
+   *
+   * @throws \Throwable
+   */
+  public function testPreHandleEvent(Controller $controller)
+  {
+    $run = null;
+    $cubex = new Cubex(__DIR__, null, false);
+    $request = Request::create("/subs/events");
+    $this->_prepareCubex($cubex, $request);
+    $cubex->getContext()->events()->listen(
+      PreHandlerExecuteEvent::class,
+      function (PreHandlerExecuteEvent $e) use (&$run) {
+        if($run === null)
+        {
+          $run = $e->getHandler();
+        }
+      }
+    );
+    $controller->handle($cubex->getContext());
+    $this->assertEquals(SubTestController::class, $run);
   }
 }

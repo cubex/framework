@@ -4,6 +4,7 @@ namespace Cubex\Controller;
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
+use Cubex\Controller\Events\PreHandlerExecuteEvent;
 use Cubex\Http\Handler;
 use Cubex\Routing\ConditionSelector;
 use Exception;
@@ -35,6 +36,11 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
     return true;
   }
 
+  protected function _shouldThrowEventExceptions()
+  {
+    return true;
+  }
+
   /**
    * @param Context $c
    *
@@ -44,6 +50,7 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
   public function handle(Context $c): Response
   {
     $this->setContext($c);
+    $shouldThrow = $this->_shouldThrowEventExceptions();
 
     //Verify the request can be processed
     $authResponse = $this->canProcess();
@@ -56,35 +63,36 @@ abstract class Controller extends ConditionSelector implements Handler, ContextA
       throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
-    $result = $this->_getHandler($c);
+    $handler = $this->_getHandler($c);
+    $c->events()->trigger(PreHandlerExecuteEvent::i($c, $handler), $shouldThrow);
 
     $this->_callStartTime = microtime(true);
 
-    if($result instanceof Handler)
+    if($handler instanceof Handler)
     {
-      return $result->handle($c);
+      return $handler->handle($c);
     }
 
-    if(is_callable($result))
+    if(is_callable($handler))
     {
-      return $this->_executeCallable($c, $result);
+      return $this->_executeCallable($c, $handler);
     }
 
-    if($result !== null && is_string($result))
+    if($handler !== null && is_string($handler))
     {
-      if(strstr($result, '\\') && class_exists($result))
+      if(strstr($handler, '\\') && class_exists($handler))
       {
-        return $this->_executeClass($c, $result);
+        return $this->_executeClass($c, $handler);
       }
 
-      $callable = is_callable($result) ? $result : $this->_getMethod($this->getContext()->request(), $result);
+      $callable = is_callable($handler) ? $handler : $this->_getMethod($this->getContext()->request(), $handler);
       if(is_callable($callable))
       {
         return $this->_executeCallable($c, $callable);
       }
     }
 
-    return $this->_processRoute($result);
+    return $this->_processRoute($handler);
   }
 
   /**
