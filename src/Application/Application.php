@@ -6,12 +6,12 @@ use Cubex\Context\ContextAwareTrait;
 use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\Http\Handler;
-use Cubex\Routing\ConditionSelector;
+use Cubex\Routing\RouteSelector;
 
 /**
  * Base Application
  */
-abstract class Application extends ConditionSelector implements ContextAware
+abstract class Application extends RouteSelector implements ContextAware
 {
   use CubexAwareTrait;
   use ContextAwareTrait;
@@ -21,7 +21,7 @@ abstract class Application extends ConditionSelector implements ContextAware
     $this->setCubex($cubex);
   }
 
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     return $this->_defaultHandler();
   }

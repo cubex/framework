@@ -5,7 +5,7 @@ use Cubex\Controller\Controller;
 
 class TestIncompleteController extends Controller
 {
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     // TODO: Implement _getConditions() method.
   }

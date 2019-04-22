@@ -7,12 +7,12 @@ use Cubex\Http\Handler;
 use Generator;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class ConditionSelector implements Handler
+abstract class RouteSelector implements Handler
 {
   /**
    * @return Route[]|\Generator|string|Handler|callable
    */
-  abstract protected function _getConditions();
+  abstract protected function _generateRoutes();
 
   /**
    * @param Context $context
@@ -21,7 +21,7 @@ abstract class ConditionSelector implements Handler
    */
   protected function _getHandler(Context $context)
   {
-    $conditions = $this->_getConditions();
+    $conditions = $this->_generateRoutes();
     if(is_iterable($conditions))
     {
       return $this->_traverseConditions($context, $conditions);

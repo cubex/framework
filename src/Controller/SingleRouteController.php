@@ -12,7 +12,7 @@ namespace Cubex\Controller;
  */
 class SingleRouteController extends Controller
 {
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     return 'req';
   }

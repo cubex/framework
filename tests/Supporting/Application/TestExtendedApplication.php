@@ -3,9 +3,9 @@ namespace Cubex\Tests\Supporting\Application;
 
 class TestExtendedApplication extends TestApplication
 {
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     yield self::_route('/nothing', null);
-    return parent::_getConditions();
+    return parent::_generateRoutes();
   }
 }

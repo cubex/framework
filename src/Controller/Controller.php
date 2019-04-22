@@ -6,7 +6,7 @@ use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
-use Cubex\Routing\ConditionSelector;
+use Cubex\Routing\RouteSelector;
 use Cubex\Routing\Route;
 use Exception;
 use Packaged\Helpers\Strings;
@@ -17,7 +17,7 @@ use Packaged\Ui\Renderable;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class Controller extends ConditionSelector implements Handler, ContextAware
+abstract class Controller extends RouteSelector implements Handler, ContextAware
 {
   use ContextAwareTrait;
 

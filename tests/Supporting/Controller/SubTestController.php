@@ -5,7 +5,7 @@ use Cubex\Controller\Controller;
 
 class SubTestController extends Controller
 {
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     yield self::_route('/sub/router', 'router');
     return 'default';

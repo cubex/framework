@@ -9,11 +9,11 @@ use Packaged\Http\Response;
 
 class TestApplication extends Application
 {
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     yield self::_route('/not-found', null);
     yield self::_route('/buffered', TestController::class);
-    return parent::_getConditions();
+    return parent::_generateRoutes();
   }
 
   protected function _defaultHandler(): Handler

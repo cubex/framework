@@ -5,7 +5,7 @@ use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
 
-class Router extends ConditionSelector
+class Router extends RouteSelector
 {
   public static function i()
   {
@@ -18,7 +18,7 @@ class Router extends ConditionSelector
   protected $_conditions = [];
   protected $_defaultHandler;
 
-  protected function _getConditions()
+  protected function _generateRoutes()
   {
     foreach($this->_conditions as $condition)
     {
