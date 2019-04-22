@@ -42,7 +42,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testController(Controller $controller)
+  public function testController(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/route");
@@ -59,7 +59,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testGetRoute(Controller $controller)
+  public function testGetRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/route");
@@ -75,7 +75,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testGetSafeHtml(Controller $controller)
+  public function testGetSafeHtml(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/safe-html");
@@ -91,7 +91,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testGetRedirect(Controller $controller)
+  public function testGetRedirect(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/google");
@@ -108,7 +108,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testPostRoute(Controller $controller)
+  public function testPostRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/route", 'POST');
@@ -124,7 +124,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testAjaxRouting(Controller $controller)
+  public function testAjaxRouting(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/route");
@@ -141,7 +141,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testUiResponse(Controller $controller)
+  public function testUiResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/ui");
@@ -157,7 +157,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testBufferedResponse(Controller $controller)
+  public function testBufferedResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/buffered");
@@ -173,7 +173,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testResponseResponse(Controller $controller)
+  public function testResponseResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/response");
@@ -189,7 +189,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testSubClass(Controller $controller)
+  public function testSubClass(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/sub/route");
@@ -205,7 +205,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testSubClassFullRoute(Controller $controller)
+  public function testSubClassFullRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/sub/router");
@@ -221,7 +221,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testCallableRoute(Controller $controller)
+  public function testCallableRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/sub/call");
@@ -237,7 +237,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testRouteData(Controller $controller)
+  public function testRouteData(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/subs/testing");
@@ -254,7 +254,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testInvalidSubClass(Controller $controller)
+  public function testInvalidSubClass(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/badsub");
@@ -270,7 +270,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testResponseClass(Controller $controller)
+  public function testResponseClass(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/default-response");
@@ -287,7 +287,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testInvalidRoute(Controller $controller)
+  public function testInvalidRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/missing");
@@ -329,7 +329,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testExceptionalRoute(Controller $controller)
+  public function testExceptionalRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/exception");
@@ -345,7 +345,7 @@ class ControllerTest extends TestCase
    *
    * @throws \Throwable
    */
-  public function testHandlerRoute(Controller $controller)
+  public function testHandlerRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/handler-route");
@@ -357,11 +357,11 @@ class ControllerTest extends TestCase
   /**
    * @dataProvider controllersProvider
    *
-   * @param Controller|TestController|TestArrayRouteController $controller
+   * @param TestController $controller
    *
    * @throws \Throwable
    */
-  public function testAuthResponse(Controller $controller)
+  public function testAuthResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/route");
@@ -398,11 +398,11 @@ class ControllerTest extends TestCase
   /**
    * @dataProvider controllersProvider
    *
-   * @param Controller|TestController|TestArrayRouteController $controller
+   * @param TestController $controller
    *
    * @throws \Throwable
    */
-  public function testPreHandleEvent(Controller $controller)
+  public function testPreHandleEvent(TestController $controller)
   {
     $run = null;
     $cubex = new Cubex(__DIR__, null, false);
