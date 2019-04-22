@@ -32,6 +32,12 @@ abstract class RouteSelector implements Handler
     return null;
   }
 
+  /**
+   * @param Context  $context
+   * @param iterable $conditions
+   *
+   * @return callable|Handler|string|null
+   */
   private function _traverseConditions(Context $context, iterable $conditions)
   {
     foreach($conditions as $route)
