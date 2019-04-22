@@ -4,8 +4,6 @@ namespace Cubex\Controller;
 use Cubex\Context\Context;
 use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
-use Cubex\Http\Handler;
-use Cubex\Routing\Route;
 use Cubex\Routing\RouteProcessor;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
@@ -19,21 +17,11 @@ abstract class Controller extends RouteProcessor implements ContextAware
 {
   use ContextAwareTrait;
 
-  const ERROR_ACCESS_DENIED = "you are not permitted to access this url";
-
   protected $_callStartTime;
 
   /**
-   * Is this request permitted to process
+   * Standard route handler, with call time set
    *
-   * @return bool|Response
-   */
-  public function canProcess()
-  {
-    return true;
-  }
-
-  /**
    * @param Context $c
    *
    * @return Response
@@ -42,19 +30,7 @@ abstract class Controller extends RouteProcessor implements ContextAware
   public function handle(Context $c): Response
   {
     $this->setContext($c);
-
-    //Verify the request can be processed
-    $authResponse = $this->canProcess();
-    if($authResponse instanceof Response)
-    {
-      return $authResponse;
-    }
-    else if($authResponse !== true)
-    {
-      throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
-    }
-
-    $this->_callStartTime = microtime(true);
+    $this->_callStartTime = $this->_callStartTime ?: microtime(true);
     return parent::handle($c);
   }
 
@@ -116,11 +92,25 @@ abstract class Controller extends RouteProcessor implements ContextAware
     return $result;
   }
 
+  /**
+   * Convert a route response into a valid Response
+   *
+   * @param Context $c
+   * @param mixed   $result
+   * @param null    $buffer
+   *
+   * @return mixed|CubexResponse
+   */
   protected function _prepareResponse(Context $c, $result, $buffer = null)
   {
     if($result instanceof ContextAware)
     {
       $result->setContext($c);
+    }
+
+    if($this->_callStartTime && $result instanceof CubexResponse)
+    {
+      return $result->setCallStartTime($this->_callStartTime);
     }
 
     if($result instanceof Response)
@@ -166,16 +156,5 @@ abstract class Controller extends RouteProcessor implements ContextAware
   public function routeData()
   {
     return $this->getContext()->routeData();
-  }
-
-  /**
-   * @param string                  $path
-   * @param string|callable|Handler $result
-   *
-   * @return Route
-   */
-  protected static function _route($path, $result)
-  {
-    return parent::_route($path, $result);
   }
 }

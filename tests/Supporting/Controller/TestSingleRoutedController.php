@@ -5,11 +5,11 @@ use Cubex\Controller\SingleRouteController;
 
 class TestSingleRoutedController extends SingleRouteController
 {
-  public function getReq() { return "GET REQ"; }
+  public function getRoute() { return "GET REQ"; }
 
-  public function postReq() { return "POST REQ"; }
+  public function postRoute() { return "POST REQ"; }
 
-  public function ajaxReq() { return "AJAX REQ"; }
+  public function ajaxRoute() { return "AJAX REQ"; }
 
-  public function processReq() { return "PROCESS REQ"; }
+  public function processRoute() { return "PROCESS REQ"; }
 }

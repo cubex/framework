@@ -52,8 +52,8 @@ abstract class RouteSelector implements Handler
   }
 
   /**
-   * @param string         $path
-   * @param string|Handler $result
+   * @param string                  $path
+   * @param string|callable|Handler $result
    *
    * @return Route
    */

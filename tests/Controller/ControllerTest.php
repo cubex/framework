@@ -3,6 +3,7 @@
 namespace Cubex\Tests\Controller;
 
 use Cubex\Context\Context;
+use Cubex\Controller\AuthedController;
 use Cubex\Controller\Controller;
 use Cubex\Cubex;
 use Cubex\Events\PreExecuteEvent;
@@ -81,6 +82,23 @@ class ControllerTest extends TestCase
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     $this->assertStringContainsString('<b>Test</b>', $response->getContent());
+  }
+
+  /**
+   * @dataProvider controllersProvider
+   *
+   * @param $controller
+   *
+   * @throws \Throwable
+   */
+  public function testGetRedirect(Controller $controller)
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $request = Request::create("/google");
+    $this->_prepareCubex($cubex, $request);
+    $response = $controller->handle($cubex->getContext());
+    $this->assertInstanceOf(RedirectResponse::class, $response);
+    $this->assertTrue($response->isRedirect('http://www.google.com'));
   }
 
   /**
@@ -360,7 +378,7 @@ class ControllerTest extends TestCase
     $this->assertSame($authFailResponse, $response);
 
     $controller->setAuthResponse(false);
-    $this->expectExceptionMessage(Controller::ERROR_ACCESS_DENIED);
+    $this->expectExceptionMessage(AuthedController::ERROR_ACCESS_DENIED);
     $controller->handle($cubex->getContext());
   }
 

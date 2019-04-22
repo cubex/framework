@@ -2,7 +2,7 @@
 namespace Cubex\Tests\Supporting\Controller;
 
 use Cubex\Context\Context;
-use Cubex\Controller\Controller;
+use Cubex\Controller\AuthedController;
 use Cubex\Http\FuncHandler;
 use Cubex\Tests\Supporting\Container\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
@@ -10,8 +10,9 @@ use Cubex\Tests\Supporting\Ui\TestSafeHtmlProducer;
 use Exception;
 use Packaged\Http\Response;
 use Packaged\Http\Responses\AccessDeniedResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class TestController extends Controller
+class TestController extends AuthedController
 {
   protected $_authResponse;
 
@@ -24,6 +25,7 @@ class TestController extends Controller
     yield self::_route('/missing', 'missing');
     yield self::_route('/exception', 'exception');
     yield self::_route('/safe-html', 'safeHtml');
+    yield self::_route('/google', RedirectResponse::create('http://www.google.com'));
     yield self::_route('/subs/{dynamic}', SubTestController::class);
     yield self::_route('/sub/call', [SubTestController::class, 'remoteCall']);
     yield self::_route('/sub', SubTestController::class);
