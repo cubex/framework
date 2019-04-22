@@ -6,6 +6,8 @@ use Cubex\Context\Context;
 use Cubex\Controller\Controller;
 use Cubex\Cubex;
 use Cubex\Events\PreExecuteEvent;
+use Cubex\Routing\ConditionHandler;
+use Cubex\Routing\RouteProcessor;
 use Cubex\Tests\Supporting\Controller\SubTestController;
 use Cubex\Tests\Supporting\Controller\TestArrayRouteController;
 use Cubex\Tests\Supporting\Controller\TestController;
@@ -272,23 +274,33 @@ class ControllerTest extends TestCase
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/missing");
     $this->_prepareCubex($cubex, $request);
-    $this->expectExceptionMessage(Controller::ERROR_NO_ROUTE);
+    $this->expectExceptionMessage(RouteProcessor::ERROR_NO_ROUTE);
     $controller->handle($cubex->getContext());
   }
 
   /**
-   * @dataProvider controllersProvider
-   *
-   * @param $controller
-   *
    * @throws \Throwable
    */
-  public function testNoRoute(Controller $controller)
+  public function testNoRouteWithDefault()
   {
+    $controller = new TestController();
     $cubex = new Cubex(__DIR__, null, false);
     $request = Request::create("/not-found");
     $this->_prepareCubex($cubex, $request);
-    $this->expectExceptionMessage(Controller::ERROR_NO_ROUTE);
+    $this->expectExceptionMessage(RouteProcessor::ERROR_NO_ROUTE);
+    $controller->handle($cubex->getContext());
+  }
+
+  /**
+   * @throws \Throwable
+   */
+  public function testNoRoute()
+  {
+    $controller = new TestArrayRouteController();
+    $cubex = new Cubex(__DIR__, null, false);
+    $request = Request::create("/not-found");
+    $this->_prepareCubex($cubex, $request);
+    $this->expectExceptionMessage(ConditionHandler::ERROR_NO_HANDLER);
     $controller->handle($cubex->getContext());
   }
 
@@ -361,7 +373,7 @@ class ControllerTest extends TestCase
     $controller = new TestIncompleteController();
     $request = Request::create("/route");
     $this->_prepareCubex($cubex, $request);
-    $this->expectExceptionMessage(Controller::ERROR_NO_ROUTE);
+    $this->expectExceptionMessage(ConditionHandler::ERROR_NO_HANDLER);
     $controller->handle($cubex->getContext());
   }
 
@@ -389,5 +401,12 @@ class ControllerTest extends TestCase
     );
     $controller->handle($cubex->getContext());
     $this->assertInstanceOf(SubTestController::class, $run);
+  }
+
+  public function testProcessingObjectNull()
+  {
+    $controller = new TestController();
+    $resp = null;
+    $this->assertFalse($controller->processObject(new Context(), null, $resp));
   }
 }

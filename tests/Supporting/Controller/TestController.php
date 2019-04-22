@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Tests\Supporting\Controller;
 
+use Cubex\Context\Context;
 use Cubex\Controller\Controller;
 use Cubex\Http\FuncHandler;
 use Cubex\Tests\Supporting\Container\TestObject;
@@ -88,4 +89,18 @@ class TestController extends Controller
   {
     throw new Exception("Broken");
   }
+
+  /**
+   * @param Context $c
+   * @param         $handler
+   * @param         $response
+   *
+   * @return bool
+   * @throws Exception
+   */
+  public function processObject(Context $c, $handler, &$response): bool
+  {
+    return parent::_processMixed($c, $handler, $response);
+  }
+
 }

@@ -2,15 +2,13 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
-use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Generator;
-use Symfony\Component\HttpFoundation\Response;
 
 abstract class RouteSelector implements Handler
 {
   /**
-   * @return Route[]|\Generator|string|Handler|callable
+   * @return Route[]|Generator|Handler|string|callable
    */
   abstract protected function _generateRoutes();
 
@@ -47,13 +45,9 @@ abstract class RouteSelector implements Handler
     if($conditions instanceof Generator)
     {
       $final = $conditions->getReturn();
-      if($final instanceof Generator)
-      {
-        return $this->_traverseConditions($context, $final);
-      }
-
-      return $final;
+      return $final instanceof Generator ? $this->_traverseConditions($context, $final) : $final;
     }
+
     return null;
   }
 
@@ -67,28 +61,4 @@ abstract class RouteSelector implements Handler
   {
     return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
   }
-
-  /**
-   * @param Context $c
-   *
-   * @return Response
-   * @throws \Exception
-   */
-  public function handle(Context $c): Response
-  {
-    $handler = $this->_getHandler($c);
-    if(is_string($handler) && strstr($handler, '\\') && class_exists($handler))
-    {
-      $handler = new $handler();
-    }
-
-    if($handler instanceof Handler)
-    {
-      $c->events()->trigger(PreExecuteEvent::i($c, $handler), true);
-      return $handler->handle($c);
-    }
-
-    throw new \RuntimeException(ConditionHandler::ERROR_NO_HANDLER, 500);
-  }
-
 }

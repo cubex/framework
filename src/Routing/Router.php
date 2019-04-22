@@ -5,7 +5,7 @@ use Cubex\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\Handler;
 
-class Router extends RouteSelector
+class Router extends RouteProcessor
 {
   public static function i()
   {

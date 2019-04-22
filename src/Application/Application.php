@@ -6,12 +6,12 @@ use Cubex\Context\ContextAwareTrait;
 use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\Http\Handler;
-use Cubex\Routing\RouteSelector;
+use Cubex\Routing\RouteProcessor;
 
 /**
  * Base Application
  */
-abstract class Application extends RouteSelector implements ContextAware
+abstract class Application extends RouteProcessor implements ContextAware
 {
   use CubexAwareTrait;
   use ContextAwareTrait;

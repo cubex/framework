@@ -76,6 +76,13 @@ class DependencyInjector
     throw new \Exception("Unable to retrieve");
   }
 
+  /**
+   * @param       $instance
+   * @param array $parameters
+   *
+   * @return mixed
+   * @throws \ReflectionException
+   */
   protected function _buildInstance($instance, array $parameters = [])
   {
     if(is_scalar($instance) && class_exists($instance))
