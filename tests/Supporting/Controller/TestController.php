@@ -35,9 +35,18 @@ class TestController extends AuthedController
     return 'DEFAULT ROUTE';
   }
 
-  public function canProcess()
+  public function canProcess(&$response): bool
   {
-    return $this->_authResponse ?? parent::canProcess();
+    if($this->_authResponse !== null)
+    {
+      if(is_bool($this->_authResponse))
+      {
+        return $this->_authResponse;
+      }
+      $response = $this->_authResponse;
+      return false;
+    }
+    return parent::canProcess($response);
   }
 
   public function setAuthResponse($authResponse)

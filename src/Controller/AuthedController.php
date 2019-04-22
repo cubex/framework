@@ -11,9 +11,13 @@ abstract class AuthedController extends Controller
   /**
    * Is this request permitted to process
    *
-   * @return bool|Response
+   * Setting the response to a strict response, e.g. RedirectResponse, will process before the route
+   *
+   * @param $response
+   *
+   * @return bool
    */
-  public function canProcess()
+  public function canProcess(&$response): bool
   {
     return true;
   }
@@ -28,17 +32,17 @@ abstract class AuthedController extends Controller
    */
   public function handle(Context $c): Response
   {
+    $response = null;
     $this->setContext($c);
     $this->_callStartTime = $this->_callStartTime ?: microtime(true);
 
     //Verify the request can be processed
-    $authResponse = $this->canProcess();
-    if($authResponse instanceof Response)
+    if($this->canProcess($response) !== true)
     {
-      return $authResponse;
-    }
-    else if($authResponse !== true)
-    {
+      if($response instanceof Response)
+      {
+        return $this->_prepareResponse($c, $response, null);
+      }
       throw new \Exception(self::ERROR_ACCESS_DENIED, 403);
     }
 
