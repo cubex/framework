@@ -6,8 +6,8 @@ use Cubex\Context\ContextAware;
 use Cubex\Context\ContextAwareTrait;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
-use Cubex\Routing\RouteSelector;
 use Cubex\Routing\Route;
+use Cubex\Routing\RouteSelector;
 use Exception;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
@@ -84,10 +84,9 @@ abstract class Controller extends RouteSelector implements Handler, ContextAware
         return $this->_executeClass($c, $handler);
       }
 
-      $callable = is_callable($handler) ? $handler : $this->_getMethod($this->getContext()->request(), $handler);
-      if(is_callable($callable))
+      if(([$result, $ok] = $this->_executeMethod($c, $handler)) && $ok)
       {
-        return $this->_executeCallable($c, $callable);
+        return $result;
       }
     }
 
@@ -114,27 +113,45 @@ abstract class Controller extends RouteSelector implements Handler, ContextAware
     return $object;
   }
 
-  private function _getMethod(Request $r, $method)
+  /**
+   * Yield methods to attempt
+   *
+   * @param Request $r
+   * @param string  $method
+   *
+   * @return \Generator|null
+   */
+  protected function _getMethod(Request $r, string $method)
   {
     $method = ucfirst($method);
-    $prefixes = [];
     if($r->isXmlHttpRequest())
     {
-      $prefixes[] = 'ajax';
-      $prefixes[] = 'ajax' . ucfirst(strtolower($r->getMethod()));
+      yield 'ajax' . $method;
+      yield 'ajax' . ucfirst(strtolower($r->getMethod())) . $method;
     }
 
-    $prefixes[] = strtolower($r->getMethod());
-    $prefixes[] = 'process'; //support for all methods
+    yield strtolower($r->getMethod()) . $method;
+    yield 'process' . $method; //support for all methods
+    return null;
+  }
 
-    foreach($prefixes as $prefix)
+  /**
+   * @param Context $c
+   * @param string  $methodSuffix
+   *
+   * @return array [value, bool processed]
+   * @throws \Throwable
+   */
+  protected function _executeMethod(Context $c, string $methodSuffix)
+  {
+    foreach($this->_getMethod($c->request(), $methodSuffix) as $attemptMethod)
     {
-      if(method_exists($this, $prefix . $method))
+      if(method_exists($this, $attemptMethod))
       {
-        return [$this, $prefix . $method];
+        return [$this->_executeCallable($c, [$this, $attemptMethod]), true];
       }
     }
-    return null;
+    return [null, false];
   }
 
   /**
