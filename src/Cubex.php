@@ -19,7 +19,6 @@ use Cubex\Http\Handler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Event\Channel\Channel;
-use Packaged\Helpers\Path;
 use Packaged\Http\Request;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -73,14 +72,14 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     if($this->_projectRoot !== null)
     {
       $ctx->setProjectRoot($this->_projectRoot);
-      $confDir = Path::system($ctx->getProjectRoot(), "conf");
+      $confDir = rtrim($ctx->getProjectRoot(), DIRECTORY_SEPARATOR) . "conf" . DIRECTORY_SEPARATOR;
       $config = new IniConfigProvider();
       $config->loadFiles(
         [
-          $confDir . DIRECTORY_SEPARATOR . "defaults.ini",
-          $confDir . DIRECTORY_SEPARATOR . "defaults" . DIRECTORY_SEPARATOR . "config.ini",
-          $confDir . DIRECTORY_SEPARATOR . $ctx->getEnvironment() . ".ini",
-          $confDir . DIRECTORY_SEPARATOR . $ctx->getEnvironment() . DIRECTORY_SEPARATOR . "config.ini",
+          $confDir . "defaults.ini",
+          $confDir . "defaults" . DIRECTORY_SEPARATOR . "config.ini",
+          $confDir . $ctx->getEnvironment() . ".ini",
+          $confDir . $ctx->getEnvironment() . DIRECTORY_SEPARATOR . "config.ini",
         ],
         true,
         false
