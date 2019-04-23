@@ -38,10 +38,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   protected $_logger;
   /** @var Channel */
   protected $_eventChannel;
-
-  /**
-   * @var callable
-   */
   private $_projectRoot;
 
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
