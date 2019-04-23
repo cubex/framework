@@ -72,7 +72,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     if($this->_projectRoot !== null)
     {
       $ctx->setProjectRoot($this->_projectRoot);
-      $confDir = rtrim($ctx->getProjectRoot(), DIRECTORY_SEPARATOR) . "conf" . DIRECTORY_SEPARATOR;
+      $confDir = rtrim($this->_projectRoot, DIRECTORY_SEPARATOR) . "conf" . DIRECTORY_SEPARATOR;
       $config = new IniConfigProvider();
       $config->loadFiles(
         [
