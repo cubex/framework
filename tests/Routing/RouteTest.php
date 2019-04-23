@@ -11,19 +11,33 @@ use PHPUnit\Framework\TestCase;
 
 class RouteTest extends TestCase
 {
-  public function testRoute()
+  public function testRoutePart()
   {
-    $route = Route::i();
-    $handler = new FuncHandler(function () { });
-    $route->setHandler($handler);
-    $this->assertSame($handler, $route->getHandler());
+    [$route, $ctx] = $this->_getRoute();
 
-    $ctx = new Context(Request::create('/route'));
+    $route->add(RequestConstraint::i()->path('route'));
     $this->assertTrue($route->match($ctx));
+  }
+
+  public function testRouteRootRoute()
+  {
+    [$route, $ctx] = $this->_getRoute();
+
     $route->add(RequestConstraint::i()->path('/route'));
     $this->assertTrue($route->match($ctx));
+  }
+
+  public function testRouteRoot()
+  {
+    [$route, $ctx] = $this->_getRoute();
+
     $route->add(RequestConstraint::i()->path('/'));
     $this->assertTrue($route->match($ctx));
+  }
+
+  public function testRoutePort()
+  {
+    [$route, $ctx] = $this->_getRoute();
     $route->add(RequestConstraint::i()->port('8484'));
     $this->assertFalse($route->match($ctx));
   }
@@ -37,5 +51,20 @@ class RouteTest extends TestCase
     $ctx = new Context(Request::create('/route_extra'));
     $route->add(RequestConstraint::i()->path('/route'));
     $this->assertFalse($route->match($ctx));
+  }
+
+  /**
+   * @return array
+   */
+  private function _getRoute(): array
+  {
+    $route = Route::i();
+    $handler = new FuncHandler(function () { });
+    $route->setHandler($handler);
+    $this->assertSame($handler, $route->getHandler());
+
+    $ctx = new Context(Request::create('/route'));
+    $this->assertTrue($route->match($ctx));
+    return [$route, $ctx];
   }
 }

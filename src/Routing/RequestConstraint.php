@@ -2,7 +2,8 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
-use Packaged\Helpers\Path;
+use Exception;
+use InvalidArgumentException;
 use Packaged\Helpers\Strings;
 
 class RequestConstraint implements Condition
@@ -181,9 +182,16 @@ class RequestConstraint implements Condition
     switch($matchType)
     {
       case self::TYPE_REGEX:
-        if(!preg_match($matchWith, $value, $matches))
+        try
         {
-          return false;
+          if(!preg_match($matchWith, $value, $matches))
+          {
+            return false;
+          }
+        }
+        catch(Exception $e)
+        {
+          throw new InvalidArgumentException('Invalid regex passed to path ' . $matchWith, 400, $e);
         }
         break;
       case self::TYPE_START:
@@ -233,26 +241,40 @@ class RequestConstraint implements Condition
 
   protected function _convertPathToRegex($path, $type)
   {
-    if(empty($path) || $path[0] !== '/')
+    if(empty($path))
     {
-      $path = Path::url($this->_routedPath, $path);
+      $path = $this->_routedPath;
+    }
+    else if($path[0] !== '/')
+    {
+      $path = rtrim($this->_routedPath, '/') . '/' . $path;
+    }
+
+    if(strpos($path, '{') !== false)
+    {
+      $idPat = "([a-zA-Z_][a-zA-Z0-9_\-]*)";
+      $path = preg_replace(
+        [
+          "/{" . "$idPat\@alphanum}/",
+          "/{" . "$idPat\@alnum}/",
+          "/{" . "$idPat\@alpha}/",
+          "/{" . "$idPat\@all}/",
+          "/{" . "$idPat\@num}/",
+          "/{" . "$idPat}/",
+        ],
+        [
+          "(?P<$1>\w+)",
+          "(?P<$1>\w+)",
+          "(?P<$1>[a-zA-Z]+)",
+          "(?P<$1>.+)",
+          "(?P<$1>\d+)",
+          "(?P<$1>[^\/]+)",
+        ],
+        $path
+      );
     }
 
     $flags = 'u';
-    if(strstr($path, '{'))
-    {
-      $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
-      $repl = [
-        "/{" . "$idPat\@alphanum}/" => "(?P<$1>\w+)",
-        "/{" . "$idPat\@alnum}/"    => "(?P<$1>\w+)",
-        "/{" . "$idPat\@alpha}/"    => "(?P<$1>[a-zA-Z]+)",
-        "/{" . "$idPat\@all}/"      => "(?P<$1>.+)",
-        "/{" . "$idPat\@num}/"      => "(?P<$1>\d+)",
-        "/{" . "$idPat}/"           => "(?P<$1>[^\/]+)",
-      ];
-      $path = preg_replace(array_keys($repl), array_values($repl), $path);
-    }
-
     $path = '#^' . $path;
     switch($type)
     {

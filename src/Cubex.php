@@ -19,7 +19,6 @@ use Cubex\Http\Handler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
 use Packaged\Event\Channel\Channel;
-use Packaged\Helpers\Path;
 use Packaged\Http\Request;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -39,10 +38,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   protected $_logger;
   /** @var Channel */
   protected $_eventChannel;
-
-  /**
-   * @var callable
-   */
   private $_projectRoot;
 
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
@@ -61,7 +56,9 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
   protected function _defaultContextFactory()
   {
-    return function () { return $this->prepareContext(new Context(Request::createFromGlobals())); };
+    return function () {
+      return $this->prepareContext(new Context(Request::createFromGlobals()));
+    };
   }
 
   public function prepareContext(Context $ctx): Context
@@ -71,13 +68,14 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     if($this->_projectRoot !== null)
     {
       $ctx->setProjectRoot($this->_projectRoot);
+      $confDir = rtrim($this->_projectRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR;
       $config = new IniConfigProvider();
       $config->loadFiles(
         [
-          Path::system($ctx->getProjectRoot(), "conf", "defaults.ini"),
-          Path::system($ctx->getProjectRoot(), "conf", "defaults", "config.ini"),
-          Path::system($ctx->getProjectRoot(), "conf", $ctx->getEnvironment() . ".ini"),
-          Path::system($ctx->getProjectRoot(), "conf", $ctx->getEnvironment(), "config.ini"),
+          $confDir . "defaults.ini",
+          $confDir . "defaults" . DIRECTORY_SEPARATOR . "config.ini",
+          $confDir . $ctx->getEnvironment() . ".ini",
+          $confDir . $ctx->getEnvironment() . DIRECTORY_SEPARATOR . "config.ini",
         ],
         true,
         false
@@ -115,7 +113,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_console = new Console("Cubex Console", "4.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
-      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console), false);
+      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console));
     }
     return $this->_console;
   }
@@ -133,7 +131,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $output = $output ?? new ConsoleOutput();
 
     $console = $this->getConsole();
-    $this->_eventChannel->trigger(ConsolePrepareEvent::i($this->getContext(), $console, $input, $output), false);
+    $this->_eventChannel->trigger(ConsolePrepareEvent::i($this->getContext(), $console, $input, $output));
 
     try
     {
@@ -165,6 +163,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     Handler $handler, $sendResponse = true, $catchExceptions = true, $flushHeaders = true, $throwEventExceptions = false
   )
   {
+    $this->_eventChannel->setShouldThrowExceptions($throwEventExceptions);
     $c = $this->getContext();
     if($handler instanceof ContextAware)
     {
@@ -173,11 +172,11 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
     try
     {
-      $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler), $throwEventExceptions);
+      $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler));
       $r = $handler->handle($c);
-      $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r), $throwEventExceptions);
+      $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r));
       $r->prepare($c->request());
-      $this->_eventChannel->trigger(ResponsePreparedEvent::i($c, $handler, $r), $throwEventExceptions);
+      $this->_eventChannel->trigger(ResponsePreparedEvent::i($c, $handler, $r));
     }
     catch(\Throwable $e)
     {
@@ -193,16 +192,16 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     {
       if($sendResponse)
       {
-        $this->_eventChannel->trigger(ResponsePreSendHeadersEvent::i($c, $handler, $r), $throwEventExceptions);
+        $this->_eventChannel->trigger(ResponsePreSendHeadersEvent::i($c, $handler, $r));
         $r->sendHeaders();
         if($flushHeaders)
         {
           flush();
         }
-        $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r), $throwEventExceptions);
+        $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r));
         $r->send();
       }
-      $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r), $throwEventExceptions);
+      $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r));
     }
     catch(\Throwable $e)
     {

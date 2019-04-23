@@ -16,10 +16,10 @@ class LazyHandler extends FuncHandler
    */
   public function handle(Context $c): Response
   {
-    $result = call_user_func($this->_func, $c);
+    $result = ($this->_func)($c);
     if($result instanceof Handler)
     {
-      $c->events()->trigger(PreExecuteEvent::i($c, $result), true);
+      $c->events()->trigger(PreExecuteEvent::i($c, $result));
       return $result->handle($c);
     }
     else if($result instanceof Response)
