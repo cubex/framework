@@ -34,30 +34,20 @@ abstract class Controller extends RouteProcessor implements ContextAware
     return parent::handle($c);
   }
 
-  /**
-   * @param Context $c
-   * @param string  $handler
-   *
-   * @param         $response
-   *
-   * @return bool
-   * @throws \Throwable
-   */
-  protected function _processStringHandler(Context $c, string $handler, &$response): bool
+  protected function _prepareHandler(Context $c, $handler)
   {
-    $processed = parent::_processStringHandler($c, $handler, $response);
-    if(!$processed)
+    $handler = parent::_prepareHandler($c, $handler);
+    if(is_string($handler))
     {
       foreach($this->_getRouteMethods($c->request(), $handler) as $attemptMethod)
       {
         if(method_exists($this, $attemptMethod))
         {
-          $this->_processMixed($c, $this->$attemptMethod(), $response);
-          return true;
+          return [$this, $attemptMethod];
         }
       }
     }
-    return $processed;
+    return $handler;
   }
 
   /**

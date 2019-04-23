@@ -22,28 +22,13 @@ abstract class RouteProcessor extends RouteSelector
   public function handle(Context $c): Response
   {
     $response = null;
-    $processed = false; //Flag for if the handler has been processed
     $handler = $this->_getHandler($c);
 
     ob_start();
     try
     {
-      if(is_object($handler))
-      {
-        $c->events()->trigger(PreExecuteEvent::i($c, $handler));
-        $processed = $this->_processMixed($c, $handler, $response);
-      }
-      else if(is_callable($handler))
-      {
-        $c->events()->trigger(PreExecuteEvent::i($c, $handler));
-        $processed = $this->_processMixed($c, $handler(), $response);
-      }
-      else if(is_string($handler))
-      {
-        $processed = $this->_processStringHandler($c, $handler, $response);
-      }
-
-      if(!$processed)
+      $handler = $this->_prepareHandler($c, $handler);
+      if(!$this->_processHandler($c, $handler, $response))
       {
         $this->_processRoute($c, $handler, $response);
       }
@@ -60,6 +45,21 @@ abstract class RouteProcessor extends RouteSelector
       return $response;
     }
     throw new Exception(self::ERROR_INVALID_ROUTE_RESPONSE, 500);
+  }
+
+  /**
+   * @param Context $c
+   * @param mixed   $handler
+   *
+   * @return Handler|callable|mixed
+   */
+  protected function _prepareHandler(Context $c, $handler)
+  {
+    if(is_string($handler) && strstr($handler, '\\') && class_exists($handler))
+    {
+      return new $handler();
+    }
+    return $handler;
   }
 
   /**
@@ -80,34 +80,20 @@ abstract class RouteProcessor extends RouteSelector
 
   /**
    * @param Context $c
-   * @param string  $handler
-   *
-   * @param         $response
-   *
-   * @return bool
-   * @throws Exception
-   */
-  protected function _processStringHandler(Context $c, string $handler, &$response): bool
-  {
-    if(strstr($handler, '\\') && class_exists($handler))
-    {
-      $handlerObj = new $handler();
-      $c->events()->trigger(PreExecuteEvent::i($c, $handlerObj));
-      return $this->_processMixed($c, $handlerObj, $response);
-    }
-    return false;
-  }
-
-  /**
-   * @param Context $c
    * @param         $handler
    * @param         $response
    *
    * @return bool
    * @throws Exception
    */
-  protected function _processMixed(Context $c, $handler, &$response): bool
+  protected function _processHandler(Context $c, $handler, &$response): bool
   {
+    $processed = $handler !== null && !is_string($handler);
+    while(is_callable($handler))
+    {
+      $handler = $handler($c);
+    }
+
     if($handler instanceof ContextAware)
     {
       $handler->setContext($c);
@@ -115,17 +101,17 @@ abstract class RouteProcessor extends RouteSelector
 
     if($handler instanceof Handler)
     {
+      $c->events()->trigger(PreExecuteEvent::i($c, $handler));
       $response = $handler->handle($c);
       return true;
     }
 
-    if($handler !== null)
+    if($handler)
     {
       $response = $handler;
-      return true;
     }
 
-    return false;
+    return $processed;
   }
 
   /**

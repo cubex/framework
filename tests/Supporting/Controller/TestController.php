@@ -111,7 +111,7 @@ class TestController extends AuthedController
    */
   public function processObject(Context $c, $handler, &$response): bool
   {
-    return parent::_processMixed($c, $handler, $response);
+    return parent::_processHandler($c, $handler, $response);
   }
 
 }
