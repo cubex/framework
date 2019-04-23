@@ -137,6 +137,7 @@ abstract class Controller extends RouteProcessor implements ContextAware
     }
     catch(\InvalidArgumentException $e)
     {
+      //Non stringable $result, return as is
     }
 
     return $result;
