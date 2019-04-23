@@ -2,7 +2,6 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
-use Packaged\Helpers\Path;
 use Packaged\Helpers\Strings;
 
 class RequestConstraint implements Condition
@@ -239,7 +238,7 @@ class RequestConstraint implements Condition
     }
     else if($path[0] !== '/')
     {
-      $path = Path::url($this->_routedPath, $path);
+      $path = rtrim($this->_routedPath, '/') . '/' . $path;
     }
 
     if(strpos($path, '{') !== false)
