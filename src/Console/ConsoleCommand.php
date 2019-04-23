@@ -208,13 +208,13 @@ abstract class ConsoleCommand extends Command implements ContextAware
     if(method_exists($this, 'executeCommand'))
     {
       array_unshift($params, $input, $output);
-      return call_user_func_array([$this, 'executeCommand'], $params);
+      return $this->executeCommand(...$params);
     }
 
     //Call the process method, without $input and $output
     if(method_exists($this, 'process'))
     {
-      return call_user_func_array([$this, 'process'], $params);
+      return $this->process(...$params);
     }
 
     throw new \RuntimeException(

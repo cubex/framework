@@ -233,7 +233,11 @@ class RequestConstraint implements Condition
 
   protected function _convertPathToRegex($path, $type)
   {
-    if(empty($path) || $path[0] !== '/')
+    if(empty($path))
+    {
+      $path = $this->_routedPath;
+    }
+    else if($path[0] !== '/')
     {
       $path = Path::url($this->_routedPath, $path);
     }
