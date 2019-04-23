@@ -95,9 +95,9 @@ abstract class Controller extends RouteProcessor implements ContextAware
   /**
    * Convert a route response into a valid Response
    *
-   * @param Context $c
-   * @param mixed   $result
-   * @param null    $buffer
+   * @param Context     $c
+   * @param mixed       $result
+   * @param null|string $buffer
    *
    * @return mixed|CubexResponse
    */
