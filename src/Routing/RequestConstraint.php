@@ -242,21 +242,31 @@ class RequestConstraint implements Condition
       $path = Path::url($this->_routedPath, $path);
     }
 
-    $flags = 'u';
-    if(strstr($path, '{'))
+    if(strpos($path, '{') !== false)
     {
       $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
-      $repl = [
-        "/{" . "$idPat\@alphanum}/" => "(?P<$1>\w+)",
-        "/{" . "$idPat\@alnum}/"    => "(?P<$1>\w+)",
-        "/{" . "$idPat\@alpha}/"    => "(?P<$1>[a-zA-Z]+)",
-        "/{" . "$idPat\@all}/"      => "(?P<$1>.+)",
-        "/{" . "$idPat\@num}/"      => "(?P<$1>\d+)",
-        "/{" . "$idPat}/"           => "(?P<$1>[^\/]+)",
-      ];
-      $path = preg_replace(array_keys($repl), array_values($repl), $path);
+      $path = preg_replace(
+        [
+          "/{" . "$idPat\@alphanum}/",
+          "/{" . "$idPat\@alnum}/",
+          "/{" . "$idPat\@alpha}/",
+          "/{" . "$idPat\@all}/",
+          "/{" . "$idPat\@num}/",
+          "/{" . "$idPat}/",
+        ],
+        [
+          "(?P<$1>\w+)",
+          "(?P<$1>\w+)",
+          "(?P<$1>[a-zA-Z]+)",
+          "(?P<$1>.+)",
+          "(?P<$1>\d+)",
+          "(?P<$1>[^\/]+)",
+        ],
+        $path
+      );
     }
 
+    $flags = 'u';
     $path = '#^' . $path;
     switch($type)
     {

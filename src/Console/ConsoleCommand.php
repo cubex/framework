@@ -200,7 +200,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
     $this->_input = $input;
     $this->_output = $output;
 
-    $params = $input->getArguments();
+    $params = array_values($input->getArguments());
     //Strip off the command name
     array_shift($params);
 
