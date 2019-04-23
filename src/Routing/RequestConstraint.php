@@ -2,6 +2,8 @@
 namespace Cubex\Routing;
 
 use Cubex\Context\Context;
+use Exception;
+use InvalidArgumentException;
 use Packaged\Helpers\Strings;
 
 class RequestConstraint implements Condition
@@ -180,9 +182,16 @@ class RequestConstraint implements Condition
     switch($matchType)
     {
       case self::TYPE_REGEX:
-        if(!preg_match($matchWith, $value, $matches))
+        try
         {
-          return false;
+          if(!preg_match($matchWith, $value, $matches))
+          {
+            return false;
+          }
+        }
+        catch(Exception $e)
+        {
+          throw new InvalidArgumentException('Invalid regex passed to path ' . $matchWith, 400, $e);
         }
         break;
       case self::TYPE_START:
@@ -243,7 +252,7 @@ class RequestConstraint implements Condition
 
     if(strpos($path, '{') !== false)
     {
-      $idPat = "(_?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
+      $idPat = "([a-zA-Z_][a-zA-Z0-9_\-]*)";
       $path = preg_replace(
         [
           "/{" . "$idPat\@alphanum}/",

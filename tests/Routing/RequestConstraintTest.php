@@ -117,4 +117,14 @@ class RequestConstraintTest extends TestCase
     $this->assertTrue(RequestConstraint::i()->path('/INV{invoiceNumber@num}')->match($ctx));
     $this->assertEquals(123, $ctx->routeData()->get('invoiceNumber'));
   }
+
+  public function testRegexInConstraintVariable()
+  {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Invalid regex passed to path #^/{test#test}(?=/|$)#ui');
+
+    $request = Request::create('http://www.test.com:8080/INV123');
+    $ctx = new Context($request);
+    RequestConstraint::i()->path('/{test#test}')->match($ctx);
+  }
 }
