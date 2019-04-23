@@ -2,18 +2,17 @@
 namespace Cubex\Controller;
 
 /**
- * Class SingleRouteController
+ * Routes to method name matching HTTP method
  *
- * GET > getRoute
- * POST > postRoute
- * AJAX > ajaxRoute
- * Any Method > processRoute
- *
+ * GET > get
+ * POST > post
+ * AJAX > ajax
+ * Any Method > process
  */
 class SingleRouteController extends Controller
 {
   protected function _generateRoutes()
   {
-    return 'route';
+    return '';
   }
 }
