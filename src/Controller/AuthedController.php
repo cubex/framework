@@ -3,24 +3,11 @@ namespace Cubex\Controller;
 
 use Cubex\Context\Context;
 use Symfony\Component\HttpFoundation\Response;
+use function microtime;
 
 abstract class AuthedController extends Controller
 {
   const ERROR_ACCESS_DENIED = "you are not permitted to access this url";
-
-  /**
-   * Is this request permitted to process
-   *
-   * Setting the response to a strict response, e.g. RedirectResponse, will process before the route
-   *
-   * @param $response
-   *
-   * @return bool
-   */
-  public function canProcess(&$response): bool
-  {
-    return true;
-  }
 
   /**
    * Standard route handler, pre-authenticated
@@ -47,5 +34,19 @@ abstract class AuthedController extends Controller
     }
 
     return parent::handle($c);
+  }
+
+  /**
+   * Is this request permitted to process
+   *
+   * Setting the response to a strict response, e.g. RedirectResponse, will process before the route
+   *
+   * @param $response
+   *
+   * @return bool
+   */
+  public function canProcess(&$response): bool
+  {
+    return true;
   }
 }

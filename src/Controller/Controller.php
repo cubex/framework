@@ -12,6 +12,11 @@ use Packaged\SafeHtml\ISafeHtmlProducer;
 use Packaged\Ui\Renderable;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
+use function is_string;
+use function method_exists;
+use function microtime;
+use function strtolower;
+use function ucfirst;
 
 abstract class Controller extends RouteProcessor implements ContextAware
 {
@@ -32,6 +37,22 @@ abstract class Controller extends RouteProcessor implements ContextAware
     $this->setContext($c);
     $this->_callStartTime = $this->_callStartTime ?: microtime(true);
     return parent::handle($c);
+  }
+
+  /**
+   * @return Request
+   */
+  public function request()
+  {
+    return $this->getContext()->request();
+  }
+
+  /**
+   * @return ParameterBag
+   */
+  public function routeData()
+  {
+    return $this->getContext()->routeData();
   }
 
   protected function _prepareHandler(Context $c, $handler)
@@ -70,16 +91,6 @@ abstract class Controller extends RouteProcessor implements ContextAware
     yield strtolower($r->getMethod()) . $method;
     yield 'process' . $method; //support for all methods
     return null;
-  }
-
-  protected function _makeCubexResponse($content)
-  {
-    $result = new CubexResponse($content);
-    if($this->_callStartTime)
-    {
-      $result->setCallStartTime($this->_callStartTime);
-    }
-    return $result;
   }
 
   /**
@@ -133,19 +144,13 @@ abstract class Controller extends RouteProcessor implements ContextAware
     return $result;
   }
 
-  /**
-   * @return Request
-   */
-  public function request()
+  protected function _makeCubexResponse($content)
   {
-    return $this->getContext()->request();
-  }
-
-  /**
-   * @return ParameterBag
-   */
-  public function routeData()
-  {
-    return $this->getContext()->routeData();
+    $result = new CubexResponse($content);
+    if($this->_callStartTime)
+    {
+      $result->setCallStartTime($this->_callStartTime);
+    }
+    return $result;
   }
 }

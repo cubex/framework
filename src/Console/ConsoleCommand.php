@@ -10,6 +10,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function array_shift;
+use function array_unshift;
+use function array_values;
+use function basename;
+use function get_called_class;
+use function method_exists;
+use function property_exists;
+use function str_replace;
+use function strtolower;
 
 /**
  * Extended Command to support public properties for arguments

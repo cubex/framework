@@ -9,6 +9,14 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function array_merge;
+use function class_exists;
+use function explode;
+use function implode;
+use function is_int;
+use function str_replace;
+use function stristr;
+use function ucwords;
 
 class Console extends Application implements ContextAware
 {
@@ -114,6 +122,15 @@ class Console extends Application implements ContextAware
     return null;
   }
 
+  protected function _prepareCommand(Command $command): Command
+  {
+    if($this->hasContext() && $command instanceof ContextAware)
+    {
+      $command->setContext($this->getContext());
+    }
+    return $command;
+  }
+
   /**
    * Find a command, and fail over to namespaced class split on .
    *
@@ -149,14 +166,5 @@ class Console extends Application implements ContextAware
     $commands = parent::getDefaultCommands();
     $commands[] = $this->_prepareCommand(new BuiltInWebServer());
     return $commands;
-  }
-
-  protected function _prepareCommand(Command $command): Command
-  {
-    if($this->hasContext() && $command instanceof ContextAware)
-    {
-      $command->setContext($this->getContext());
-    }
-    return $command;
   }
 }

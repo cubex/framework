@@ -7,36 +7,26 @@ use Cubex\Http\Handler;
 
 class Router extends RouteProcessor
 {
-  public static function i()
-  {
-    return new static();
-  }
-
   /**
    * @var ConditionHandler[]
    */
   protected $_conditions = [];
   protected $_defaultHandler;
 
-  protected function _generateRoutes()
+  public static function i()
   {
-    foreach($this->_conditions as $condition)
-    {
-      yield $condition;
-    }
-    return $this->_defaultHandler;
-  }
-
-  public function addCondition(ConditionHandler $condition): Router
-  {
-    $this->_conditions[] = $condition;
-    return $this;
+    return new static();
   }
 
   public function setDefaultHandler(Handler $handler)
   {
     $this->_defaultHandler = $handler;
     return $this;
+  }
+
+  public function onPathFunc($path, callable $handleFunc): Condition
+  {
+    return $this->onPath($path, new FuncHandler($handleFunc));
   }
 
   public function onPath($path, Handler $handler): Condition
@@ -46,13 +36,23 @@ class Router extends RouteProcessor
     return $condition;
   }
 
-  public function onPathFunc($path, callable $handleFunc): Condition
+  public function addCondition(ConditionHandler $condition): Router
   {
-    return $this->onPath($path, new FuncHandler($handleFunc));
+    $this->_conditions[] = $condition;
+    return $this;
   }
 
   public function getHandler(Context $context)
   {
     return parent::_getHandler($context);
+  }
+
+  protected function _generateRoutes()
+  {
+    foreach($this->_conditions as $condition)
+    {
+      yield $condition;
+    }
+    return $this->_defaultHandler;
   }
 }

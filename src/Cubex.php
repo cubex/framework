@@ -28,6 +28,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response;
+use function flush;
+use function getenv;
+use function rtrim;
+use const DIRECTORY_SEPARATOR;
 
 class Cubex extends DependencyInjector implements LoggerAwareInterface
 {
@@ -38,6 +42,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   protected $_logger;
   /** @var Channel */
   protected $_eventChannel;
+  protected $_console;
   private $_projectRoot;
 
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
@@ -85,37 +90,51 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     return $ctx;
   }
 
-  public function getContext(): Context
+  /**
+   * @return LoggerInterface
+   */
+  public static function log()
+  {
+    return self::$_cubex->getLogger();
+  }
+
+  /**
+   * @return LoggerInterface
+   */
+  public function getLogger()
   {
     try
     {
-      $ctx = $this->retrieve(Context::class);
+      $logger = $this->retrieve(LoggerInterface::class);
     }
     catch(Exception $e)
     {
-      $ctx = $this->_defaultContextFactory()();
+      $logger = new NullLogger();
     }
-
-    return $ctx;
+    return $logger;
   }
 
-  protected $_console;
+  /**
+   * @param LoggerInterface $logger
+   *
+   * @return void
+   */
+  public function setLogger(LoggerInterface $logger)
+  {
+    $this->share(LoggerInterface::class, $logger);
+  }
 
   /**
-   * @return Console
-   *
-   * @throws Exception
+   * @return Cubex|null
    */
-  public function getConsole()
+  public static function instance()
   {
-    if(!$this->_console)
-    {
-      $this->_console = new Console("Cubex Console", "4.0");
-      $this->_console->setAutoExit(false);
-      $this->_console->setContext($this->getContext());
-      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console));
-    }
-    return $this->_console;
+    return self::$_cubex;
+  }
+
+  public static function destroyGlobalInstance()
+  {
+    self::$_cubex = null;
   }
 
   /**
@@ -145,6 +164,37 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
 
     return $exitCode > 255 ? 255 : $exitCode;
+  }
+
+  /**
+   * @return Console
+   *
+   * @throws Exception
+   */
+  public function getConsole()
+  {
+    if(!$this->_console)
+    {
+      $this->_console = new Console("Cubex Console", "4.0");
+      $this->_console->setAutoExit(false);
+      $this->_console->setContext($this->getContext());
+      $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console));
+    }
+    return $this->_console;
+  }
+
+  public function getContext(): Context
+  {
+    try
+    {
+      $ctx = $this->retrieve(Context::class);
+    }
+    catch(Exception $e)
+    {
+      $ctx = $this->_defaultContextFactory()();
+    }
+
+    return $ctx;
   }
 
   /**
@@ -226,53 +276,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   {
     $this->_eventChannel->listen($eventAlias, $callback);
     return $this;
-  }
-
-  /**
-   * @param LoggerInterface $logger
-   *
-   * @return void
-   */
-  public function setLogger(LoggerInterface $logger)
-  {
-    $this->share(LoggerInterface::class, $logger);
-  }
-
-  /**
-   * @return LoggerInterface
-   */
-  public function getLogger()
-  {
-    try
-    {
-      $logger = $this->retrieve(LoggerInterface::class);
-    }
-    catch(Exception $e)
-    {
-      $logger = new NullLogger();
-    }
-    return $logger;
-  }
-
-  /**
-   * @return LoggerInterface
-   */
-  public static function log()
-  {
-    return self::$_cubex->getLogger();
-  }
-
-  /**
-   * @return Cubex|null
-   */
-  public static function instance()
-  {
-    return self::$_cubex;
-  }
-
-  public static function destroyGlobalInstance()
-  {
-    self::$_cubex = null;
   }
 
   /**

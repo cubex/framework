@@ -2,6 +2,8 @@
 namespace Cubex\Container;
 
 use Packaged\Helpers\Objects;
+use function class_exists;
+use function is_scalar;
 
 class DependencyInjector
 {
@@ -23,18 +25,6 @@ class DependencyInjector
   public function removeFactory($abstract)
   {
     unset($this->_factories[$abstract]);
-    return $this;
-  }
-
-  public function share($abstract, $instance, $mode = self::MODE_MUTABLE)
-  {
-    if($instance !== null)
-    {
-      if(!isset($this->_instances[$abstract]) || $this->_instances[$abstract]['mode'] !== self::MODE_IMMUTABLE)
-      {
-        $this->_instances[$abstract] = ['instance' => $instance, 'mode' => $mode];
-      }
-    }
     return $this;
   }
 
@@ -90,6 +80,18 @@ class DependencyInjector
       return Objects::create($instance, $parameters);
     }
     return $instance;
+  }
+
+  public function share($abstract, $instance, $mode = self::MODE_MUTABLE)
+  {
+    if($instance !== null)
+    {
+      if(!isset($this->_instances[$abstract]) || $this->_instances[$abstract]['mode'] !== self::MODE_IMMUTABLE)
+      {
+        $this->_instances[$abstract] = ['instance' => $instance, 'mode' => $mode];
+      }
+    }
+    return $this;
   }
 
   /**

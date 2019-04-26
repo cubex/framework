@@ -5,6 +5,11 @@ use Cubex\Context\Context;
 use Exception;
 use InvalidArgumentException;
 use Packaged\Helpers\Strings;
+use function is_numeric;
+use function preg_match;
+use function preg_replace;
+use function rtrim;
+use function strpos;
 
 class RequestConstraint implements Condition
 {
@@ -35,12 +40,6 @@ class RequestConstraint implements Condition
 
   protected $_constraints = [];
 
-  protected function _add($on, $with, $type = self::TYPE_MATCH)
-  {
-    $this->_constraints[] = [$on, $with, $type];
-    return $this;
-  }
-
   public static function i()
   {
     return new static();
@@ -49,6 +48,12 @@ class RequestConstraint implements Condition
   public function path($path, $type = self::TYPE_MATCH)
   {
     return $this->_add(self::PATH, $path, $type);
+  }
+
+  protected function _add($on, $with, $type = self::TYPE_MATCH)
+  {
+    $this->_constraints[] = [$on, $with, $type];
+    return $this;
   }
 
   public function scheme($protocol, $matchType = self::TYPE_MATCH)
@@ -137,108 +142,6 @@ class RequestConstraint implements Condition
     return true;
   }
 
-  protected function _matchValue(Context $context, $on, $matchWith)
-  {
-    switch($on)
-    {
-      case self::PATH;
-        return $context->request()->path();
-      case self::SUBDOMAIN;
-        return $context->request()->subDomain();
-      case self::ROOT_DOMAIN;
-        return $context->request()->urlSprintf('%d.%t');
-      case self::DOMAIN;
-        return $context->request()->domain();
-      case self::TLD;
-        return $context->request()->tld();
-      case self::SCHEME;
-        return $context->request()->getScheme();
-      case self::PORT;
-        return $context->request()->port();
-      case self::METHOD;
-        return $context->request()->getRealMethod();
-      case self::AJAX;
-        return $context->request()->isXmlHttpRequest();
-      case self::QUERY_KEY;
-        return $context->request()->query->has($matchWith) ? $matchWith : null;
-      case self::QUERY_VALUE;
-        return $context->request()->query->get($matchWith[0]);
-      case self::HOSTNAME;
-        return $context->request()->getHost();
-    }
-    // @codeCoverageIgnoreStart
-    return null;
-    // @codeCoverageIgnoreEnd
-  }
-
-  protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
-  {
-    $value = $this->_matchValue($context, $matchOn, $matchWith);
-    if($matchOn == self::QUERY_VALUE)
-    {
-      $matchWith = $matchWith[1];
-    }
-    $matches = [];
-    switch($matchType)
-    {
-      case self::TYPE_REGEX:
-        try
-        {
-          if(!preg_match($matchWith, $value, $matches))
-          {
-            return false;
-          }
-        }
-        catch(Exception $e)
-        {
-          throw new InvalidArgumentException('Invalid regex passed to path ' . $matchWith, 400, $e);
-        }
-        break;
-      case self::TYPE_START:
-      case self::TYPE_START_CASEI:
-        if(!Strings::startsWith($value, $matchWith, $matchType == self::TYPE_START))
-        {
-          return false;
-        }
-        break;
-      case self::TYPE_MATCH:
-        if($value != $matchWith)
-        {
-          return false;
-        }
-        break;
-      case self::TYPE_EXACT:
-      default:
-        if($value !== $matchWith)
-        {
-          return false;
-        }
-    }
-
-    $this->_processMatches($matchOn, $matches);
-
-    return true;
-  }
-
-  /**
-   * @param $matchOn
-   * @param $matches
-   */
-  protected function _processMatches($matchOn, $matches): void
-  {
-    if($matchOn == self::PATH && !empty($matches[0]))
-    {
-      $this->_routedPath = $matches[0];
-      foreach($matches as $k => $v)
-      {
-        if(!is_numeric($k))
-        {
-          $this->_extractedData[$k] = $v;
-        }
-      }
-    }
-  }
-
   protected function _convertPathToRegex($path, $type)
   {
     if(empty($path))
@@ -295,5 +198,107 @@ class RequestConstraint implements Condition
     }
 
     return $path . '#' . $flags;
+  }
+
+  protected function _matchConstraint(Context $context, $matchOn, $matchWith, $matchType)
+  {
+    $value = $this->_matchValue($context, $matchOn, $matchWith);
+    if($matchOn == self::QUERY_VALUE)
+    {
+      $matchWith = $matchWith[1];
+    }
+    $matches = [];
+    switch($matchType)
+    {
+      case self::TYPE_REGEX:
+        try
+        {
+          if(!preg_match($matchWith, $value, $matches))
+          {
+            return false;
+          }
+        }
+        catch(Exception $e)
+        {
+          throw new InvalidArgumentException('Invalid regex passed to path ' . $matchWith, 400, $e);
+        }
+        break;
+      case self::TYPE_START:
+      case self::TYPE_START_CASEI:
+        if(!Strings::startsWith($value, $matchWith, $matchType == self::TYPE_START))
+        {
+          return false;
+        }
+        break;
+      case self::TYPE_MATCH:
+        if($value != $matchWith)
+        {
+          return false;
+        }
+        break;
+      case self::TYPE_EXACT:
+      default:
+        if($value !== $matchWith)
+        {
+          return false;
+        }
+    }
+
+    $this->_processMatches($matchOn, $matches);
+
+    return true;
+  }
+
+  protected function _matchValue(Context $context, $on, $matchWith)
+  {
+    switch($on)
+    {
+      case self::PATH;
+        return $context->request()->path();
+      case self::SUBDOMAIN;
+        return $context->request()->subDomain();
+      case self::ROOT_DOMAIN;
+        return $context->request()->urlSprintf('%d.%t');
+      case self::DOMAIN;
+        return $context->request()->domain();
+      case self::TLD;
+        return $context->request()->tld();
+      case self::SCHEME;
+        return $context->request()->getScheme();
+      case self::PORT;
+        return $context->request()->port();
+      case self::METHOD;
+        return $context->request()->getRealMethod();
+      case self::AJAX;
+        return $context->request()->isXmlHttpRequest();
+      case self::QUERY_KEY;
+        return $context->request()->query->has($matchWith) ? $matchWith : null;
+      case self::QUERY_VALUE;
+        return $context->request()->query->get($matchWith[0]);
+      case self::HOSTNAME;
+        return $context->request()->getHost();
+    }
+    // @codeCoverageIgnoreStart
+    return null;
+    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * @param $matchOn
+   * @param $matches
+   */
+  protected function _processMatches($matchOn, $matches): void
+  {
+    if($matchOn == self::PATH && !empty($matches[0]))
+    {
+      $this->_routedPath = $matches[0];
+      foreach($matches as $k => $v)
+      {
+        if(!is_numeric($k))
+        {
+          $this->_extractedData[$k] = $v;
+        }
+      }
+    }
   }
 }

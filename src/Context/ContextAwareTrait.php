@@ -6,25 +6,6 @@ trait ContextAwareTrait
   private $_context;
 
   /**
-   * @return Context
-   */
-  public function getContext(): Context
-  {
-    return $this->_context;
-  }
-
-  /**
-   * @param Context $context
-   *
-   * @return $this
-   */
-  public function setContext(Context $context)
-  {
-    $this->_context = $context;
-    return $this;
-  }
-
-  /**
    * @return $this
    */
   public function clearContext()
@@ -51,6 +32,25 @@ trait ContextAwareTrait
   protected function _bindContext(ContextAware $to)
   {
     $to->setContext($this->getContext());
+    return $this;
+  }
+
+  /**
+   * @return Context
+   */
+  public function getContext(): Context
+  {
+    return $this->_context;
+  }
+
+  /**
+   * @param Context $context
+   *
+   * @return $this
+   */
+  public function setContext(Context $context)
+  {
+    $this->_context = $context;
     return $this;
   }
 

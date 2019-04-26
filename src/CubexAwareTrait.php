@@ -24,6 +24,11 @@ trait CubexAwareTrait
     return $this;
   }
 
+  public function hasCubex(): bool
+  {
+    return $this->_cubex instanceof Cubex;
+  }
+
   /**
    * @return $this
    */
@@ -31,10 +36,5 @@ trait CubexAwareTrait
   {
     $this->_cubex = null;
     return $this;
-  }
-
-  public function hasCubex(): bool
-  {
-    return $this->_cubex instanceof Cubex;
   }
 }

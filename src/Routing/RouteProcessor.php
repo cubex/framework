@@ -7,6 +7,13 @@ use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
+use function class_exists;
+use function is_callable;
+use function is_string;
+use function ob_end_clean;
+use function ob_get_clean;
+use function ob_start;
+use function strstr;
 
 abstract class RouteProcessor extends RouteSelector
 {
@@ -63,22 +70,6 @@ abstract class RouteProcessor extends RouteSelector
   }
 
   /**
-   * If all else fails, push the route result through this method
-   *
-   * @param Context $c
-   * @param mixed   $handler Result of the located route
-   * @param         $response
-   */
-  protected function _processRoute(Context $c, $handler, &$response)
-  {
-    if($handler === null)
-    {
-      throw new \RuntimeException(ConditionHandler::ERROR_NO_HANDLER, 500);
-    }
-    throw new \RuntimeException(self::ERROR_NO_ROUTE, 404);
-  }
-
-  /**
    * @param Context $c
    * @param         $handler
    * @param         $response
@@ -112,6 +103,22 @@ abstract class RouteProcessor extends RouteSelector
     }
 
     return $processed;
+  }
+
+  /**
+   * If all else fails, push the route result through this method
+   *
+   * @param Context $c
+   * @param mixed   $handler Result of the located route
+   * @param         $response
+   */
+  protected function _processRoute(Context $c, $handler, &$response)
+  {
+    if($handler === null)
+    {
+      throw new \RuntimeException(ConditionHandler::ERROR_NO_HANDLER, 500);
+    }
+    throw new \RuntimeException(self::ERROR_NO_ROUTE, 404);
   }
 
   /**

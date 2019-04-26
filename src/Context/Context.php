@@ -9,19 +9,12 @@ use Packaged\Event\Channel\Channel;
 use Packaged\Helpers\System;
 use Packaged\Http\Request;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use function php_sapi_name;
+use function uniqid;
 
 class Context
 {
   use CubexAwareTrait;
-  private $_id;
-  protected $_projectRoot;
-  protected $_env;
-  protected $_cfg;
-  protected $_meta;
-  protected $_routeData;
-  private $_events;
-  private $_request;
-
   const ENV_PHPUNIT = 'phpunit';
   const ENV_LOCAL = 'local';
   const ENV_DEV = 'dev';
@@ -29,6 +22,14 @@ class Context
   const ENV_UAT = 'uat';
   const ENV_STAGE = 'stage';
   const ENV_PROD = 'prod';
+  protected $_projectRoot;
+  protected $_env;
+  protected $_cfg;
+  protected $_meta;
+  protected $_routeData;
+  private $_id;
+  private $_events;
+  private $_request;
 
   public final function __construct(Request $request = null)
   {
@@ -43,16 +44,6 @@ class Context
     $this->_construct();
   }
 
-  public function setCubex(Cubex $cubex)
-  {
-    $this->_cubex = $cubex;
-    if($this->_env === null)
-    {
-      $this->setEnvironment($cubex->getSystemEnvironment());
-    }
-    return $this;
-  }
-
   protected function _generateId()
   {
     return uniqid('ctx-', true);
@@ -63,15 +54,14 @@ class Context
     //This method will be called after the context has been constructed
   }
 
-  public function setProjectRoot($root)
+  public function setCubex(Cubex $cubex)
   {
-    $this->_projectRoot = $root;
+    $this->_cubex = $cubex;
+    if($this->_env === null)
+    {
+      $this->setEnvironment($cubex->getSystemEnvironment());
+    }
     return $this;
-  }
-
-  public function getProjectRoot()
-  {
-    return $this->_projectRoot;
   }
 
   public function setEnvironment($env)
@@ -80,14 +70,25 @@ class Context
     return $this;
   }
 
-  public function getEnvironment()
+  public function getProjectRoot()
   {
-    return $this->_env;
+    return $this->_projectRoot;
+  }
+
+  public function setProjectRoot($root)
+  {
+    $this->_projectRoot = $root;
+    return $this;
   }
 
   public function isEnv($env)
   {
     return $this->getEnvironment() === $env;
+  }
+
+  public function getEnvironment()
+  {
+    return $this->_env;
   }
 
   public function isCli()

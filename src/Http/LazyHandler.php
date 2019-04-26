@@ -5,6 +5,7 @@ use Cubex\Context\Context;
 use Cubex\Events\PreExecuteEvent;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
+use function gettype;
 
 class LazyHandler extends FuncHandler
 {

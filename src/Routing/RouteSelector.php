@@ -4,13 +4,22 @@ namespace Cubex\Routing;
 use Cubex\Context\Context;
 use Cubex\Http\Handler;
 use Generator;
+use function is_callable;
+use function is_iterable;
+use function is_string;
 
 abstract class RouteSelector implements Handler
 {
   /**
-   * @return Route[]|Generator|Handler|string|callable
+   * @param string                  $path
+   * @param string|callable|Handler $result
+   *
+   * @return Route
    */
-  abstract protected function _generateRoutes();
+  protected static function _route($path, $result)
+  {
+    return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
+  }
 
   /**
    * @param Context $context
@@ -31,6 +40,11 @@ abstract class RouteSelector implements Handler
 
     return null;
   }
+
+  /**
+   * @return Route[]|Generator|Handler|string|callable
+   */
+  abstract protected function _generateRoutes();
 
   /**
    * @param Context  $context
@@ -55,16 +69,5 @@ abstract class RouteSelector implements Handler
     }
 
     return null;
-  }
-
-  /**
-   * @param string                  $path
-   * @param string|callable|Handler $result
-   *
-   * @return Route
-   */
-  protected static function _route($path, $result)
-  {
-    return Route::with(RequestConstraint::i()->path($path))->setHandler($result);
   }
 }
