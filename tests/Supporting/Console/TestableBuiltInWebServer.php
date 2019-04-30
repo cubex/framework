@@ -16,4 +16,14 @@ class TestableBuiltInWebServer extends BuiltInWebServer
     $code = 0;
     return $command;
   }
+
+  protected function _isPortAvailable($portNumber): bool
+  {
+    if($this->cubexLocalSubDomain === 'port-taken')
+    {
+      return $portNumber > 8898;
+    }
+    return parent::_isPortAvailable($portNumber);
+  }
+
 }

@@ -77,10 +77,10 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $config = new IniConfigProvider();
       $config->loadFiles(
         [
-          $confDir . "defaults.ini",
-          $confDir . "defaults" . DIRECTORY_SEPARATOR . "config.ini",
-          $confDir . $ctx->getEnvironment() . ".ini",
-          $confDir . $ctx->getEnvironment() . DIRECTORY_SEPARATOR . "config.ini",
+          $confDir . 'defaults.ini',
+          $confDir . 'defaults' . DIRECTORY_SEPARATOR . 'config.ini',
+          $confDir . $ctx->getEnvironment() . '.ini',
+          $confDir . $ctx->getEnvironment() . DIRECTORY_SEPARATOR . 'config.ini',
         ],
         true,
         false

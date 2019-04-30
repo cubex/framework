@@ -8,15 +8,38 @@ use Packaged\Helpers\ValueAs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function array_filter;
+use function fclose;
+use function fsockopen;
 use function implode;
+use function is_resource;
 use function trim;
 
 class BuiltInWebServer extends ConsoleCommand
 {
-  public $host = '0.0.0.0';
-  public $port = 8888;
+  public $host;
+  /**
+   * @short p
+   */
+  public $port;
   public $showfig = true;
   public $router = 'public/index.php';
+
+  /**
+   * @short c
+   */
+  public $cubexLocalSubDomain;
+
+  /**
+   * Defaulted to true if no port has been specified
+   *
+   * @flag
+   */
+  public $useNextAvailablePort;
+
+  /**
+   * @flag
+   */
+  public $showCommand;
 
   /**
    * @short d
@@ -46,18 +69,72 @@ class BuiltInWebServer extends ConsoleCommand
    */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
+    if(empty($this->host))
+    {
+      $this->host = $this->cubexLocalSubDomain ? ($this->cubexLocalSubDomain . '.cubex-local.com') : 'localhost';
+    }
+
+    if($this->port === null)
+    {
+      $this->port = 8888;
+      $this->useNextAvailablePort = true;
+    }
+
+    if($this->useNextAvailablePort)
+    {
+      for($i = 0; $i < 100; $i++)
+      {
+        if($this->_isPortAvailable($this->port))
+        {
+          break;
+        }
+        $this->port++;
+      }
+    }
+
     if(ValueAs::bool($this->showfig))
     {
       $output->write(Figlet::create('PHP WEB', 'ivrit'));
       $output->write(Figlet::create('SERVER', 'ivrit'));
     }
 
+    return $this->_runCommand($this->_buildCommand($output));
+  }
+
+  protected function _isPortAvailable($portNumber): bool
+  {
+    $errno = $errStr = null;
+    $res = @fsockopen('localhost', $portNumber, $errno, $errStr, 0.1);
+    if(is_resource($res))
+    {
+      // @codeCoverageIgnoreStart
+      fclose($res);
+      // @codeCoverageIgnoreEnd
+    }
+    return $res === false;
+  }
+
+  protected function _runCommand($command)
+  {
+    $exitCode = 0;
+    $method = $this->_executeMethod;
+    if(System::commandExists('bash'))
+    {
+      // Use bash to execute if available,
+      // enables CTRL+C to also kill spawned process (cygwin issue)
+      $command = "bash -c '$command'";
+    }
+    $method($command, $exitCode);
+    return $exitCode;
+  }
+
+  protected function _buildCommand(OutputInterface $output)
+  {
     $output->writeln("");
-    $output->write("\tStarting on ");
+    $output->write("\tStarting Server at ");
     $output->write("http://");
-    $output->write($this->host == '0.0.0.0' ? 'localhost' : $this->host);
-    $output->write(':' . $this->port);
-    $output->writeln("");
+    $output->write($this->host === '0.0.0.0' ? '127.0.0.1' : $this->host);
+    $output->writeln(':' . $this->port);
 
     $phpCommand = 'php';
     if($this->debug)
@@ -76,22 +153,11 @@ class BuiltInWebServer extends ConsoleCommand
     $command[] = trim($this->router);
     $command = implode(' ', array_filter($command));
 
-    $output->writeln(["", "\tRaw Command: $command", ""]);
-
-    return $this->runCommand($command);
-  }
-
-  protected function runCommand($command)
-  {
-    $exitCode = 0;
-    $method = $this->_executeMethod;
-    if(System::commandExists('bash'))
+    if($this->showCommand)
     {
-      // Use bash to execute if available,
-      // enables CTRL+C to also kill spawned process (cygwin issue)
-      $command = "bash -c '$command'";
+      $output->writeln(["", "\tRaw Command: $command", ""]);
     }
-    $method($command, $exitCode);
-    return $exitCode;
+
+    return $command;
   }
 }
