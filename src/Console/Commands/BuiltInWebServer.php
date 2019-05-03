@@ -71,7 +71,14 @@ class BuiltInWebServer extends ConsoleCommand
   {
     if(empty($this->host))
     {
-      $this->host = $this->cubexLocalSubDomain ? ($this->cubexLocalSubDomain . '.cubex-local.com') : 'localhost';
+      if($this->cubexLocalSubDomain)
+      {
+        $this->host = $this->cubexLocalSubDomain . '.cubex-local.com';
+      }
+      else
+      {
+        $this->host = $this->debug ? '0.0.0.0' : 'localhost';
+      }
     }
 
     if($this->port === null)
