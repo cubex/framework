@@ -44,8 +44,8 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
       [['--host' => '0.0.0.0'], $pre . '-S 0.0.0.0:8888 -t public/index.php'],
       [['-c' => 'framework'], $pre . '-S framework.cubex-local.com:8888 -t public/index.php'],
       [['--router' => 'index.exec'], $pre . '-S localhost:8888 -t index.exec'],
-      [['-d' => true], $pre . $debugCommand . 'PHPSTORM -S localhost:8888 -t public/index.php'],
-      [['-d' => true, '-idekey' => 'TEST'], $pre . $debugCommand . 'TEST -S localhost:8888 -t public/index.php'],
+      [['-d' => true], $pre . $debugCommand . 'PHPSTORM -S 0.0.0.0:8888 -t public/index.php'],
+      [['-d' => true, '-idekey' => 'TEST'], $pre . $debugCommand . 'TEST -S 0.0.0.0:8888 -t public/index.php'],
     ];
   }
 
