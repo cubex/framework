@@ -11,7 +11,7 @@ use function preg_replace;
 use function rtrim;
 use function strpos;
 
-class RequestConstraint implements Condition
+class RequestConstraint implements Condition, RouteCompleter
 {
   const SCHEME = 'scheme';
   const PORT = 'port';
@@ -134,11 +134,6 @@ class RequestConstraint implements Condition
         return false;
       }
     }
-    $context->meta()->set(self::META_ROUTED_PATH, $this->_routedPath);
-    if(!empty($this->_extractedData))
-    {
-      $context->routeData()->add($this->_extractedData);
-    }
     return true;
   }
 
@@ -244,7 +239,17 @@ class RequestConstraint implements Condition
         }
     }
 
-    $this->_processMatches($matchOn, $matches);
+    if($matchOn == self::PATH && !empty($matches[0]))
+    {
+      $this->_routedPath = $matches[0];
+      foreach($matches as $k => $v)
+      {
+        if(!is_numeric($k))
+        {
+          $this->_extractedData[$k] = $v;
+        }
+      }
+    }
 
     return true;
   }
@@ -283,22 +288,12 @@ class RequestConstraint implements Condition
     // @codeCoverageIgnoreEnd
   }
 
-  /**
-   * @param $matchOn
-   * @param $matches
-   */
-  protected function _processMatches($matchOn, $matches): void
+  public function complete(Context $context)
   {
-    if($matchOn == self::PATH && !empty($matches[0]))
+    $context->meta()->set(self::META_ROUTED_PATH, $this->_routedPath);
+    if(!empty($this->_extractedData))
     {
-      $this->_routedPath = $matches[0];
-      foreach($matches as $k => $v)
-      {
-        if(!is_numeric($k))
-        {
-          $this->_extractedData[$k] = $v;
-        }
-      }
+      $context->routeData()->add($this->_extractedData);
     }
   }
 }

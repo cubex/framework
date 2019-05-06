@@ -58,6 +58,10 @@ abstract class RouteSelector implements Handler
     {
       if($route instanceof Route && $route->match($context))
       {
+        if($route instanceof RouteCompleter)
+        {
+          $route->complete($context);
+        }
         return $route->getHandler();
       }
     }

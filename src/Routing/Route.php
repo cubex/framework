@@ -1,9 +1,10 @@
 <?php
 namespace Cubex\Routing;
 
+use Cubex\Context\Context;
 use Cubex\Http\Handler;
 
-class Route extends ConditionSet implements ConditionHandler
+class Route extends ConditionSet implements ConditionHandler, RouteCompleter
 {
   private $_result;
 
@@ -22,4 +23,16 @@ class Route extends ConditionSet implements ConditionHandler
     $this->_result = $handler;
     return $this;
   }
+
+  public function complete(Context $context)
+  {
+    foreach($this->_conditions as $condition)
+    {
+      if($condition instanceof RouteCompleter)
+      {
+        $condition->complete($context);
+      }
+    }
+  }
+
 }

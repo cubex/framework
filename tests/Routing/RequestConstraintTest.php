@@ -94,11 +94,12 @@ class RequestConstraintTest extends TestCase
     );
     $ctx = new Context($request);
 
-    $this->assertTrue(
-      RequestConstraint::i()->path(
-        '/{one}/{two@alpha}/{three}/{four@num}/{five@alphanum}/{six@alphanum}/{seven}/{remain@all}/end'
-      )->match($ctx)
+    $constraint = RequestConstraint::i()->path(
+      '/{one}/{two@alpha}/{three}/{four@num}/{five@alphanum}/{six@alphanum}/{seven}/{remain@all}/end'
     );
+    $this->assertTrue($constraint->match($ctx));
+    $constraint->complete($ctx);
+
     $this->assertEquals("one", $ctx->routeData()->get('one'));
     $this->assertEquals("two", $ctx->routeData()->get('two'));
     $this->assertEquals("three", $ctx->routeData()->get('three'));
@@ -114,7 +115,9 @@ class RequestConstraintTest extends TestCase
 
     $request = Request::create('http://www.test.com:8080/INV123');
     $ctx = new Context($request);
-    $this->assertTrue(RequestConstraint::i()->path('/INV{invoiceNumber@num}')->match($ctx));
+    $constraint2 = RequestConstraint::i()->path('/INV{invoiceNumber@num}');
+    $this->assertTrue($constraint2->match($ctx));
+    $constraint2->complete($ctx);
     $this->assertEquals(123, $ctx->routeData()->get('invoiceNumber'));
   }
 
