@@ -3,7 +3,7 @@ namespace Cubex\Routing;
 
 use Cubex\Context\Context;
 
-class RequestDataContraint implements Condition
+class RequestDataConstraint implements Condition
 {
   protected $_values = [];
 
