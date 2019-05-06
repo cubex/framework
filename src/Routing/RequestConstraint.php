@@ -239,7 +239,17 @@ class RequestConstraint implements Condition, RouteCompleter
         }
     }
 
-    $this->_processMatches($matchOn, $matches);
+    if($matchOn == self::PATH && !empty($matches[0]))
+    {
+      $this->_routedPath = $matches[0];
+      foreach($matches as $k => $v)
+      {
+        if(!is_numeric($k))
+        {
+          $this->_extractedData[$k] = $v;
+        }
+      }
+    }
 
     return true;
   }
@@ -278,25 +288,6 @@ class RequestConstraint implements Condition, RouteCompleter
     // @codeCoverageIgnoreEnd
   }
 
-  /**
-   * @param $matchOn
-   * @param $matches
-   */
-  protected function _processMatches($matchOn, $matches): void
-  {
-    if($matchOn == self::PATH && !empty($matches[0]))
-    {
-      $this->_routedPath = $matches[0];
-      foreach($matches as $k => $v)
-      {
-        if(!is_numeric($k))
-        {
-          $this->_extractedData[$k] = $v;
-        }
-      }
-    }
-  }
-
   public function complete(Context $context)
   {
     $context->meta()->set(self::META_ROUTED_PATH, $this->_routedPath);
@@ -305,5 +296,4 @@ class RequestConstraint implements Condition, RouteCompleter
       $context->routeData()->add($this->_extractedData);
     }
   }
-
 }
