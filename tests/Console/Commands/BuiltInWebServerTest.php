@@ -37,13 +37,13 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
     $pre = 'Raw Command: php ';
     $debugCommand = '-d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
     return [
-      [[], $pre . '-S localhost:8888 -t public/index.php'],
+      [[], $pre . '-S 127.0.0.1:8888 -t public/index.php'],
       [[], '|__'],
       [['--showfig' => 'false'], '|__', true],
-      [['--port' => '8090'], $pre . '-S localhost:8090 -t public/index.php'],
+      [['--port' => '8090'], $pre . '-S 127.0.0.1:8090 -t public/index.php'],
       [['--host' => '0.0.0.0'], $pre . '-S 0.0.0.0:8888 -t public/index.php'],
       [['-c' => 'framework'], $pre . '-S framework.cubex-local.com:8888 -t public/index.php'],
-      [['--router' => 'index.exec'], $pre . '-S localhost:8888 -t index.exec'],
+      [['--router' => 'index.exec'], $pre . '-S 127.0.0.1:8888 -t index.exec'],
       [['-d' => true], $pre . $debugCommand . 'PHPSTORM -S 0.0.0.0:8888 -t public/index.php'],
       [['-d' => true, '-idekey' => 'TEST'], $pre . $debugCommand . 'TEST -S 0.0.0.0:8888 -t public/index.php'],
     ];

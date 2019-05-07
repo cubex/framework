@@ -77,7 +77,7 @@ class BuiltInWebServer extends ConsoleCommand
       }
       else
       {
-        $this->host = $this->debug ? '0.0.0.0' : 'localhost';
+        $this->host = $this->debug ? '0.0.0.0' : '127.0.0.1';
       }
     }
 
