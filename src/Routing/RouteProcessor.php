@@ -13,7 +13,6 @@ use function is_string;
 use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
-use function strstr;
 
 abstract class RouteProcessor extends RouteSelector
 {
@@ -62,7 +61,7 @@ abstract class RouteProcessor extends RouteSelector
    */
   protected function _prepareHandler(Context $c, $handler)
   {
-    if(is_string($handler) && strstr($handler, '\\') && class_exists($handler))
+    if(is_string($handler) && strpos($handler, '\\') !== false && class_exists($handler))
     {
       return new $handler();
     }

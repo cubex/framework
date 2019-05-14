@@ -15,7 +15,6 @@ use function explode;
 use function implode;
 use function is_int;
 use function str_replace;
-use function stristr;
 use function ucwords;
 
 class Console extends Application implements ContextAware
@@ -93,7 +92,7 @@ class Console extends Application implements ContextAware
    */
   protected function getCommandByString($name, $setName = false)
   {
-    if(stristr($name, '.'))
+    if(strpos($name, '.') !== false)
     {
       $parts = explode(' ', ucwords(str_replace('.', ' ', $name)));
       $class = '\\' . implode('\\', $parts);
