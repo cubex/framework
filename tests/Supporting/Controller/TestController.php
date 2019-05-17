@@ -4,7 +4,7 @@ namespace Cubex\Tests\Supporting\Controller;
 use Cubex\Context\Context;
 use Cubex\Controller\AuthedController;
 use Cubex\Http\FuncHandler;
-use Cubex\Tests\Supporting\Container\TestObject;
+use Cubex\Tests\Supporting\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
 use Cubex\Tests\Supporting\Ui\TestSafeHtmlProducer;
 use Exception;
