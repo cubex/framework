@@ -1,9 +1,9 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Context\Context;
 use Cubex\Http\Handler;
 use Generator;
+use Packaged\Context\Context;
 use function is_callable;
 use function is_iterable;
 use function is_string;

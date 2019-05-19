@@ -2,7 +2,7 @@
 
 namespace Cubex\Tests\Http;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Http\LazyHandler;
 use Packaged\Http\Request;

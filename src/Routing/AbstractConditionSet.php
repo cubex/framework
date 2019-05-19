@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 
 abstract class AbstractConditionSet implements Condition
 {

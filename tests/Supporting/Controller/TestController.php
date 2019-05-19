@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Tests\Supporting\Controller;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Controller\AuthedController;
 use Cubex\Http\FuncHandler;
 use Cubex\Tests\Supporting\TestObject;

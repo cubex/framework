@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Context\Context;
-use Cubex\Context\ContextAware;
+use Packaged\Context\Context;
+use Packaged\Context\ContextAware;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Http\Handler;
 use Exception;

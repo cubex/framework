@@ -2,7 +2,7 @@
 
 namespace Cubex\Tests\Application;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Cubex;
 use Cubex\Events\Handle\ResponsePrepareEvent;
 use Cubex\Tests\Supporting\Application\TestApplication;
@@ -32,7 +32,6 @@ class ApplicationTest extends TestCase
     $app = new TestApplication($cubex);
     $request = Request::create("/buffered");
     $ctx = new Context($request);
-    $ctx->setCubex($cubex);
     $cubex->listen(
       ResponsePrepareEvent::class,
       function (ResponsePrepareEvent $e) {

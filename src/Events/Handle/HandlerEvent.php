@@ -1,9 +1,9 @@
 <?php
 namespace Cubex\Events\Handle;
 
-use Cubex\Context\Context;
 use Cubex\Events\ContextEvent;
 use Cubex\Http\Handler;
+use Packaged\Context\Context;
 
 abstract class HandlerEvent extends ContextEvent
 {

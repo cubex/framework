@@ -2,7 +2,7 @@
 
 namespace Cubex\Tests\Controller;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Controller\AuthedController;
 use Cubex\Controller\Controller;
 use Cubex\Cubex;
@@ -31,7 +31,6 @@ class ControllerTest extends TestCase
   protected function _prepareCubex(Cubex $cubex, Request $request)
   {
     $ctx = new Context($request);
-    $ctx->setCubex($cubex);
     $cubex->share(Context::class, $ctx);
   }
 

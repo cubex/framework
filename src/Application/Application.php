@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Application;
 
-use Cubex\Context\ContextAware;
-use Cubex\Context\ContextAwareTrait;
+use Packaged\Context\ContextAware;
+use Packaged\Context\ContextAwareTrait;
 use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Cubex\Http\Handler;

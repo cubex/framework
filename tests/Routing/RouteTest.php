@@ -2,7 +2,7 @@
 
 namespace Cubex\Tests\Routing;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Http\FuncHandler;
 use Cubex\Routing\RequestConstraint;
 use Cubex\Routing\Route;

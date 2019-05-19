@@ -1,9 +1,9 @@
 <?php
 namespace Cubex\Tests\Console\Commands;
 
-use Cubex\Context\Context;
 use Cubex\Tests\Console\ConsoleCommandTestCase;
 use Cubex\Tests\Supporting\Console\TestableBuiltInWebServer;
+use Packaged\Context\Context;
 
 class BuiltInWebServerTest extends ConsoleCommandTestCase
 {
@@ -19,7 +19,9 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
   public function testCommand(array $options, $passthru, $negate = false)
   {
     $command = new TestableBuiltInWebServer();
-    $command->setContext(new Context());
+    $ctx = new Context();
+    $ctx->setProjectRoot('');
+    $command->setContext($ctx);
     $this->assertEquals('serve', $command->getName());
     $bufferOut = $this->getCommandOutput($command, $options + ['--showCommand' => true]);
     if($negate)

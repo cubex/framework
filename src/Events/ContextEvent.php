@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Events;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Packaged\Event\Events\AbstractEvent;
 
 abstract class ContextEvent extends AbstractEvent

@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Routing;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Http\Handler;
 
 class Route extends ConditionSet implements ConditionHandler, RouteCompleter

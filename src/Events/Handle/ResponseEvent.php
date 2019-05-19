@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Events\Handle;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Http\Handler;
 use Symfony\Component\HttpFoundation\Response;
 

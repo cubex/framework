@@ -5,8 +5,6 @@ use Composer\Autoload\ClassLoader;
 use Cubex\Console\Console;
 use Cubex\Console\Events\ConsoleCreateEvent;
 use Cubex\Console\Events\ConsolePrepareEvent;
-use Cubex\Context\Context;
-use Cubex\Context\ContextAware;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePreparedEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
@@ -17,6 +15,8 @@ use Cubex\Http\ExceptionHandler;
 use Cubex\Http\Handler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
+use Packaged\Context\Context;
+use Packaged\Context\ContextAware;
 use Packaged\DiContainer\DependencyInjector;
 use Packaged\Event\Channel\Channel;
 use Packaged\Http\Request;
@@ -62,13 +62,16 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   protected function _defaultContextFactory()
   {
     return function () {
-      return $this->prepareContext(new Context(Request::createFromGlobals()));
+      return $this->prepareContext(new \Cubex\Context\Context(Request::createFromGlobals()));
     };
   }
 
   public function prepareContext(Context $ctx): Context
   {
-    $ctx->setCubex($this);
+    if($ctx instanceof \Cubex\Context\Context)
+    {
+      $ctx->setCubex($this);
+    }
 
     if($this->_projectRoot !== null)
     {
@@ -86,6 +89,11 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         false
       );
       $ctx->setConfig($config);
+    }
+    $env = $this->_getSystemEnvironment();
+    if($env !== null && $env !== '')
+    {
+      $ctx->setEnvironment($env);
     }
     return $ctx;
   }
@@ -279,19 +287,15 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
-   * @return string Current environment set in static::_ENV_VAR
+   * @return string|null Current environment set in static::_ENV_VAR
    */
-  public function getSystemEnvironment()
+  protected function _getSystemEnvironment()
   {
     //Calculate the environment
     $env = getenv(static::_ENV_VAR);
-    if(($env === null || !$env) && isset($_ENV[static::_ENV_VAR]))
+    if(($env === null || $env === false) && isset($_ENV[static::_ENV_VAR]))
     {
       $env = (string)$_ENV[static::_ENV_VAR];
-    }
-    if($env === null || !$env)//If there is no environment available, assume local
-    {
-      $env = Context::ENV_LOCAL;
     }
     return $env;
   }

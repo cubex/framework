@@ -5,7 +5,6 @@ namespace Cubex\Tests;
 use Cubex\Console\Console;
 use Cubex\Console\Events\ConsoleCreateEvent;
 use Cubex\Console\Events\ConsolePrepareEvent;
-use Cubex\Context\Context;
 use Cubex\Cubex;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
@@ -18,6 +17,7 @@ use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
 use Packaged\Config\ConfigProviderInterface;
+use Packaged\Context\Context;
 use Packaged\Http\Request;
 use Packaged\Http\Response;
 use PHPUnit\Framework\TestCase;
@@ -185,7 +185,6 @@ class CubexTest extends TestCase
     $cubex->removeShared(Context::class);
 
     $cubex->factory(Context::class, function () { return new Context(); });
-    $this->assertNull($cubex->getContext()->getProjectRoot());
 
     $cubex->removeShared(Context::class);
     $cubex->removeFactory(Context::class);
@@ -238,12 +237,17 @@ class CubexTest extends TestCase
 
   public function testContextFactory()
   {
+    $_ENV[Cubex::_ENV_VAR] = Context::ENV_DEV;
+    $cubex = $this->_cubex();
+    $ctx = $cubex->getContext();
+    $this->assertEquals(Context::ENV_DEV, $ctx->getEnvironment());
+
+    $cubex = $this->_cubex();
     $factory = function () {
       $ctx = new Context(Request::createFromGlobals());
       $ctx->meta()->set("abc", 'xyz');
       return $ctx;
     };
-    $cubex = $this->_cubex();
     $cubex->factory(Context::class, $factory);
     $ctx = $cubex->getContext();
     $this->assertEquals("xyz", $ctx->meta()->get('abc'));
