@@ -2,10 +2,10 @@
 
 namespace Cubex\Tests\Http;
 
+use Cubex\Routing\LazyHandler;
 use Packaged\Context\Context;
-use Cubex\Http\FuncHandler;
-use Cubex\Http\LazyHandler;
 use Packaged\Http\Request;
+use Packaged\Routing\Handler\FuncHandler;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\HttpFoundation\Response;

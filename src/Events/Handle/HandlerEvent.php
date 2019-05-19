@@ -2,8 +2,8 @@
 namespace Cubex\Events\Handle;
 
 use Cubex\Events\ContextEvent;
-use Cubex\Http\Handler;
 use Packaged\Context\Context;
+use Packaged\Routing\Handler\Handler;
 
 abstract class HandlerEvent extends ContextEvent
 {

@@ -3,7 +3,7 @@
 namespace Cubex\Tests\Routing;
 
 use Packaged\Context\Context;
-use Cubex\Routing\RequestDataConstraint;
+use Packaged\Routing\RequestDataConstraint;
 use Packaged\Http\Request;
 use PHPUnit\Framework\TestCase;
 

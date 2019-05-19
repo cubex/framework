@@ -2,7 +2,7 @@
 namespace Cubex\Events\Handle;
 
 use Packaged\Context\Context;
-use Cubex\Http\Handler;
+use Packaged\Routing\Handler\Handler;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ResponseEvent extends HandlerEvent

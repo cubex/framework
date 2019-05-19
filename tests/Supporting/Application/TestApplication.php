@@ -2,10 +2,10 @@
 namespace Cubex\Tests\Supporting\Application;
 
 use Cubex\Application\Application;
-use Cubex\Http\FuncHandler;
-use Cubex\Http\Handler;
 use Cubex\Tests\Supporting\Controller\TestController;
 use Packaged\Http\Response;
+use Packaged\Routing\Handler\FuncHandler;
+use Packaged\Routing\Handler\Handler;
 
 class TestApplication extends Application
 {

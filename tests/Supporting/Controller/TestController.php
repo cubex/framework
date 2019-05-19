@@ -1,15 +1,15 @@
 <?php
 namespace Cubex\Tests\Supporting\Controller;
 
-use Packaged\Context\Context;
 use Cubex\Controller\AuthedController;
-use Cubex\Http\FuncHandler;
 use Cubex\Tests\Supporting\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
 use Cubex\Tests\Supporting\Ui\TestSafeHtmlProducer;
 use Exception;
+use Packaged\Context\Context;
 use Packaged\Http\Response;
 use Packaged\Http\Responses\AccessDeniedResponse;
+use Packaged\Routing\Handler\FuncHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class TestController extends AuthedController

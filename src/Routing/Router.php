@@ -2,8 +2,12 @@
 namespace Cubex\Routing;
 
 use Packaged\Context\Context;
-use Cubex\Http\FuncHandler;
-use Cubex\Http\Handler;
+use Packaged\Routing\Condition;
+use Packaged\Routing\ConditionHandler;
+use Packaged\Routing\Handler\FuncHandler;
+use Packaged\Routing\Handler\Handler;
+use Packaged\Routing\RequestConstraint;
+use Packaged\Routing\Route;
 
 class Router extends RouteProcessor
 {

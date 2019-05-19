@@ -1,12 +1,12 @@
 <?php
 namespace Cubex\Application;
 
-use Packaged\Context\ContextAware;
-use Packaged\Context\ContextAwareTrait;
 use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
-use Cubex\Http\Handler;
 use Cubex\Routing\RouteProcessor;
+use Packaged\Context\ContextAware;
+use Packaged\Context\ContextAwareTrait;
+use Packaged\Routing\Handler\Handler;
 
 /**
  * Base Application
