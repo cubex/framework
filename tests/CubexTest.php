@@ -175,7 +175,7 @@ class CubexTest extends TestCase
   public function testExceptionHandler()
   {
     $cubex = $this->_cubex();
-    $response = $cubex->handle(new Router(), false);
+    $response = $cubex->handle(new Router(), false, true);
     $this->assertEquals(500, $response->getStatusCode());
     $this->assertContains(ConditionHandler::ERROR_NO_HANDLER, $response->getContent());
   }
