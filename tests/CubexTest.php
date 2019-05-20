@@ -306,4 +306,17 @@ class CubexTest extends TestCase
     $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
     $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
   }
+
+  public function testFromContext()
+  {
+    $cubex = $this->_cubex();
+    $ctx = $cubex->getContext();
+    $this->assertSame($cubex, Cubex::fromContext($ctx));
+    $this->assertNull(Cubex::fromContext(new Context()));
+
+    $cubex = new Cubex('', null, true);
+    $this->assertSame($cubex, Cubex::fromContext(new Context()));
+    Cubex::destroyGlobalInstance();
+    $this->assertNull(Cubex::fromContext(new Context()));
+  }
 }

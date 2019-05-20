@@ -151,6 +151,23 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
+   * Retrieve Cubex from context
+   *
+   * @param Context $ctx
+   * @param bool    $fallbackToGlobal
+   *
+   * @return Cubex|null
+   */
+  public static function fromContext(Context $ctx, $fallbackToGlobal = true)
+  {
+    if($ctx instanceof CubexAware && $ctx->hasCubex())
+    {
+      return $ctx->getCubex();
+    }
+    return $fallbackToGlobal ? static::instance() : null;
+  }
+
+  /**
    * @param InputInterface|null  $input
    * @param OutputInterface|null $output
    *

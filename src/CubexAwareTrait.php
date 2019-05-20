@@ -8,7 +8,7 @@ trait CubexAwareTrait
   /**
    * @return Cubex|null
    */
-  public function getCubex()
+  public function getCubex(): ?Cubex
   {
     return $this->_cubex;
   }

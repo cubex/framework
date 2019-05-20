@@ -2,6 +2,7 @@
 namespace Cubex\Application;
 
 use Cubex\Cubex;
+use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
 use Cubex\Routing\RouteProcessor;
 use Packaged\Context\ContextAware;
@@ -11,7 +12,7 @@ use Packaged\Routing\Handler\Handler;
 /**
  * Base Application
  */
-abstract class Application extends RouteProcessor implements ContextAware
+abstract class Application extends RouteProcessor implements ContextAware, CubexAware
 {
   use CubexAwareTrait;
   use ContextAwareTrait;
