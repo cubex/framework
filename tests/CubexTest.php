@@ -266,4 +266,44 @@ class CubexTest extends TestCase
     $ctx = $cubex->getContext();
     $this->assertEquals("xyz", $ctx->meta()->get('abc'));
   }
+
+  public function testExceptionThrowing()
+  {
+    $cubex = $this->_cubex();
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
+
+    $cubex = $this->_cubex()->setThrowEnvironments([]);
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
+    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
+
+    $cubex = $this->_cubex()->setThrowEnvironments(
+      [
+        Context::ENV_LOCAL,
+        Context::ENV_DEV,
+        Context::ENV_PHPUNIT,
+        Context::ENV_QA,
+        Context::ENV_UAT,
+        Context::ENV_STAGE,
+        Context::ENV_PROD,
+      ]
+    );
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
+    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
+  }
 }

@@ -30,6 +30,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response;
 use function flush;
 use function getenv;
+use function in_array;
 use function rtrim;
 use const DIRECTORY_SEPARATOR;
 
@@ -44,6 +45,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   protected $_eventChannel;
   protected $_console;
   private $_projectRoot;
+
+  protected $_throwEnvironments = [Context::ENV_LOCAL, Context::ENV_DEV];
 
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
@@ -206,19 +209,40 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
-   * @param Handler $handler
-   * @param bool    $sendResponse
+   * @param array $throwEnvironments
    *
-   * @param bool    $catchExceptions
-   * @param bool    $flushHeaders
+   * @return $this
+   */
+  public function setThrowEnvironments(array $throwEnvironments)
+  {
+    $this->_throwEnvironments = $throwEnvironments;
+    return $this;
+  }
+
+  /**
+   * @param Context $context
    *
-   * @param bool    $throwEventExceptions
+   * @return bool true is we will be throwing exceptions for this context
+   */
+  public function willCatchExceptions(Context $context)
+  {
+    return !in_array($context->getEnvironment(), $this->_throwEnvironments);
+  }
+
+  /**
+   * @param Handler   $handler
+   * @param bool      $sendResponse
+   *
+   * @param bool|null $catchExceptions Set to null to throw on *throw exception environments*
+   * @param bool      $flushHeaders
+   *
+   * @param bool      $throwEventExceptions
    *
    * @return Response
    * @throws \Throwable
    */
   public function handle(
-    Handler $handler, $sendResponse = true, $catchExceptions = true, $flushHeaders = true, $throwEventExceptions = false
+    Handler $handler, $sendResponse = true, $catchExceptions = null, $flushHeaders = true, $throwEventExceptions = false
   )
   {
     $this->_eventChannel->setShouldThrowExceptions($throwEventExceptions);
@@ -226,6 +250,11 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     if($handler instanceof ContextAware)
     {
       $handler->setContext($c);
+    }
+
+    if($catchExceptions === null)
+    {
+      $catchExceptions = $this->willCatchExceptions($c);
     }
 
     try
