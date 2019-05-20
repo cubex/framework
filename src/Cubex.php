@@ -71,6 +71,12 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
   public function prepareContext(Context $ctx): Context
   {
+    $env = $this->_getSystemEnvironment();
+    if($env)
+    {
+      $ctx->setEnvironment($env);
+    }
+
     if($ctx instanceof \Cubex\Context\Context)
     {
       $ctx->setCubex($this);
@@ -93,11 +99,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       );
       $ctx->setConfig($config);
     }
-    $env = $this->_getSystemEnvironment();
-    if($env !== null && $env !== '')
-    {
-      $ctx->setEnvironment($env);
-    }
+
     return $ctx;
   }
 
