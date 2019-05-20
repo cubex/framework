@@ -2,7 +2,7 @@
 
 namespace Cubex\Tests\Controller;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Cubex;
 use Cubex\Tests\Supporting\Controller\TestSingleRoutedController;
 use Packaged\Http\Request;

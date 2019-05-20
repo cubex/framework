@@ -2,9 +2,9 @@
 
 namespace Cubex\Tests\Routing;
 
-use Cubex\Context\Context;
-use Cubex\Routing\RequestConstraint;
+use Packaged\Context\Context;
 use Packaged\Http\Request;
+use Packaged\Routing\RequestConstraint;
 use PHPUnit\Framework\TestCase;
 
 class RequestConstraintTest extends TestCase

@@ -1,10 +1,10 @@
 <?php
 namespace Cubex\Controller;
 
-use Cubex\Context\Context;
-use Cubex\Context\ContextAware;
-use Cubex\Context\ContextAwareTrait;
 use Cubex\Routing\RouteProcessor;
+use Packaged\Context\Context;
+use Packaged\Context\ContextAware;
+use Packaged\Context\ContextAwareTrait;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;

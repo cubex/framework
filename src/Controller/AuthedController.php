@@ -1,7 +1,7 @@
 <?php
 namespace Cubex\Controller;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Symfony\Component\HttpFoundation\Response;
 use function microtime;
 

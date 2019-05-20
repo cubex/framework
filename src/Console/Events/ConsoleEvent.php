@@ -2,7 +2,7 @@
 namespace Cubex\Console\Events;
 
 use Cubex\Console\Console;
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Cubex\Events\ContextEvent;
 
 abstract class ConsoleEvent extends ContextEvent

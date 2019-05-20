@@ -2,19 +2,19 @@
 
 namespace Cubex\Tests\Controller;
 
-use Cubex\Context\Context;
 use Cubex\Controller\AuthedController;
 use Cubex\Controller\Controller;
 use Cubex\Cubex;
 use Cubex\Events\PreExecuteEvent;
-use Cubex\Routing\ConditionHandler;
 use Cubex\Routing\RouteProcessor;
 use Cubex\Tests\Supporting\Controller\SubTestController;
 use Cubex\Tests\Supporting\Controller\TestArrayRouteController;
 use Cubex\Tests\Supporting\Controller\TestController;
 use Cubex\Tests\Supporting\Controller\TestIncompleteController;
+use Packaged\Context\Context;
 use Packaged\Http\Request;
 use Packaged\Http\Response;
+use Packaged\Routing\ConditionHandler;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -31,7 +31,6 @@ class ControllerTest extends TestCase
   protected function _prepareCubex(Cubex $cubex, Request $request)
   {
     $ctx = new Context($request);
-    $ctx->setCubex($cubex);
     $cubex->share(Context::class, $ctx);
   }
 

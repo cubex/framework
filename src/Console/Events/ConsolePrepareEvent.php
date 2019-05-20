@@ -2,7 +2,7 @@
 namespace Cubex\Console\Events;
 
 use Cubex\Console\Console;
-use Cubex\Context\Context;
+use Packaged\Context\Context;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

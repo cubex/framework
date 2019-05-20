@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Console;
 
-use Cubex\Context\ContextAware;
-use Cubex\Context\ContextAwareTrait;
+use Packaged\Context\ContextAware;
+use Packaged\Context\ContextAwareTrait;
 use Packaged\DocBlock\DocBlockParser;
 use Packaged\Helpers\ValueAs;
 use Symfony\Component\Console\Command\Command;

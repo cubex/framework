@@ -2,8 +2,8 @@
 namespace Cubex\Console;
 
 use Cubex\Console\Commands\BuiltInWebServer;
-use Cubex\Context\ContextAware;
-use Cubex\Context\ContextAwareTrait;
+use Packaged\Context\ContextAware;
+use Packaged\Context\ContextAwareTrait;
 use Packaged\Config\ConfigProviderInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;

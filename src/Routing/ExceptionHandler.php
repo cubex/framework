@@ -1,7 +1,8 @@
 <?php
-namespace Cubex\Http;
+namespace Cubex\Routing;
 
-use Cubex\Context\Context;
+use Packaged\Context\Context;
+use Packaged\Routing\Handler\Handler;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExceptionHandler implements Handler

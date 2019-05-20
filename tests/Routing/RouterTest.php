@@ -2,11 +2,11 @@
 
 namespace Cubex\Tests\Routing;
 
-use Cubex\Context\Context;
-use Cubex\Http\FuncHandler;
 use Cubex\Routing\Router;
+use Packaged\Context\Context;
 use Packaged\Http\Request;
 use Packaged\Http\Response;
+use Packaged\Routing\Handler\FuncHandler;
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase

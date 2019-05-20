@@ -1,8 +1,8 @@
 <?php
 namespace Cubex\Tests\Supporting\Ui\TestElement;
 
-use Cubex\Context\ContextAware;
-use Cubex\Context\ContextAwareTrait;
+use Packaged\Context\ContextAware;
+use Packaged\Context\ContextAwareTrait;
 use Packaged\Ui\Element;
 
 class TestUiElement extends Element implements ContextAware

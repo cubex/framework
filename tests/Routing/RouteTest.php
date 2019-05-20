@@ -2,11 +2,11 @@
 
 namespace Cubex\Tests\Routing;
 
-use Cubex\Context\Context;
-use Cubex\Http\FuncHandler;
-use Cubex\Routing\RequestConstraint;
-use Cubex\Routing\Route;
+use Packaged\Context\Context;
 use Packaged\Http\Request;
+use Packaged\Routing\Handler\FuncHandler;
+use Packaged\Routing\RequestConstraint;
+use Packaged\Routing\Route;
 use PHPUnit\Framework\TestCase;
 
 class RouteTest extends TestCase

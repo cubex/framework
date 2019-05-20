@@ -5,21 +5,21 @@ namespace Cubex\Tests;
 use Cubex\Console\Console;
 use Cubex\Console\Events\ConsoleCreateEvent;
 use Cubex\Console\Events\ConsolePrepareEvent;
-use Cubex\Context\Context;
 use Cubex\Cubex;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
 use Cubex\Events\PreExecuteEvent;
-use Cubex\Http\FuncHandler;
-use Cubex\Http\Handler;
-use Cubex\Routing\ConditionHandler;
 use Cubex\Routing\Router;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
 use Packaged\Config\ConfigProviderInterface;
+use Packaged\Context\Context;
 use Packaged\Http\Request;
 use Packaged\Http\Response;
+use Packaged\Routing\ConditionHandler;
+use Packaged\Routing\Handler\FuncHandler;
+use Packaged\Routing\Handler\Handler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Psr\Log\Test\TestLogger;
@@ -98,7 +98,14 @@ class CubexTest extends TestCase
     $logger = new TestLogger();
     $cubex->setLogger($logger);
     $router = new Router();
-    $router->onPath('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
+    $router->onPath(
+      '/',
+      new FuncHandler(
+        function () {
+          return new TestResponse('All OK');
+        }
+      )
+    );
     $cubex->listen(
       HandleCompleteEvent::class,
       function () { throw new Exception("Complete Exception", 500); }
@@ -137,7 +144,14 @@ class CubexTest extends TestCase
     );
 
     $router = new Router();
-    $router->onPath('/', new FuncHandler(function () { return new Response('All OK'); }));
+    $router->onPath(
+      '/',
+      new FuncHandler(
+        function () {
+          return new Response('All OK');
+        }
+      )
+    );
     $cubex->handle($router, false, true);
 
     $this->assertTrue($context->meta()->has('HANDLE_PRE_EXECUTE'));
@@ -185,7 +199,6 @@ class CubexTest extends TestCase
     $cubex->removeShared(Context::class);
 
     $cubex->factory(Context::class, function () { return new Context(); });
-    $this->assertNull($cubex->getContext()->getProjectRoot());
 
     $cubex->removeShared(Context::class);
     $cubex->removeFactory(Context::class);
@@ -238,12 +251,17 @@ class CubexTest extends TestCase
 
   public function testContextFactory()
   {
+    $_ENV[Cubex::_ENV_VAR] = Context::ENV_DEV;
+    $cubex = $this->_cubex();
+    $ctx = $cubex->getContext();
+    $this->assertEquals(Context::ENV_DEV, $ctx->getEnvironment());
+
+    $cubex = $this->_cubex();
     $factory = function () {
       $ctx = new Context(Request::createFromGlobals());
       $ctx->meta()->set("abc", 'xyz');
       return $ctx;
     };
-    $cubex = $this->_cubex();
     $cubex->factory(Context::class, $factory);
     $ctx = $cubex->getContext();
     $this->assertEquals("xyz", $ctx->meta()->get('abc'));

@@ -1,9 +1,11 @@
 <?php
-namespace Cubex\Http;
+namespace Cubex\Routing;
 
-use Cubex\Context\Context;
 use Cubex\Events\PreExecuteEvent;
 use Exception;
+use Packaged\Context\Context;
+use Packaged\Routing\Handler\FuncHandler;
+use Packaged\Routing\Handler\Handler;
 use Symfony\Component\HttpFoundation\Response;
 use function gettype;
 
