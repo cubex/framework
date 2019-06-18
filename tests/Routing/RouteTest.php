@@ -5,7 +5,7 @@ namespace Cubex\Tests\Routing;
 use Packaged\Context\Context;
 use Packaged\Http\Request;
 use Packaged\Routing\Handler\FuncHandler;
-use Packaged\Routing\RequestConstraint;
+use Packaged\Routing\RequestCondition;
 use Packaged\Routing\Route;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ class RouteTest extends TestCase
   {
     [$route, $ctx] = $this->_getRoute();
 
-    $route->add(RequestConstraint::i()->path('route'));
+    $route->add(RequestCondition::i()->path('route'));
     $this->assertTrue($route->match($ctx));
   }
 
@@ -23,7 +23,7 @@ class RouteTest extends TestCase
   {
     [$route, $ctx] = $this->_getRoute();
 
-    $route->add(RequestConstraint::i()->path('/route'));
+    $route->add(RequestCondition::i()->path('/route'));
     $this->assertTrue($route->match($ctx));
   }
 
@@ -31,14 +31,14 @@ class RouteTest extends TestCase
   {
     [$route, $ctx] = $this->_getRoute();
 
-    $route->add(RequestConstraint::i()->path('/'));
+    $route->add(RequestCondition::i()->path('/'));
     $this->assertTrue($route->match($ctx));
   }
 
   public function testRoutePort()
   {
     [$route, $ctx] = $this->_getRoute();
-    $route->add(RequestConstraint::i()->port('8484'));
+    $route->add(RequestCondition::i()->port('8484'));
     $this->assertFalse($route->match($ctx));
   }
 
@@ -49,7 +49,7 @@ class RouteTest extends TestCase
     $route->setHandler($handler);
 
     $ctx = new Context(Request::create('/route_extra'));
-    $route->add(RequestConstraint::i()->path('/route'));
+    $route->add(RequestCondition::i()->path('/route'));
     $this->assertFalse($route->match($ctx));
   }
 

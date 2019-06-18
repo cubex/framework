@@ -27,7 +27,7 @@
     "packaged/figlet": "~0.0",
     "packaged/helpers": "~2.0",
     "packaged/http": "~1.3",
-    "packaged/routing": "~1.0",
+    "packaged/routing": "~2.0",
     "packaged/ui": "~1.0",
     "packaged/docblock": "~1.0",
     "symfony/console": "~4.2",

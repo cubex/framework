@@ -6,7 +6,7 @@ use Packaged\Routing\Condition;
 use Packaged\Routing\ConditionHandler;
 use Packaged\Routing\Handler\FuncHandler;
 use Packaged\Routing\Handler\Handler;
-use Packaged\Routing\RequestConstraint;
+use Packaged\Routing\RequestCondition;
 use Packaged\Routing\Route;
 
 class Router extends RouteProcessor
@@ -35,7 +35,7 @@ class Router extends RouteProcessor
 
   public function onPath($path, Handler $handler): Condition
   {
-    $condition = RequestConstraint::i()->path($path);
+    $condition = RequestCondition::i()->path($path);
     $this->addCondition(Route::with($condition)->setHandler($handler));
     return $condition;
   }
