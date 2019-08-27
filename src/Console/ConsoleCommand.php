@@ -49,7 +49,7 @@ abstract class ConsoleCommand extends Command implements ICubexAware
 
     parent::__construct(ValueAs::nonempty(...$names));
 
-    if($this->getDescription() === null)
+    if(empty($this->getDescription()))
     {
       $description = head($docBlock->getTagsByName('description'));
       if($description)
