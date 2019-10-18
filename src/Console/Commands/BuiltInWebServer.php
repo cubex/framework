@@ -77,14 +77,14 @@ class BuiltInWebServer extends ConsoleCommand
       }
       else
       {
-        $this->host = $this->debug ? '0.0.0.0' : '127.0.0.1';
+        $this->host = $this->getContext()->config()->getItem('serve', 'host', $this->debug ? '0.0.0.0' : '127.0.0.1');
       }
     }
 
     if($this->port === null)
     {
       $this->port = $this->getContext()->config()->getItem('serve', 'port', 8888);
-      $this->useNextAvailablePort = true;
+      $this->useNextAvailablePort = !$this->getContext()->config()->getSection('serve')->has('port');
     }
 
     if($this->useNextAvailablePort)
