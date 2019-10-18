@@ -84,7 +84,7 @@ class BuiltInWebServer extends ConsoleCommand
     if($this->port === null)
     {
       $this->port = $this->getContext()->config()->getItem('serve', 'port', 8888);
-      $this->useNextAvailablePort = !$this->getContext()->config()->getSection('serve')->has('port');
+      $this->useNextAvailablePort = !$this->getContext()->config()->hasItem('serve', 'port');
     }
 
     if($this->useNextAvailablePort)

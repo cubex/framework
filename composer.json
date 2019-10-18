@@ -20,7 +20,7 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
-    "packaged/config": "~1.4",
+    "packaged/config": "~1.5",
     "packaged/context": "~1.0",
     "packaged/di-container": "~1.0",
     "packaged/event": "~1.1",
