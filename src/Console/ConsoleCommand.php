@@ -59,7 +59,7 @@ abstract class ConsoleCommand extends Command implements ContextAware
 
     parent::__construct(ValueAs::nonempty(...$names));
 
-    if($this->getDescription() === null)
+    if(empty($this->getDescription()))
     {
       $description = $docBlock->getTag('description');
       if($description)
