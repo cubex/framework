@@ -24,13 +24,7 @@ abstract class Application extends RouteProcessor implements ContextAware, Cubex
 
   protected function _generateRoutes()
   {
-    $this->_initialize();
     return $this->_defaultHandler();
-  }
-
-  protected function _initialize()
-  {
-    //This is executed before the default handler route is yielded
   }
 
   /**
