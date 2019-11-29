@@ -281,6 +281,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler));
       $r = $handler->handle($c);
       $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r));
+      //Apply context cookies to the response
+      $c->cookies()->applyToResponse($r);
       $r->prepare($c->request());
       $this->_eventChannel->trigger(ResponsePreparedEvent::i($c, $handler, $r));
     }
