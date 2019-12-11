@@ -7,6 +7,8 @@ use Cubex\CubexAwareTrait;
 use Cubex\Routing\RouteProcessor;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
+use Packaged\Http\Responses\TextResponse;
+use Packaged\Routing\Handler\FuncHandler;
 use Packaged\Routing\Handler\Handler;
 
 /**
@@ -32,5 +34,10 @@ abstract class Application extends RouteProcessor implements ContextAware, Cubex
    *
    * @return Handler
    */
-  abstract protected function _defaultHandler(): Handler;
+  protected function _defaultHandler(): Handler
+  {
+    return new FuncHandler(
+      function () { return TextResponse::create('Not Found', 404); }
+    );
+  }
 }
