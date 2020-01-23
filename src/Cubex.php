@@ -5,6 +5,7 @@ use Composer\Autoload\ClassLoader;
 use Cubex\Console\Console;
 use Cubex\Console\Events\ConsoleCreateEvent;
 use Cubex\Console\Events\ConsolePrepareEvent;
+use Cubex\Context\Context as CubexContext;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePreparedEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
@@ -64,9 +65,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
   protected function _defaultContextFactory()
   {
-    return function () {
-      return $this->prepareContext(new \Cubex\Context\Context(Request::createFromGlobals()));
-    };
+    return function () { return $this->prepareContext(new CubexContext(Request::createFromGlobals())); };
   }
 
   public function prepareContext(Context $ctx): Context
@@ -77,7 +76,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $ctx->setEnvironment($env);
     }
 
-    if($ctx instanceof \Cubex\Context\Context)
+    if($ctx instanceof CubexAware)
     {
       $ctx->setCubex($this);
     }
