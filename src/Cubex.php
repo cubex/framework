@@ -12,6 +12,7 @@ use Cubex\Events\Handle\ResponsePrepareEvent;
 use Cubex\Events\Handle\ResponsePreSendContentEvent;
 use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\Events\PreExecuteEvent;
+use Cubex\Events\ShutdownEvent;
 use Cubex\Routing\ExceptionHandler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
@@ -347,5 +348,13 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $env = (string)$_ENV[static::_ENV_VAR];
     }
     return $env;
+  }
+
+  /**
+   * @throws Exception
+   */
+  public function shutdown()
+  {
+    $this->_eventChannel->trigger(new ShutdownEvent());
   }
 }
