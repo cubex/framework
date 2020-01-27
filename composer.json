@@ -23,7 +23,7 @@
     "packaged/config": "~1.5",
     "packaged/context": "~1.2",
     "packaged/di-container": "~1.0",
-    "packaged/event": "~1.1",
+    "packaged/event": "~1.2",
     "packaged/figlet": "~0.0",
     "packaged/helpers": "~2.0",
     "packaged/http": "~1.6",

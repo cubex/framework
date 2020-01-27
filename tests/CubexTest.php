@@ -9,6 +9,7 @@ use Cubex\Cubex;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
 use Cubex\Events\PreExecuteEvent;
+use Cubex\Events\ShutdownEvent;
 use Cubex\Routing\Router;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
@@ -180,6 +181,29 @@ class CubexTest extends TestCase
     $this->assertContains(ConditionHandler::ERROR_NO_HANDLER, $response->getContent());
   }
 
+  /**
+   * @throws Exception
+   */
+  public function testShutdown()
+  {
+    $cubex = $this->_cubex();
+    $cubex->listen(ShutdownEvent::class, function () { throw new Exception("Shutdown", 500); });
+    $this->assertTrue($cubex->shutdown(false));
+    $this->assertFalse($cubex->shutdown(false));
+    $cubex = $this->_cubex();
+
+    $destructed = false;
+    $cubex->listen(ShutdownEvent::class, function () use (&$destructed) { $destructed = true; });
+    $cubex->__destruct();
+    $this->assertTrue($destructed);
+
+    //throwing
+    $cubex = $this->_cubex();
+    $cubex->listen(ShutdownEvent::class, function () { throw new Exception("Shutdown", 500); });
+    $this->expectExceptionMessage("Shutdown");
+    $cubex->shutdown(true);
+  }
+
   public function testLog()
   {
     $cubex = new Cubex(__DIR__, null, true);
@@ -203,6 +227,17 @@ class CubexTest extends TestCase
     $cubex->removeShared(Context::class);
     $cubex->removeFactory(Context::class);
     $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+  }
+
+  public function testCustomContext()
+  {
+    $cubex = Cubex::withCustomContext(Context::class, __DIR__, null, false);
+    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    $this->assertInstanceOf(Context::class, $cubex->getContext());
+
+    $cubex = Cubex::withCustomContext(\Cubex\Context\Context::class, __DIR__, null, false);
+    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    $this->assertInstanceOf(\Cubex\Context\Context::class, $cubex->getContext());
   }
 
   /**

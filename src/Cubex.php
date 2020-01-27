@@ -47,8 +47,13 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   protected $_eventChannel;
   protected $_console;
   private $_projectRoot;
+  private $_contextClass = CubexContext::class;
 
   protected $_throwEnvironments = [Context::ENV_LOCAL, Context::ENV_DEV];
+  /**
+   * @var bool
+   */
+  private $_hasShutdown;
 
   public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
   {
@@ -64,9 +69,16 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
   }
 
+  public static function withCustomContext(string $ctxClass, $projectRoot, ClassLoader $loader = null, $global = true)
+  {
+    $c = new static($projectRoot, $loader, $global);
+    $c->_contextClass = $ctxClass;
+    return $c;
+  }
+
   protected function _defaultContextFactory()
   {
-    return function () { return $this->prepareContext(new CubexContext(Request::createFromGlobals())); };
+    return function () { return $this->prepareContext(new $this->_contextClass(Request::createFromGlobals())); };
   }
 
   public function prepareContext(Context $ctx): Context
@@ -197,17 +209,20 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
+   * @param bool $throwExceptions
+   *
    * @return Console
    *
    * @throws Exception
    */
-  public function getConsole()
+  public function getConsole(bool $throwExceptions = false)
   {
     if(!$this->_console)
     {
       $this->_console = new Console("Cubex Console", "4.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
+      $this->_eventChannel->setShouldThrowExceptions($throwExceptions);
       $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console));
     }
     return $this->_console;
@@ -351,10 +366,33 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
+   * @param bool $throwExceptions
+   *
+   * @return bool true if shutdown has processed, false if shutdown has already been called.
    * @throws Exception
    */
-  public function shutdown()
+  public function shutdown(bool $throwExceptions = false)
   {
-    $this->_eventChannel->trigger(new ShutdownEvent());
+    if(!$this->_hasShutdown)
+    {
+      $this->_hasShutdown = true;
+      $this->_eventChannel->setShouldThrowExceptions($throwExceptions);
+      $this->_eventChannel->trigger(new ShutdownEvent());
+      return true;
+    }
+    return false;
   }
+
+  public function __destruct()
+  {
+    if(!$this->_hasShutdown && $this->_eventChannel->hasListeners(ShutdownEvent::class))
+    {
+      error_log(
+        'Your project has a registered shutdown event, but $cubex->shutdown() has not been directly called.',
+        E_USER_NOTICE
+      );
+      $this->shutdown();
+    }
+  }
+
 }
