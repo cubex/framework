@@ -321,8 +321,19 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         {
           flush();
         }
+
         $this->_eventChannel->trigger(ResponsePreSendContentEvent::i($c, $handler, $r));
-        $r->send();
+        $r->sendContent();
+
+        //Finish the request
+        if(\function_exists('fastcgi_finish_request'))
+        {
+          fastcgi_finish_request();
+        }
+        else if(!\in_array(\PHP_SAPI, ['cli', 'phpdbg'], true))
+        {
+          Response::closeOutputBuffers(0, true);
+        }
       }
       $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r));
     }
