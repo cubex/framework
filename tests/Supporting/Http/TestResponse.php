@@ -12,7 +12,7 @@ class TestResponse extends Response
     return $this->_output;
   }
 
-  public function send()
+  public function sendContent()
   {
     $this->_output = $this->content;
     return $this;
