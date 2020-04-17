@@ -379,16 +379,20 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
-   * @param bool $throwExceptions
+   * @param bool|null $throwExceptions
    *
    * @return bool true if shutdown has processed, false if shutdown has already been called.
    * @throws Exception
    */
-  public function shutdown(bool $throwExceptions = false)
+  public function shutdown(bool $throwExceptions = null)
   {
     if(!$this->_hasShutdown)
     {
       $this->_hasShutdown = true;
+      if($throwExceptions === null)
+      {
+        $throwExceptions = !$this->willCatchExceptions($this->getContext());
+      }
       $this->_eventChannel->setShouldThrowExceptions($throwExceptions);
       $this->_eventChannel->trigger(new ShutdownEvent());
       return true;
