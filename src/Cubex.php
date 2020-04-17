@@ -326,6 +326,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         $r->sendContent();
 
         //Finish the request
+        //@codeCoverageIgnoreStart
         if(\function_exists('fastcgi_finish_request'))
         {
           fastcgi_finish_request();
@@ -334,6 +335,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         {
           Response::closeOutputBuffers(0, true);
         }
+        //@codeCoverageIgnoreEnd
       }
       $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r));
     }
@@ -377,16 +379,20 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   }
 
   /**
-   * @param bool $throwExceptions
+   * @param bool|null $throwExceptions
    *
    * @return bool true if shutdown has processed, false if shutdown has already been called.
    * @throws Exception
    */
-  public function shutdown(bool $throwExceptions = false)
+  public function shutdown(bool $throwExceptions = null)
   {
     if(!$this->_hasShutdown)
     {
       $this->_hasShutdown = true;
+      if($throwExceptions === null)
+      {
+        $throwExceptions = !$this->willCatchExceptions($this->getContext());
+      }
       $this->_eventChannel->setShouldThrowExceptions($throwExceptions);
       $this->_eventChannel->trigger(new ShutdownEvent());
       return true;

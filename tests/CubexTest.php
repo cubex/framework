@@ -204,6 +204,41 @@ class CubexTest extends TestCase
     $cubex->shutdown(true);
   }
 
+  /**
+   * @param string $env
+   * @param array  $throwEnv
+   * @param bool   $expect
+   *
+   * @throws Exception
+   *
+   * @dataProvider _defaultShutdownProvider
+   */
+  public function testShutdownDefault(string $env, array $throwEnv, bool $expect)
+  {
+    $cubex = $this->_cubex();
+    $cubex->getContext()->setEnvironment($env);
+    $cubex->setThrowEnvironments($throwEnv);
+    $cubex->listen(ShutdownEvent::class, function () { throw new Exception("Shutdown", 500); });
+    if($expect)
+    {
+      $this->expectExceptionMessage("Shutdown");
+    }
+    else
+    {
+      $this->expectNotToPerformAssertions();
+    }
+    $cubex->shutdown(null);
+  }
+
+  public function _defaultShutdownProvider()
+  {
+    return [
+      // env , throw env , expect
+      ['env', [], false],
+      ['env', ['env'], true],
+    ];
+  }
+
   public function testLog()
   {
     $cubex = new Cubex(__DIR__, null, true);
