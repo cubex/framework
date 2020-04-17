@@ -326,6 +326,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         $r->sendContent();
 
         //Finish the request
+        //@codeCoverageIgnoreStart
         if(\function_exists('fastcgi_finish_request'))
         {
           fastcgi_finish_request();
@@ -334,6 +335,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
         {
           Response::closeOutputBuffers(0, true);
         }
+        //@codeCoverageIgnoreEnd
       }
       $this->_eventChannel->trigger(HandleCompleteEvent::i($c, $handler, $r));
     }
