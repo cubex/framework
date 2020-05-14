@@ -10,6 +10,7 @@ use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Events\ShutdownEvent;
+use Cubex\Logger\ErrorLogLogger;
 use Cubex\Routing\Router;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
@@ -22,7 +23,6 @@ use Packaged\Routing\ConditionHandler;
 use Packaged\Routing\Handler\FuncHandler;
 use Packaged\Routing\Handler\Handler;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Psr\Log\Test\TestLogger;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,8 +46,10 @@ class CubexTest extends TestCase
   public function testLogger()
   {
     $cubex = $this->_cubex();
-    $this->assertInstanceOf(NullLogger::class, $cubex->getLogger());
-    $logger = new NullLogger();
+    $ctx = $cubex->getContext();
+    $cXLogger = $ctx instanceof \Cubex\Context\Context ? $ctx->logger() : $cubex->getLogger();
+    $this->assertInstanceOf(ErrorLogLogger::class, $cXLogger);
+    $logger = new ErrorLogLogger();
     $cubex->setLogger($logger);
     $this->assertEquals($logger, $cubex->getLogger());
   }

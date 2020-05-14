@@ -13,6 +13,7 @@ use Cubex\Events\Handle\ResponsePreSendContentEvent;
 use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Events\ShutdownEvent;
+use Cubex\Logger\ErrorLogLogger;
 use Cubex\Routing\ExceptionHandler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
@@ -24,7 +25,6 @@ use Packaged\Http\Request;
 use Packaged\Routing\Handler\Handler;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -134,7 +134,8 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
     catch(Exception $e)
     {
-      $logger = new NullLogger();
+      $logger = ErrorLogLogger::withContext($this->getContext());
+      $this->share(LoggerInterface::class, $logger);
     }
     return $logger;
   }
