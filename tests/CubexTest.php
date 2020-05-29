@@ -47,7 +47,7 @@ class CubexTest extends TestCase
   {
     $cubex = $this->_cubex();
     $ctx = $cubex->getContext();
-    $cXLogger = $ctx instanceof \Cubex\Context\Context ? $ctx->logger() : $cubex->getLogger();
+    $cXLogger = $ctx instanceof \Cubex\Context\Context ? $ctx->log() : $cubex->getLogger();
     $this->assertInstanceOf(ErrorLogLogger::class, $cXLogger);
     $logger = new ErrorLogLogger();
     $cubex->setLogger($logger);
