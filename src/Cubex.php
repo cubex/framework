@@ -76,6 +76,26 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     return $c;
   }
 
+  public function retrieve($abstract, array $parameters = [], $shared = true, $attemptNewAbstract = true)
+  {
+    try
+    {
+      return parent::retrieve($abstract, $parameters, $shared);
+    }
+    catch(Exception $e)
+    {
+      if($attemptNewAbstract)
+      {
+        $o = $this->_buildInstance($abstract, $parameters);
+        if(is_object($o))
+        {
+          return $o;
+        }
+      }
+      throw $e;
+    }
+  }
+
   protected function _defaultContextFactory()
   {
     return function () { return $this->prepareContext(new $this->_contextClass(Request::createFromGlobals())); };
