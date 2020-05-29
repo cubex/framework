@@ -150,7 +150,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   {
     try
     {
-      $logger = $this->retrieve(LoggerInterface::class);
+      $logger = $this->retrieve(LoggerInterface::class, [], true, false);
     }
     catch(Exception $e)
     {
@@ -253,7 +253,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   {
     try
     {
-      $ctx = $this->retrieve(Context::class);
+      $ctx = $this->retrieve(Context::class, [], true, false);
     }
     catch(Exception $e)
     {
