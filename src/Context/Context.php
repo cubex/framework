@@ -3,7 +3,6 @@ namespace Cubex\Context;
 
 use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
-use Packaged\Http\Request;
 use Psr\Log\LoggerInterface;
 
 class Context extends \Packaged\Context\Context implements CubexAware
@@ -13,11 +12,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
   protected function _construct()
   {
     parent::_construct();
-    $r = $this->request();
-    if($r instanceof Request)
-    {
-      $r->defineTlds(['cubex-local.com', 'local-host.xyz'], true);
-    }
+    $this->request()->defineTlds(['cubex-local.com', 'local-host.xyz'], true);
   }
 
   public function log(): LoggerInterface
