@@ -90,6 +90,10 @@ class TranslationUpdater implements CubexAware
       mkdir($dir, 0777, true);
     }
     file_put_contents($filename, $data);
+    if(function_exists('opcache_reset'))
+    {
+      opcache_reset();
+    }
   }
 
   protected function _getTranslation($text, $language)

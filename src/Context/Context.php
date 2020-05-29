@@ -34,8 +34,12 @@ class Context extends \Packaged\Context\Context implements CubexAware
   {
     $transDir = $this->getProjectRoot() . $path;
     $catalog = null;
+    $language = 'en';
 
-    foreach($this->_attemptLanguages() as $language)
+    $langs = $withUpdater ?
+      [strtolower(substr($this->request()->getPreferredLanguage(), 0, 2))] : $this->_attemptLanguages();
+
+    foreach($langs as $language)
     {
       $transFile = $transDir . $language . '.php';
       if(file_exists($transFile))
@@ -52,11 +56,10 @@ class Context extends \Packaged\Context\Context implements CubexAware
 
     if($withUpdater)
     {
-      $useLang = strtolower(substr($this->request()->getPreferredLanguage(), 0, 2));
       $this->getCubex()->share(Translator::class, new TranslationLogger(new CatalogTranslator($catalog)));
       $this->getCubex()->retrieve(
         TranslationUpdater::class,
-        [$this->getCubex(), $catalog, $transDir . $useLang . '.php', $useLang]
+        [$this->getCubex(), $catalog, $transDir . $language . '.php', $language]
       );
     }
     else
