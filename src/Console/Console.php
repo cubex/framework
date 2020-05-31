@@ -2,9 +2,10 @@
 namespace Cubex\Console;
 
 use Cubex\Console\Commands\BuiltInWebServer;
+use Cubex\CubexAwareTrait;
+use Packaged\Config\ConfigProviderInterface;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
-use Packaged\Config\ConfigProviderInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,6 +24,7 @@ class Console extends Application implements ContextAware
   protected $_configured = false;
 
   use ContextAwareTrait;
+  use CubexAwareTrait;
 
   /**
    * Runs the current application.
