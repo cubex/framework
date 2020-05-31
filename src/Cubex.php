@@ -6,6 +6,8 @@ use Cubex\Console\Console;
 use Cubex\Console\Events\ConsoleCreateEvent;
 use Cubex\Console\Events\ConsolePrepareEvent;
 use Cubex\Context\Context as CubexContext;
+use Cubex\Context\Events\ConsoleLaunchedEvent;
+use Cubex\Context\Events\ConsoleCreatedEvent;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePreparedEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
@@ -212,7 +214,10 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $input = $input ?? new ArgvInput();
     $output = $output ?? new ConsoleOutput();
 
+    $ctx = $this->getContext();
+    $ctx->events()->trigger(new ConsoleLaunchedEvent($input, $output));
     $console = $this->getConsole();
+
     $this->_eventChannel->trigger(ConsolePrepareEvent::i($this->getContext(), $console, $input, $output));
 
     try
@@ -245,6 +250,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_console->setContext($this->getContext());
       $this->_console->setCubex($this);
       $this->_eventChannel->setShouldThrowExceptions($throwExceptions);
+      $this->getContext()->events()->trigger(new ConsoleCreatedEvent($this->_console));
       $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console));
     }
     return $this->_console;

@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Tests\Console;
 
+use Cubex\Context\Events\ConsoleCreatedEvent;
+use Cubex\Context\Events\ConsoleLaunchedEvent;
 use Cubex\Cubex;
 use Cubex\Tests\Supporting\Console\TestConsoleCommand;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
@@ -8,6 +10,7 @@ use Packaged\Config\Provider\ConfigSection;
 use Packaged\Config\Provider\Test\TestConfigProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class ConsoleTest extends TestCase
@@ -91,5 +94,47 @@ class ConsoleTest extends TestCase
       [TestExceptionCommand::class, 'Cubex.Tests.Supporting.Console.TestExceptionCommand'],
       ['\namespaced\TheRoutable', 'namespaced.TheRoutable', true],
     ];
+  }
+
+  public function testConsoleCreatedEvent()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $ctx = $cubex->getContext();
+    $createEvent = false;
+    $eventConsole = null;
+    $ctx->events()->listen(ConsoleCreatedEvent::class, function () use (&$createEvent) { $createEvent = true; });
+    $ctx->events()->listen(
+      ConsoleCreatedEvent::class,
+      function (ConsoleCreatedEvent $e) use (&$eventConsole) { $eventConsole = $e->getConsole(); }
+    );
+    $this->assertFalse($createEvent);
+    $console = $cubex->getConsole();
+    $this->assertTrue($createEvent);
+    $this->assertSame($console, $eventConsole);
+  }
+
+  public function testConsoleLaunchedEvent()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $ctx = $cubex->getContext();
+    $createEvent = false;
+    $eventInput = $eventOutput = null;
+    $ctx->events()->listen(ConsoleLaunchedEvent::class, function () use (&$createEvent) { $createEvent = true; });
+    $ctx->events()->listen(
+      ConsoleLaunchedEvent::class,
+      function (ConsoleLaunchedEvent $e) use (&$eventInput, &$eventOutput) {
+        $eventInput = $e->getInput();
+        $eventOutput = $e->getOutput();
+      }
+    );
+
+    $input = new StringInput('');
+    $output = new BufferedOutput();
+
+    $this->assertFalse($createEvent);
+    $cubex->cli($input, $output);
+    $this->assertTrue($createEvent);
+    $this->assertSame($input, $eventInput);
+    $this->assertSame($output, $eventOutput);
   }
 }
