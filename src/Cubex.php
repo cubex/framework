@@ -78,6 +78,26 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     return $c;
   }
 
+  public function retrieve($abstract, array $parameters = [], $shared = true, $attemptNewAbstract = true)
+  {
+    try
+    {
+      return parent::retrieve($abstract, $parameters, $shared);
+    }
+    catch(Exception $e)
+    {
+      if($attemptNewAbstract)
+      {
+        $o = $this->_buildInstance($abstract, $parameters);
+        if(is_object($o))
+        {
+          return $o;
+        }
+      }
+      throw $e;
+    }
+  }
+
   protected function _defaultContextFactory()
   {
     return function () { return $this->prepareContext(new $this->_contextClass(Request::createFromGlobals())); };
@@ -132,7 +152,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   {
     try
     {
-      $logger = $this->retrieve(LoggerInterface::class);
+      $logger = $this->retrieve(LoggerInterface::class, [], true, false);
     }
     catch(Exception $e)
     {
@@ -228,6 +248,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       $this->_console = new Console("Cubex Console", "4.0");
       $this->_console->setAutoExit(false);
       $this->_console->setContext($this->getContext());
+      $this->_console->setCubex($this);
       $this->_eventChannel->setShouldThrowExceptions($throwExceptions);
       $this->getContext()->events()->trigger(new ConsoleCreatedEvent($this->_console));
       $this->_eventChannel->trigger(ConsoleCreateEvent::i($this->getContext(), $this->_console));
@@ -239,7 +260,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   {
     try
     {
-      $ctx = $this->retrieve(Context::class);
+      $ctx = $this->retrieve(Context::class, [], true, false);
     }
     catch(Exception $e)
     {
