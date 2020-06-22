@@ -71,7 +71,7 @@ class Console extends Application implements ContextAware
 
     foreach($commands as $name => $class)
     {
-      $command = $this->getCommandByString($class);
+      $command = $this->_getCommandByString($class);
       if($command !== null)
       {
         if(!is_int($name))
@@ -92,7 +92,7 @@ class Console extends Application implements ContextAware
    *
    * @return Command|null
    */
-  protected function getCommandByString($name, $setName = false)
+  protected function _getCommandByString($name, $setName = false)
   {
     if(strpos($name, '.') !== false)
     {
@@ -148,7 +148,7 @@ class Console extends Application implements ContextAware
     }
     catch(\Throwable $e)
     {
-      $command = $this->getCommandByString($name, true);
+      $command = $this->_getCommandByString($name, true);
       if($command !== null)
       {
         $this->add($command);

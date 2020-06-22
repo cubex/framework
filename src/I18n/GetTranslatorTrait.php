@@ -9,7 +9,7 @@ use Packaged\I18n\Translators\Translator;
 
 trait GetTranslatorTrait
 {
-  protected function getTranslator(): Translator
+  protected function _getTranslator(): Translator
   {
     $cubex = null;
     if($this instanceof CubexAware)
