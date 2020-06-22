@@ -232,10 +232,10 @@ abstract class ConsoleCommand extends Command implements ContextAware
   protected function _execute(InputInterface $input, OutputInterface $output)
   {
     throw new \RuntimeException(
-      "Your command must contain one of the following methods:\n" .
-      '_execute(InputInterface $input, OutputInterface $output)' . "\n",
-      'executeCommand(InputInterface $input, OutputInterface $output)' . "\n",
-      "process()\n" .
+      "Your command must contain one of the following methods:\n"
+      . '_execute(InputInterface $input, OutputInterface $output)' . "\n"
+      . 'executeCommand(InputInterface $input, OutputInterface $output)' . "\n"
+      . "process()\n",
       500
     );
   }

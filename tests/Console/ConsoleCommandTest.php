@@ -91,7 +91,7 @@ Middle(s): Anthony James',
   }
 
   /**
-   * @throws \Exception
+   * @throws \RuntimeException
    */
   public function testUnfinishedCommand()
   {
