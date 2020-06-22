@@ -226,10 +226,16 @@ abstract class ConsoleCommand extends Command implements ContextAware
       return $this->process(...$params);
     }
 
+    return $this->_execute($input, $output);
+  }
+
+  protected function _execute(InputInterface $input, OutputInterface $output)
+  {
     throw new \RuntimeException(
       "Your command must contain one of the following methods:\n" .
-      "process()\n" .
+      '_execute(InputInterface $input, OutputInterface $output)' . "\n",
       'executeCommand(InputInterface $input, OutputInterface $output)' . "\n",
+      "process()\n" .
       500
     );
   }
