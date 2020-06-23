@@ -20,6 +20,23 @@ class Context extends \Packaged\Context\Context implements CubexAware
     $this->request()->defineTlds(['cubex-local.com', 'local-host.xyz'], true);
   }
 
+  private $_initialized;
+
+  final public function initialize()
+  {
+    if(!$this->_initialized)
+    {
+      $this->_initialized;
+      $this->_initialize();
+    }
+    return $this;
+  }
+
+  protected function _initialize()
+  {
+    //Called when ready to start using the context
+  }
+
   public function log(): LoggerInterface
   {
     return $this->getCubex()->getLogger();
