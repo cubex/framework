@@ -14,6 +14,9 @@ class Context extends \Packaged\Context\Context implements CubexAware
 {
   use CubexAwareTrait;
 
+  const DEFAULT_LANGUAGE = 'en';
+  protected $_language = self::DEFAULT_LANGUAGE;
+
   protected function _construct()
   {
     parent::_construct();
@@ -42,33 +45,53 @@ class Context extends \Packaged\Context\Context implements CubexAware
     return $this->getCubex()->getLogger();
   }
 
+  /**
+   * Visitors preferred languages
+   *
+   * @return array
+   */
+  protected function _preferredLanguages(): array
+  {
+    return [$this->request()->getPreferredLanguage()];
+  }
+
+  /**
+   * Languages supported by the visitor
+   *
+   * @return array
+   */
   protected function _attemptLanguages()
   {
-    return array_unique(array_merge($this->request()->getLanguages(), ['en']));
+    return array_unique(
+      array_merge($this->_preferredLanguages(), $this->request()->getLanguages(), [static::DEFAULT_LANGUAGE])
+    );
+  }
+
+  /**
+   * Current displayed language (this is set AFTER prepare translator is called)
+   *
+   * @return string
+   */
+  public function currentLanguage()
+  {
+    return $this->_language;
   }
 
   public function prepareTranslator($path = '/translations/', $withUpdater = false)
   {
     $transDir = $this->getProjectRoot() . $path;
-    $catalog = null;
-    $language = 'en';
+    $catalog = new DynamicArrayCatalog([]);
 
-    $langs = $withUpdater ?
-      [strtolower(substr($this->request()->getPreferredLanguage(), 0, 2))] : $this->_attemptLanguages();
-
-    foreach($langs as $language)
+    $language = static::DEFAULT_LANGUAGE;
+    foreach($this->_attemptLanguages() as $language)
     {
       $transFile = $transDir . $language . '.php';
       if(file_exists($transFile))
       {
+        $this->_language = $language;
         $catalog = DynamicArrayCatalog::fromFile($transFile);
         break;
       }
-    }
-
-    if($catalog === null)
-    {
-      $catalog = new DynamicArrayCatalog([]);
     }
 
     if($withUpdater)
