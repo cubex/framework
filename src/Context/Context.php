@@ -99,7 +99,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
       $this->getCubex()->share(Translator::class, new TranslationLogger(new CatalogTranslator($catalog)));
       $this->getCubex()->retrieve(
         TranslationUpdater::class,
-        [$this->getCubex(), $catalog, $transDir . $language . '.php', $language]
+        [$this->getCubex(), $catalog, $transDir . '_tpl.php', $language]
       );
     }
     else
