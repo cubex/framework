@@ -4,6 +4,7 @@ namespace Cubex\Context;
 use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationUpdater;
+use Packaged\I18n\Catalog\ArrayCatalog;
 use Packaged\I18n\Catalog\DynamicArrayCatalog;
 use Packaged\I18n\Translators\CatalogTranslator;
 use Packaged\I18n\Translators\TranslationLogger;
@@ -80,26 +81,40 @@ class Context extends \Packaged\Context\Context implements CubexAware
   public function prepareTranslator($path = '/translations/', $withUpdater = false)
   {
     $transDir = $this->getProjectRoot() . $path;
-    $catalog = new DynamicArrayCatalog([]);
+    $catalog = new ArrayCatalog([]);
 
-    $language = static::DEFAULT_LANGUAGE;
     foreach($this->_attemptLanguages() as $language)
     {
       $transFile = $transDir . $language . '.php';
       if(file_exists($transFile))
       {
         $this->_language = $language;
-        $catalog = DynamicArrayCatalog::fromFile($transFile);
+        $catalog = ArrayCatalog::fromFile($transFile);
         break;
       }
     }
 
     if($withUpdater)
     {
+      //Push all translations via a translation logger
       $this->getCubex()->share(Translator::class, new TranslationLogger(new CatalogTranslator($catalog)));
+
+      //Keep track of all new translations within _tpl.php
+      $catFile = $transDir . '_tpl.php';
+      if(file_exists($catFile))
+      {
+        //Load the existing template
+        $tplCatalog = DynamicArrayCatalog::fromFile($catFile);
+      }
+      else
+      {
+        $tplCatalog = new DynamicArrayCatalog([]);
+      }
+
+      //Setup the translation logger to listen @ shutdown
       $this->getCubex()->retrieve(
         TranslationUpdater::class,
-        [$this->getCubex(), $catalog, $transDir . '_tpl.php', $language]
+        [$this->getCubex(), $tplCatalog, $catFile, static::DEFAULT_LANGUAGE]
       );
     }
     else
