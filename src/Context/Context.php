@@ -94,4 +94,9 @@ class Context extends I18nContext implements CubexAware
     return $this->getCubex()->retrieve(Translator::class);
   }
 
+  public function translator(): Translator
+  {
+    return $this->_translator();
+  }
+
 }
