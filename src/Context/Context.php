@@ -4,6 +4,7 @@ namespace Cubex\Context;
 use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
 use Cubex\I18n\TranslationUpdater;
+use Packaged\ContextI18n\I18nContext;
 use Packaged\I18n\Catalog\ArrayCatalog;
 use Packaged\I18n\Catalog\DynamicArrayCatalog;
 use Packaged\I18n\Translators\CatalogTranslator;
@@ -11,12 +12,9 @@ use Packaged\I18n\Translators\TranslationLogger;
 use Packaged\I18n\Translators\Translator;
 use Psr\Log\LoggerInterface;
 
-class Context extends \Packaged\Context\Context implements CubexAware
+class Context extends I18nContext implements CubexAware
 {
   use CubexAwareTrait;
-
-  const DEFAULT_LANGUAGE = 'en';
-  protected $_language = self::DEFAULT_LANGUAGE;
 
   protected function _construct()
   {
@@ -30,7 +28,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
   {
     if(!$this->_initialized)
     {
-      $this->_initialized;
+      $this->_initialized = true;
       $this->_initialize();
     }
     return $this;
@@ -44,38 +42,6 @@ class Context extends \Packaged\Context\Context implements CubexAware
   public function log(): LoggerInterface
   {
     return $this->getCubex()->getLogger();
-  }
-
-  /**
-   * Visitors preferred languages
-   *
-   * @return array
-   */
-  protected function _preferredLanguages(): array
-  {
-    return [$this->request()->getPreferredLanguage()];
-  }
-
-  /**
-   * Languages supported by the visitor
-   *
-   * @return array
-   */
-  protected function _attemptLanguages()
-  {
-    return array_unique(
-      array_merge($this->_preferredLanguages(), $this->request()->getLanguages(), [static::DEFAULT_LANGUAGE])
-    );
-  }
-
-  /**
-   * Current displayed language (this is set AFTER prepare translator is called)
-   *
-   * @return string
-   */
-  public function currentLanguage()
-  {
-    return $this->_language;
   }
 
   public function prepareTranslator($path = '/translations/', $withUpdater = false)
@@ -122,4 +88,10 @@ class Context extends \Packaged\Context\Context implements CubexAware
       $this->getCubex()->share(Translator::class, new CatalogTranslator($catalog));
     }
   }
+
+  protected function _translator(): Translator
+  {
+    return $this->getCubex()->retrieve(Translator::class);
+  }
+
 }

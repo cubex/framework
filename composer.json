@@ -22,6 +22,7 @@
     "ext-json": "*",
     "packaged/config": "~1.5",
     "packaged/context": "~1.4",
+    "packaged/context-i18n": "~1.0",
     "packaged/di-container": "~1.0",
     "packaged/event": "~1.2",
     "packaged/figlet": "~0.0",
@@ -30,7 +31,7 @@
     "packaged/routing": "~2.1",
     "packaged/ui": "~1.0",
     "packaged/docblock": "~1.0",
-    "packaged/i18n": "~0.5",
+    "packaged/i18n": "~1.0",
     "symfony/console": "~4.2",
     "psr/log": "~1.1"
   },
