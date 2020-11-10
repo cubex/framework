@@ -63,8 +63,8 @@ class TranslationUpdater implements CubexAware
 
   public function writeCatalog(DynamicArrayCatalog $catalog)
   {
-    $indent = $implode = '';
-
+    $indent = "  ";
+    $implode = "\n";
     $content = ['<?php', PHP_EOL, 'return ['];
 
     foreach($catalog->getData() as $mid => $options)
