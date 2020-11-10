@@ -37,7 +37,7 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
   public function optionsProvider()
   {
     $pre = 'Raw Command: php ';
-    $debugCommand = '-d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
+    $debugCommand = '-d zend_extension=xdebug.so -d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
     return [
       [[], $pre . '-S 127.0.0.1:8888 -t public/index.php'],
       [[], '|__'],

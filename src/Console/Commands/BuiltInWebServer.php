@@ -146,6 +146,7 @@ class BuiltInWebServer extends ConsoleCommand
     $phpCommand = 'php';
     if($this->debug)
     {
+      $phpCommand .= ' -d zend_extension=xdebug.so';
       $phpCommand .= ' -d xdebug.remote_enable=1';
       $phpCommand .= ' -d xdebug.remote_autostart=1';
       $phpCommand .= ' -d xdebug.remote_connect_back=1';
