@@ -496,7 +496,7 @@ abstract class CubexKernel
       }
       else
       {
-        $response = call_user_func_array($method, $params);
+        $response = call_user_func_array($method, array_values($params));
       }
     }
     catch(\Exception $e)

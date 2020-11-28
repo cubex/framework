@@ -152,7 +152,7 @@ trait TranslationTrait
       $singular = str_replace('(s)', '', $text);
       $plural = str_replace('(s)', 's', $text);
       array_unshift($args, $singular, $plural);
-      return call_user_func_array([$this, 'p'], $args);
+      return call_user_func_array([$this, 'p'], array_values($args));
     }
 
     return $this->p(

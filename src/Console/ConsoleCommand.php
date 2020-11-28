@@ -240,13 +240,13 @@ abstract class ConsoleCommand extends Command implements ICubexAware
     if(method_exists($this, 'executeCommand'))
     {
       array_unshift($params, $input, $output);
-      return call_user_func_array([$this, 'executeCommand'], $params);
+      return call_user_func_array([$this, 'executeCommand'], array_values($params));
     }
 
     //Call the process method, without $input and $output
     if(method_exists($this, 'process'))
     {
-      return call_user_func_array([$this, 'process'], $params);
+      return call_user_func_array([$this, 'process'], array_values($params));
     }
 
     throw new \RuntimeException(
