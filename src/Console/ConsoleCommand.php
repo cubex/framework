@@ -124,9 +124,18 @@ abstract class ConsoleCommand extends Command implements ICubexAware
         $description = $descriptions[$parameter->getName()];
       }
 
+      if(PHP_VERSION_ID >= 80000)
+      {
+        $isArray = ($type = $parameter->getType()) instanceof \ReflectionNamedType && $type->getName() === 'array';
+      }
+      else
+      {
+        $isArray = $parameter->isArray();
+      }
+
       $this->addArgument(
         $parameter->getName(),
-        $parameter->isArray() ? $mode | InputArgument::IS_ARRAY : $mode,
+        $isArray ? $mode | InputArgument::IS_ARRAY : $mode,
         $description,
         $default
       );
