@@ -4,6 +4,7 @@ namespace Cubex\Logger;
 use Packaged\Context\ContextAwareTrait;
 use Packaged\Context\WithContextTrait;
 use Packaged\Helpers\Strings;
+use Packaged\Helpers\ValueAs;
 use Psr\Log\AbstractLogger;
 
 class ErrorLogLogger extends AbstractLogger
@@ -29,6 +30,21 @@ class ErrorLogLogger extends AbstractLogger
     $maxLineLen = self::MAX_LINE_LENGTH - (strlen($prefix) + 2);
     $n = 0;
     $lines = explode("\n", $message);
+    foreach($context as $k => $v)
+    {
+      try
+      {
+        Strings::stringable($v);
+        $val = ValueAs::string($v);
+        if($val !== '')
+        {
+          $lines[] = "$k = $val";
+        }
+      }
+      catch(\Exception $e)
+      {
+      }
+    }
     foreach($lines as $line)
     {
       foreach(str_split($line, $maxLineLen) as $linePart)

@@ -126,9 +126,18 @@ abstract class ConsoleCommand extends Command implements ContextAware
         $default = $parameter->getDefaultValue();
       }
 
+      if(PHP_VERSION_ID >= 80000)
+      {
+        $isArray = ($type = $parameter->getType()) instanceof \ReflectionNamedType && $type->getName() === 'array';
+      }
+      else
+      {
+        $isArray = $parameter->isArray();
+      }
+
       $this->addArgument(
         $parameter->name,
-        $parameter->isArray() ? $mode | InputArgument::IS_ARRAY : $mode,
+        $isArray ? $mode | InputArgument::IS_ARRAY : $mode,
         isset($descriptions[$parameter->name]) ? $descriptions[$parameter->name] : '',
         $default
       );
