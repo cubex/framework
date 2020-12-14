@@ -146,11 +146,40 @@ class BuiltInWebServer extends ConsoleCommand
     $phpCommand = 'php';
     if($this->debug)
     {
-      $phpCommand .= ' -d zend_extension=xdebug.so';
-      $phpCommand .= ' -d xdebug.remote_enable=1';
-      $phpCommand .= ' -d xdebug.remote_autostart=1';
-      $phpCommand .= ' -d xdebug.remote_connect_back=1';
-      $phpCommand .= ' -d xdebug.idekey=' . $this->debugIdeKey;
+      // check for xdebug, this must be checked in a new process in case this was launched with different options
+      $xdebugLoaded = 0 === $this->_runCommand($phpCommand . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
+      if(!$xdebugLoaded)
+      {
+        $ext = ' -d zend_extension=xdebug';
+        $xdebugLoaded = 0 === $this->_runCommand($phpCommand . $ext . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
+        if($xdebugLoaded)
+        {
+          $phpCommand .= $ext;
+        }
+      }
+      if($xdebugLoaded)
+      {
+        $v3 = $this->_runCommand(
+          $phpCommand . ' -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"'
+        );
+        if($v3)
+        {
+          $phpCommand .= ' -d xdebug.mode=debug';
+          $phpCommand .= ' -d xdebug.start_with_request=yes';
+          $phpCommand .= ' -d xdebug.discover_client_host=false';
+        }
+        else
+        {
+          $phpCommand .= ' -d xdebug.remote_enable=1';
+          $phpCommand .= ' -d xdebug.remote_autostart=1';
+          $phpCommand .= ' -d xdebug.remote_connect_back=1';
+        }
+        $phpCommand .= ' -d xdebug.idekey=' . $this->debugIdeKey;
+      }
+      else
+      {
+        $output->writeln(['', "\tXDebug extension not installed", ""]);
+      }
     }
 
     $projectRoot = trim($this->getContext()->getProjectRoot());
