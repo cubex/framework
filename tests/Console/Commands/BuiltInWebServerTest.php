@@ -36,8 +36,9 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
 
   public function optionsProvider()
   {
-    $pre = 'Raw Command: php ';
-    $debugCommand = '-d zend_extension=xdebug.so -d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
+    $debugCommand = '-d xdebug.mode=debug -d xdebug.start_with_request=1 -d xdebug.discover_client_host=1 -d xdebug.idekey=';
+    $pre = 'Raw Command: ' . PHP_BINARY . ' ';
+
     return [
       [[], $pre . '-S 127.0.0.1:8888 -t public/index.php'],
       [[], '|__'],
@@ -46,8 +47,8 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
       [['--host' => '0.0.0.0'], $pre . '-S 0.0.0.0:8888 -t public/index.php'],
       [['-c' => 'framework'], $pre . '-S framework.cubex-local.com:8888 -t public/index.php'],
       [['--router' => 'index.exec'], $pre . '-S 127.0.0.1:8888 -t index.exec'],
-      [['-d' => true], $pre . $debugCommand . 'PHPSTORM -S 0.0.0.0:8888 -t public/index.php'],
-      [['-d' => true, '-idekey' => 'TEST'], $pre . $debugCommand . 'TEST -S 0.0.0.0:8888 -t public/index.php'],
+      [['-d' => true], $debugCommand . 'PHPSTORM -S 0.0.0.0:8888 -t public/index.php'],
+      [['-d' => true, '-idekey' => 'TEST'], $debugCommand . 'TEST -S 0.0.0.0:8888 -t public/index.php'],
     ];
   }
 

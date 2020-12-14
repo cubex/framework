@@ -129,7 +129,8 @@ class BuiltInWebServer extends ConsoleCommand
     {
       // Use bash to execute if available,
       // enables CTRL+C to also kill spawned process (cygwin issue)
-      $command = "bash -c '$command'";
+      $command = addcslashes($command, "'");
+      $command = "bash -c $'$command'";
     }
     $method($command, $exitCode);
     return $exitCode;
@@ -143,14 +144,43 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write($this->host === '0.0.0.0' ? '127.0.0.1' : $this->host);
     $output->writeln(':' . $this->port);
 
-    $phpCommand = 'php';
+    $phpCommand = PHP_BINARY;
     if($this->debug)
     {
-      $phpCommand .= ' -d zend_extension=xdebug.so';
-      $phpCommand .= ' -d xdebug.remote_enable=1';
-      $phpCommand .= ' -d xdebug.remote_autostart=1';
-      $phpCommand .= ' -d xdebug.remote_connect_back=1';
-      $phpCommand .= ' -d xdebug.idekey=' . $this->debugIdeKey;
+      // check for xdebug, this must be checked in a new process in case this was launched with different options
+      $xdebugLoaded = $this->_runCommand($phpCommand . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
+      if($xdebugLoaded !== 0)
+      {
+        $ext = ' -d zend_extension=xdebug';
+        $xdebugLoaded = $this->_runCommand($phpCommand . $ext . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
+        if($xdebugLoaded === 0)
+        {
+          $phpCommand .= $ext;
+        }
+      }
+      if($xdebugLoaded === 0)
+      {
+        $v3 = $this->_runCommand(
+          $phpCommand . ' -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"'
+        );
+        if($v3 === 0)
+        {
+          $phpCommand .= ' -d xdebug.mode=debug';
+          $phpCommand .= ' -d xdebug.start_with_request=1';
+          $phpCommand .= ' -d xdebug.discover_client_host=1';
+        }
+        else
+        {
+          $phpCommand .= ' -d xdebug.remote_enable=1';
+          $phpCommand .= ' -d xdebug.remote_autostart=1';
+          $phpCommand .= ' -d xdebug.remote_connect_back=1';
+        }
+        $phpCommand .= ' -d xdebug.idekey=' . $this->debugIdeKey;
+      }
+      else
+      {
+        $output->writeln(['', "\tXDebug extension not installed", ""]);
+      }
     }
 
     $projectRoot = trim($this->getContext()->getProjectRoot());
