@@ -36,8 +36,19 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
 
   public function optionsProvider()
   {
+    passthru(
+      'php -dzend_extension=xdebug -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"',
+      $code
+    );
+    if(!$code)
+    {
+      $debugCommand = '-d xdebug.mode=debug -d xdebug.start_with_request=1 -d xdebug.discover_client_host=1 -d xdebug.idekey=';
+    }
+    else
+    {
+      $debugCommand = '-d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
+    }
     $pre = 'Raw Command: php ';
-    $debugCommand = '-d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
     return [
       [[], $pre . '-S 127.0.0.1:8888 -t public/index.php'],
       [[], '|__'],
