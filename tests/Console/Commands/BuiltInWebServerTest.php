@@ -37,7 +37,7 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
   public function optionsProvider()
   {
     passthru(
-      'php -dzend_extension=xdebug -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"',
+      PHP_BINARY . ' -dzend_extension=xdebug -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"',
       $code
     );
     if(!$code)
@@ -48,7 +48,8 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
     {
       $debugCommand = '-d xdebug.remote_enable=1 -d xdebug.remote_autostart=1 -d xdebug.remote_connect_back=1 -d xdebug.idekey=';
     }
-    $pre = 'Raw Command: php ';
+    $pre = 'Raw Command: ' . PHP_BINARY . ' ';
+
     return [
       [[], $pre . '-S 127.0.0.1:8888 -t public/index.php'],
       [[], '|__'],

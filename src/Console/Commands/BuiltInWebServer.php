@@ -143,7 +143,7 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write($this->host === '0.0.0.0' ? '127.0.0.1' : $this->host);
     $output->writeln(':' . $this->port);
 
-    $phpCommand = 'php';
+    $phpCommand = PHP_BINARY;
     if($this->debug)
     {
       // check for xdebug, this must be checked in a new process in case this was launched with different options
