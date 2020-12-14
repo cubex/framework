@@ -40,7 +40,7 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
       PHP_BINARY . ' -dzend_extension=xdebug -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"',
       $code
     );
-    if(!$code)
+    if($code === 0)
     {
       $debugCommand = '-d xdebug.mode=debug -d xdebug.start_with_request=1 -d xdebug.discover_client_host=1 -d xdebug.idekey=';
     }

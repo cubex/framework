@@ -147,22 +147,22 @@ class BuiltInWebServer extends ConsoleCommand
     if($this->debug)
     {
       // check for xdebug, this must be checked in a new process in case this was launched with different options
-      $xdebugLoaded = !$this->_runCommand($phpCommand . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
-      if(!$xdebugLoaded)
+      $xdebugLoaded = $this->_runCommand($phpCommand . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
+      if($xdebugLoaded !== 0)
       {
         $ext = ' -d zend_extension=xdebug';
-        $xdebugLoaded = !$this->_runCommand($phpCommand . $ext . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
-        if($xdebugLoaded)
+        $xdebugLoaded = $this->_runCommand($phpCommand . $ext . ' -r "exit(extension_loaded(\'xdebug\')?0:1);"');
+        if($xdebugLoaded === 0)
         {
           $phpCommand .= $ext;
         }
       }
-      if($xdebugLoaded)
+      if($xdebugLoaded === 0)
       {
-        $v3 = !$this->_runCommand(
+        $v3 = $this->_runCommand(
           $phpCommand . ' -r "exit(version_compare(phpversion(\'xdebug\'), \'3.0.0\', \'>=\')?0:1);"'
         );
-        if($v3)
+        if($v3 === 0)
         {
           $phpCommand .= ' -d xdebug.mode=debug';
           $phpCommand .= ' -d xdebug.start_with_request=1';
