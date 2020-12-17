@@ -63,23 +63,8 @@ class TranslationUpdater implements CubexAware
 
   public function writeCatalog(DynamicArrayCatalog $catalog)
   {
-    $indent = "  ";
-    $implode = "\n";
-    $content = ['<?php', PHP_EOL, 'return ['];
-
-    foreach($catalog->getData() as $mid => $options)
-    {
-      $content[] = $indent . "'" . addslashes($mid) . "' => [";
-      foreach($options as $optK => $text)
-      {
-        $text = $this->_getTranslation($text, $this->_lang);
-        $content[] = $indent . $indent . "'" . addslashes($optK) . "' => '" . addslashes($text) . "',";
-      }
-      $content[] = '],';
-    }
-    $content[] = '];';
-    $content[] = '';
-    $this->_writeFile($this->_file, implode($implode, $content));
+    $catalog->setTranslationCallback(function ($text) { return $this->_getTranslation($text, $this->_lang); });
+    $this->_writeFile($this->_file, $catalog->asPhpFile(true));
   }
 
   protected function _writeFile($filename, $data)
