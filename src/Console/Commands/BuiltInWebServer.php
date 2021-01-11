@@ -57,6 +57,7 @@ class BuiltInWebServer extends ConsoleCommand
    * @short idekey
    */
   public $debugIdeKey = 'PHPSTORM';
+  public $comment = '';
 
   protected $_executeMethod = 'passthru';
 
@@ -112,7 +113,10 @@ class BuiltInWebServer extends ConsoleCommand
       $output->write(Figlet::create('SERVER', 'ivrit'));
     }
 
-    putenv('PHP_CLI_SERVER_WORKERS=' . $this->workers);
+    if($this->workers > 0)
+    {
+      putenv('PHP_CLI_SERVER_WORKERS=' . $this->workers);
+    }
     return $this->_runCommand($this->_buildCommand($output));
   }
 
@@ -151,6 +155,10 @@ class BuiltInWebServer extends ConsoleCommand
     $output->write("http://");
     $output->write($this->host === '0.0.0.0' ? '127.0.0.1' : $this->host);
     $output->writeln(':' . $this->port);
+    if($this->comment)
+    {
+      $output->writeln($this->comment);
+    }
 
     $phpCommand = PHP_BINARY;
     if($this->debug)
