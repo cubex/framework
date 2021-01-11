@@ -112,6 +112,7 @@ class BuiltInWebServer extends ConsoleCommand
       $output->write(Figlet::create('SERVER', 'ivrit'));
     }
 
+    putenv('PHP_CLI_SERVER_WORKERS=' . $this->workers);
     return $this->_runCommand($this->_buildCommand($output));
   }
 
@@ -136,10 +137,10 @@ class BuiltInWebServer extends ConsoleCommand
     {
       // Use bash to execute if available,
       // enables CTRL+C to also kill spawned process (cygwin issue)
-      $command = escapeshellcmd($command);
+      $command = addcslashes($command, "'");
       $command = "bash -c $'$command'";
     }
-    $method(escapeshellcmd($command), $exitCode);
+    $method($command, $exitCode);
     return $exitCode;
   }
 
@@ -193,9 +194,7 @@ class BuiltInWebServer extends ConsoleCommand
     $projectRoot = trim($this->getContext()->getProjectRoot());
     $projectRoot = $projectRoot ? '"' . $projectRoot . '"' : '';
 
-    $command = [];
-    $command[] = 'PHP_CLI_SERVER_WORKERS=' . $this->workers;
-    $command[] = $phpCommand . " -S $this->host:$this->port -t";
+    $command = [$phpCommand . " -S $this->host:$this->port -t"];
     $command[] = $projectRoot;
     $command[] = trim($this->router);
     $command = implode(' ', array_filter($command));
