@@ -23,6 +23,13 @@ class BuiltInWebServer extends ConsoleCommand
   public $port;
   public $showfig = true;
   public $router = 'public/index.php';
+  /**
+   * Number of workers
+   * php>=7.4
+   *
+   * @short w
+   */
+  public $workers = 5;
 
   /**
    * @short c
@@ -105,6 +112,7 @@ class BuiltInWebServer extends ConsoleCommand
       $output->write(Figlet::create('SERVER', 'ivrit'));
     }
 
+    putenv('PHP_CLI_SERVER_WORKERS=' . $this->workers);
     return $this->_runCommand($this->_buildCommand($output));
   }
 
