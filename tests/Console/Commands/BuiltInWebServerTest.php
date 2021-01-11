@@ -37,7 +37,7 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
   public function optionsProvider()
   {
     $debugCommand = '-d xdebug.mode=debug -d xdebug.start_with_request=1 -d xdebug.discover_client_host=1 -d xdebug.idekey=';
-    $pre = 'Raw Command: PHP_CLI_SERVER_WORKERS=5 ' . PHP_BINARY . ' ';
+    $pre = 'Raw Command: ' . PHP_BINARY . ' ';
 
     return [
       [[], $pre . '-S 127.0.0.1:8888 -t public/index.php'],
