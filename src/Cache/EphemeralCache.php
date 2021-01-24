@@ -3,7 +3,7 @@ namespace Cubex\Cache;
 
 class EphemeralCache
 {
-  private static $inst;
+  protected static $inst;
 
   public static function instance(): self
   {
