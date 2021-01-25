@@ -1,10 +1,14 @@
 <?php
 namespace Cubex\Context;
 
+use Cubex\Cubex;
 use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
+use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\I18n\TranslationUpdater;
 use Packaged\ContextI18n\I18nContext;
+use Packaged\Http\Headers\ServerTiming;
+use Packaged\Http\Response;
 use Packaged\I18n\Catalog\ArrayCatalog;
 use Packaged\I18n\Catalog\DynamicArrayCatalog;
 use Packaged\I18n\Translators\CatalogTranslator;
@@ -14,7 +18,39 @@ use Psr\Log\LoggerInterface;
 
 class Context extends I18nContext implements CubexAware
 {
-  use CubexAwareTrait;
+  use CubexAwareTrait
+  {
+    setCubex as setCubexRaw;
+  }
+
+  protected $_timings = [];
+
+  public function addTiming($key, $duration, $description = "")
+  {
+    $this->_timings[] = ['k' => $key, 'd' => $duration, 't' => $description];
+    return $this;
+  }
+
+  public function setCubex(Cubex $cubex)
+  {
+    $this->setCubexRaw($cubex);
+    $cubex->listen(
+      ResponsePreSendHeadersEvent::class,
+      function (ResponsePreSendHeadersEvent $e) {
+        $response = $e->getResponse();
+        if($this->_timings && $response instanceof Response)
+        {
+          $timing = new ServerTiming();
+          foreach($this->_timings as $i => $tdata)
+          {
+            $timing->add($i . '-' . $tdata['k'], $tdata['d'], $tdata['t']);
+          }
+          $response->addHeader($timing);
+        }
+      }
+    );
+    return $this;
+  }
 
   protected function _construct()
   {
