@@ -24,11 +24,11 @@ class LazyHandlerTest extends TestCase
       }
     );
     $response = $handler->handle($ctx);
-    $this->assertContains('Lazy Func', $response->getContent());
+    self::assertStringContainsString('Lazy Func', $response->getContent());
 
     $handler = new LazyHandler(function () { return Response::create('Lazy Response'); });
     $response = $handler->handle($ctx);
-    $this->assertContains('Lazy Response', $response->getContent());
+    self::assertStringContainsString('Lazy Response', $response->getContent());
 
     $handler = new LazyHandler(function () { return new stdClass(); });
     $this->expectExceptionCode(500);

@@ -22,15 +22,15 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
     $ctx = new Context();
     $ctx->setProjectRoot('');
     $command->setContext($ctx);
-    $this->assertEquals('serve', $command->getName());
+    self::assertEquals('serve', $command->getName());
     $bufferOut = $this->getCommandOutput($command, $options + ['--showCommand' => true]);
     if($negate)
     {
-      $this->assertNotContains($passthru, $bufferOut);
+      self::assertStringNotContainsString($passthru, $bufferOut);
     }
     else
     {
-      $this->assertContains($passthru, $bufferOut);
+      self::assertStringContainsString($passthru, $bufferOut);
     }
   }
 
@@ -56,11 +56,11 @@ class BuiltInWebServerTest extends ConsoleCommandTestCase
   {
     $command = new TestableBuiltInWebServer();
     $command->setContext(new Context());
-    $this->assertEquals('serve', $command->getName());
+    self::assertEquals('serve', $command->getName());
     $bufferOut = $this->getCommandOutput(
       $command,
       ['--port' => '8898', '--useNextAvailablePort' => true, '-c' => 'port-taken']
     );
-    $this->assertContains(":8899", $bufferOut);
+    self::assertStringContainsString(":8899", $bufferOut);
   }
 }

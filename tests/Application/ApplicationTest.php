@@ -17,14 +17,14 @@ class ApplicationTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $app = new TestExtendedApplication($cubex);
-    $this->assertEquals($cubex, $app->getCubex());
-    $this->assertTrue($app->hasCubex());
+    self::assertEquals($cubex, $app->getCubex());
+    self::assertTrue($app->hasCubex());
     $app->clearCubex();
-    $this->assertFalse($app->hasCubex());
-    $this->assertNull($app->getCubex());
+    self::assertFalse($app->hasCubex());
+    self::assertNull($app->getCubex());
 
     $response = $app->handle($cubex->getContext());
-    $this->assertContains("App Default", $response->getContent());
+    self::assertStringContainsString("App Default", $response->getContent());
   }
 
   public function testDefaultHandler()
@@ -32,15 +32,15 @@ class ApplicationTest extends TestCase
     $cubex = new Cubex(__DIR__, null, false);
     $app = new TestApplicationDefaultHandler($cubex);
     $response = $app->handle($cubex->getContext());
-    $this->assertEquals(404, $response->getStatusCode());
-    $this->assertContains("Not Found", $response->getContent());
+    self::assertEquals(404, $response->getStatusCode());
+    self::assertStringContainsString("Not Found", $response->getContent());
 
     $request = Request::create("/some-route");
     $ctx = new Context($request);
     $cubex->share(Context::class, $ctx);
     $response = $cubex->handle($app, false);
-    $this->assertEquals(404, $response->getStatusCode());
-    $this->assertContains("Not Found", $response->getContent());
+    self::assertEquals(404, $response->getStatusCode());
+    self::assertStringContainsString("Not Found", $response->getContent());
   }
 
   public function testRoute()
@@ -52,11 +52,11 @@ class ApplicationTest extends TestCase
     $cubex->listen(
       ResponsePrepareEvent::class,
       function (ResponsePrepareEvent $e) {
-        $this->assertInstanceOf(TestApplication::class, $e->getHandler());
+        self::assertInstanceOf(TestApplication::class, $e->getHandler());
       }
     );
     $cubex->share(Context::class, $ctx);
     $response = $cubex->handle($app, false);
-    $this->assertStringContainsString('BUFFER', $response->getContent());
+    self::assertStringContainsString('BUFFER', $response->getContent());
   }
 }

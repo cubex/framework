@@ -48,7 +48,7 @@ class ControllerTest extends TestCase
     $this->_prepareCubex($cubex, $request);
 
     $controller->setContext($cubex->getContext());
-    $this->assertSame($request, $controller->request());
+    self::assertSame($request, $controller->request());
   }
 
   /**
@@ -64,7 +64,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('GET ROUTE', $response->getContent());
+    self::assertStringContainsString('GET ROUTE', $response->getContent());
   }
 
   /**
@@ -80,7 +80,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/safe-html");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('<b>Test</b>', $response->getContent());
+    self::assertStringContainsString('<b>Test</b>', $response->getContent());
   }
 
   /**
@@ -96,8 +96,8 @@ class ControllerTest extends TestCase
     $request = Request::create("/google");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertInstanceOf(RedirectResponse::class, $response);
-    $this->assertTrue($response->isRedirect('http://www.google.com'));
+    self::assertInstanceOf(RedirectResponse::class, $response);
+    self::assertTrue($response->isRedirect('http://www.google.com'));
   }
 
   /**
@@ -113,7 +113,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/route", 'POST');
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('POST ROUTE', $response->getContent());
+    self::assertStringContainsString('POST ROUTE', $response->getContent());
   }
 
   /**
@@ -130,7 +130,7 @@ class ControllerTest extends TestCase
     $request->headers->set('X-Requested-With', 'XMLHttpRequest');
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('AJAX GET ROUTE', $response->getContent());
+    self::assertStringContainsString('AJAX GET ROUTE', $response->getContent());
   }
 
   /**
@@ -146,7 +146,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/ui");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('Testing UI Route', $response->getContent());
+    self::assertStringContainsString('Testing UI Route', $response->getContent());
   }
 
   /**
@@ -162,7 +162,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/buffered");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('BUFFER', $response->getContent());
+    self::assertStringContainsString('BUFFER', $response->getContent());
   }
 
   /**
@@ -178,7 +178,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/response");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('Fixed Response', $response->getContent());
+    self::assertStringContainsString('Fixed Response', $response->getContent());
   }
 
   /**
@@ -194,7 +194,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/sub/route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('Default', $response->getContent());
+    self::assertStringContainsString('Default', $response->getContent());
   }
 
   /**
@@ -210,7 +210,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/sub/router");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('Router', $response->getContent());
+    self::assertStringContainsString('Router', $response->getContent());
   }
 
   /**
@@ -226,7 +226,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/sub/call");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('Remote', $response->getContent());
+    self::assertStringContainsString('Remote', $response->getContent());
   }
 
   /**
@@ -242,8 +242,8 @@ class ControllerTest extends TestCase
     $request = Request::create("/subs/testing");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertEquals('testing', $controller->routeData()->get('dynamic'));
-    $this->assertStringContainsString('Default', $response->getContent());
+    self::assertEquals('testing', $controller->routeData()->get('dynamic'));
+    self::assertStringContainsString('Default', $response->getContent());
   }
 
   /**
@@ -275,8 +275,8 @@ class ControllerTest extends TestCase
     $request = Request::create("/default-response");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('Access Denied', $response->getContent());
-    $this->assertEquals(403, $response->getStatusCode());
+    self::assertStringContainsString('Access Denied', $response->getContent());
+    self::assertEquals(403, $response->getStatusCode());
   }
 
   /**
@@ -350,7 +350,7 @@ class ControllerTest extends TestCase
     $request = Request::create("/handler-route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertEquals($response->getContent(), 'handled route');
+    self::assertEquals($response->getContent(), 'handled route');
   }
 
   /**
@@ -366,15 +366,15 @@ class ControllerTest extends TestCase
     $request = Request::create("/route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
-    $this->assertInstanceOf(Response::class, $response);
-    $this->assertEquals(200, $response->getStatusCode());
+    self::assertInstanceOf(Response::class, $response);
+    self::assertEquals(200, $response->getStatusCode());
 
     $authFailResponse = RedirectResponse::create('/login', 302);
     $controller->setAuthResponse($authFailResponse);
     $response = $controller->handle($cubex->getContext());
-    $this->assertInstanceOf(RedirectResponse::class, $response);
-    $this->assertEquals(302, $response->getStatusCode());
-    $this->assertSame($authFailResponse, $response);
+    self::assertInstanceOf(RedirectResponse::class, $response);
+    self::assertEquals(302, $response->getStatusCode());
+    self::assertSame($authFailResponse, $response);
 
     $controller->setAuthResponse(false);
     $this->expectExceptionMessage(AuthedController::ERROR_ACCESS_DENIED);
@@ -417,19 +417,19 @@ class ControllerTest extends TestCase
       }
     );
     $controller->handle($cubex->getContext());
-    $this->assertInstanceOf(SubTestController::class, $run);
+    self::assertInstanceOf(SubTestController::class, $run);
   }
 
   public function testProcessingObjectNull()
   {
     $controller = new TestController();
     $resp = null;
-    $this->assertFalse($controller->processObject(new Context(), null, $resp));
+    self::assertFalse($controller->processObject(new Context(), null, $resp));
   }
 
   public function testZeroResponse(){
     $ctx = new Context(Request::create('/user/0'));
     $controller = new TestController();
-    $this->assertEquals('0', $controller->handle($ctx)->getContent());
+    self::assertEquals('0', $controller->handle($ctx)->getContent());
   }
 }
