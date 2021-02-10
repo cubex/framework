@@ -98,7 +98,7 @@ abstract class RouteProcessor extends RouteSelector
       return true;
     }
 
-    if($handler || is_numeric($handler))
+    if($handler !== null)
     {
       $response = $handler;
     }
@@ -131,10 +131,6 @@ abstract class RouteProcessor extends RouteSelector
    */
   protected function _prepareResponse(Context $c, $result, $buffer = null)
   {
-    if(is_numeric($result))
-    {
-      return $result;
-    }
-    return $result ?: ($buffer !== false ? $buffer : null);
+    return $result ?? ($buffer !== false ? $buffer : null);
   }
 }
