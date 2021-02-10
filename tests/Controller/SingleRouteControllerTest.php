@@ -20,7 +20,7 @@ class SingleRouteControllerTest extends TestCase
     $request = Request::create("/route");
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('GET REQ', $response->getContent());
+    self::assertStringContainsString('GET REQ', $response->getContent());
   }
 
   /**
@@ -33,7 +33,7 @@ class SingleRouteControllerTest extends TestCase
     $request = Request::create("/route", 'POST');
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('POST REQ', $response->getContent());
+    self::assertStringContainsString('POST REQ', $response->getContent());
   }
 
   /**
@@ -47,7 +47,7 @@ class SingleRouteControllerTest extends TestCase
     $request->headers->set('X-Requested-With', 'XMLHttpRequest');
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('AJAX REQ', $response->getContent());
+    self::assertStringContainsString('AJAX REQ', $response->getContent());
   }
 
   /**
@@ -60,6 +60,6 @@ class SingleRouteControllerTest extends TestCase
     $request = Request::create("/route", 'DELETE');
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
-    $this->assertStringContainsString('PROCESS REQ', $response->getContent());
+    self::assertStringContainsString('PROCESS REQ', $response->getContent());
   }
 }

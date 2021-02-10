@@ -24,7 +24,7 @@ class ConsoleTest extends TestCase
     $output = new BufferedOutput();
     $input = new ArrayInput(['broken']);
     $cubex->cli($input, $output);
-    $this->assertContains('Command "broken" is not defined', $output->fetch());
+    self::assertStringContainsString('Command "broken" is not defined', $output->fetch());
   }
 
   /**
@@ -49,8 +49,8 @@ class ConsoleTest extends TestCase
     $console->configure($cfg);
     //Ensure config does not get re-run
     $console->configure(new TestConfigProvider());
-    $this->assertInstanceOf(TestExceptionCommand::class, $console->find('TestExceptionCommand'));
-    $this->assertInstanceOf(TestConsoleCommand::class, $console->find('Tester'));
+    self::assertInstanceOf(TestExceptionCommand::class, $console->find('TestExceptionCommand'));
+    self::assertInstanceOf(TestConsoleCommand::class, $console->find('Tester'));
   }
 
   /**
@@ -83,7 +83,7 @@ class ConsoleTest extends TestCase
     {
       $this->expectException('InvalidArgumentException');
     }
-    $this->assertInstanceOf($instance, $console->find($string));
+    self::assertInstanceOf($instance, $console->find($string));
   }
 
   public function findProvider()
@@ -107,10 +107,10 @@ class ConsoleTest extends TestCase
       ConsoleCreatedEvent::class,
       function (ConsoleCreatedEvent $e) use (&$eventConsole) { $eventConsole = $e->getConsole(); }
     );
-    $this->assertFalse($createEvent);
+    self::assertFalse($createEvent);
     $console = $cubex->getConsole();
-    $this->assertTrue($createEvent);
-    $this->assertSame($console, $eventConsole);
+    self::assertTrue($createEvent);
+    self::assertSame($console, $eventConsole);
   }
 
   public function testConsoleLaunchedEvent()
@@ -131,10 +131,10 @@ class ConsoleTest extends TestCase
     $input = new StringInput('');
     $output = new BufferedOutput();
 
-    $this->assertFalse($createEvent);
+    self::assertFalse($createEvent);
     $cubex->cli($input, $output);
-    $this->assertTrue($createEvent);
-    $this->assertSame($input, $eventInput);
-    $this->assertSame($output, $eventOutput);
+    self::assertTrue($createEvent);
+    self::assertSame($input, $eventInput);
+    self::assertSame($output, $eventOutput);
   }
 }

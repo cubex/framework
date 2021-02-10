@@ -16,7 +16,7 @@ class RouteTest extends TestCase
     [$route, $ctx] = $this->_getRoute();
 
     $route->add(RequestCondition::i()->path('route'));
-    $this->assertTrue($route->match($ctx));
+    self::assertTrue($route->match($ctx));
   }
 
   public function testRouteRootRoute()
@@ -24,7 +24,7 @@ class RouteTest extends TestCase
     [$route, $ctx] = $this->_getRoute();
 
     $route->add(RequestCondition::i()->path('/route'));
-    $this->assertTrue($route->match($ctx));
+    self::assertTrue($route->match($ctx));
   }
 
   public function testRouteRoot()
@@ -32,14 +32,14 @@ class RouteTest extends TestCase
     [$route, $ctx] = $this->_getRoute();
 
     $route->add(RequestCondition::i()->path('/'));
-    $this->assertTrue($route->match($ctx));
+    self::assertTrue($route->match($ctx));
   }
 
   public function testRoutePort()
   {
     [$route, $ctx] = $this->_getRoute();
     $route->add(RequestCondition::i()->port('8484'));
-    $this->assertFalse($route->match($ctx));
+    self::assertFalse($route->match($ctx));
   }
 
   public function testRouteExtra()
@@ -50,7 +50,7 @@ class RouteTest extends TestCase
 
     $ctx = new Context(Request::create('/route_extra'));
     $route->add(RequestCondition::i()->path('/route'));
-    $this->assertFalse($route->match($ctx));
+    self::assertFalse($route->match($ctx));
   }
 
   /**
@@ -61,10 +61,10 @@ class RouteTest extends TestCase
     $route = Route::i();
     $handler = new FuncHandler(function () { });
     $route->setHandler($handler);
-    $this->assertSame($handler, $route->getHandler());
+    self::assertSame($handler, $route->getHandler());
 
     $ctx = new Context(Request::create('/route'));
-    $this->assertTrue($route->match($ctx));
+    self::assertTrue($route->match($ctx));
     return [$route, $ctx];
   }
 }

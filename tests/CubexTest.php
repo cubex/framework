@@ -40,7 +40,7 @@ class CubexTest extends TestCase
   public function testProjectRoot()
   {
     $cubex = $this->_cubex();
-    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    self::assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
   }
 
   public function testLogger()
@@ -48,20 +48,20 @@ class CubexTest extends TestCase
     $cubex = $this->_cubex();
     $ctx = $cubex->getContext();
     $cXLogger = $ctx instanceof \Cubex\Context\Context ? $ctx->log() : $cubex->getLogger();
-    $this->assertInstanceOf(ErrorLogLogger::class, $cXLogger);
+    self::assertInstanceOf(ErrorLogLogger::class, $cXLogger);
     $logger = new ErrorLogLogger();
     $cubex->setLogger($logger);
-    $this->assertEquals($logger, $cubex->getLogger());
+    self::assertEquals($logger, $cubex->getLogger());
   }
 
   public function testInstance()
   {
     $this->_cubex();
-    $this->assertNull(Cubex::instance());
+    self::assertNull(Cubex::instance());
     $cubex = new Cubex(__DIR__, null, true);
-    $this->assertEquals($cubex, Cubex::instance());
+    self::assertEquals($cubex, Cubex::instance());
     Cubex::destroyGlobalInstance();
-    $this->assertNull(Cubex::instance());
+    self::assertNull(Cubex::instance());
   }
 
   /**
@@ -70,12 +70,12 @@ class CubexTest extends TestCase
   public function testContextConfig()
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $this->assertTrue($cubex->getContext()->config()->has('testing'));
-    $this->assertEquals('value1', $cubex->getContext()->config()->getItem('testing', 'key_one'));
+    self::assertTrue($cubex->getContext()->config()->has('testing'));
+    self::assertEquals('value1', $cubex->getContext()->config()->getItem('testing', 'key_one'));
 
     $cubex = new Cubex('missing_directory 1', null, false);
-    $this->assertEmpty($cubex->getContext()->config()->getSections());
-    $this->assertInstanceOf(ConfigProviderInterface::class, $cubex->getContext()->config());
+    self::assertEmpty($cubex->getContext()->config()->getSections());
+    self::assertInstanceOf(ConfigProviderInterface::class, $cubex->getContext()->config());
   }
 
   /**
@@ -88,8 +88,8 @@ class CubexTest extends TestCase
     $router->onPath('/', new FuncHandler(function () { return new TestResponse('All OK'); }));
     /** @var TestResponse $response */
     $response = $cubex->handle($router);
-    $this->assertInstanceOf(TestResponse::class, $response);
-    $this->assertEquals('All OK', $response->getSendResult());
+    self::assertInstanceOf(TestResponse::class, $response);
+    self::assertEquals('All OK', $response->getSendResult());
   }
 
   /**
@@ -114,7 +114,7 @@ class CubexTest extends TestCase
       function () { throw new Exception("Complete Exception", 500); }
     );
     $cubex->handle($router, true, true, true, true);
-    $this->assertTrue($logger->hasError("Complete Exception"));
+    self::assertTrue($logger->hasError("Complete Exception"));
 
     $this->expectExceptionMessage("Complete Exception");
     $cubex->handle($router, true, false, true, true);
@@ -130,14 +130,14 @@ class CubexTest extends TestCase
     $cubex->listen(
       PreExecuteEvent::class,
       function (PreExecuteEvent $e) {
-        $this->assertInstanceOf(Handler::class, $e->getHandler());
+        self::assertInstanceOf(Handler::class, $e->getHandler());
         $e->getContext()->meta()->set('HANDLE_PRE_EXECUTE', true);
       }
     );
     $cubex->listen(
       ResponsePrepareEvent::class,
       function (ResponsePrepareEvent $e) {
-        $this->assertInstanceOf(Response::class, $e->getResponse());
+        self::assertInstanceOf(Response::class, $e->getResponse());
         $e->getContext()->meta()->set('HANDLE_RESPONSE_PREPARE', true);
       }
     );
@@ -157,9 +157,9 @@ class CubexTest extends TestCase
     );
     $cubex->handle($router, false, true);
 
-    $this->assertTrue($context->meta()->has('HANDLE_PRE_EXECUTE'));
-    $this->assertTrue($context->meta()->has('HANDLE_RESPONSE_PREPARE'));
-    $this->assertTrue($context->meta()->has('HANDLE_COMPLETE'));
+    self::assertTrue($context->meta()->has('HANDLE_PRE_EXECUTE'));
+    self::assertTrue($context->meta()->has('HANDLE_RESPONSE_PREPARE'));
+    self::assertTrue($context->meta()->has('HANDLE_COMPLETE'));
   }
 
   /**
@@ -179,8 +179,8 @@ class CubexTest extends TestCase
   {
     $cubex = $this->_cubex();
     $response = $cubex->handle(new Router(), false, true);
-    $this->assertEquals(500, $response->getStatusCode());
-    $this->assertContains(ConditionHandler::ERROR_NO_HANDLER, $response->getContent());
+    self::assertEquals(500, $response->getStatusCode());
+    self::assertStringContainsString(ConditionHandler::ERROR_NO_HANDLER, $response->getContent());
   }
 
   /**
@@ -190,14 +190,14 @@ class CubexTest extends TestCase
   {
     $cubex = $this->_cubex();
     $cubex->listen(ShutdownEvent::class, function () { throw new Exception("Shutdown", 500); });
-    $this->assertTrue($cubex->shutdown(false));
-    $this->assertFalse($cubex->shutdown(false));
+    self::assertTrue($cubex->shutdown(false));
+    self::assertFalse($cubex->shutdown(false));
     $cubex = $this->_cubex();
 
     $destructed = false;
     $cubex->listen(ShutdownEvent::class, function () use (&$destructed) { $destructed = true; });
     $cubex->__destruct();
-    $this->assertTrue($destructed);
+    self::assertTrue($destructed);
 
     //throwing
     $cubex = $this->_cubex();
@@ -247,8 +247,8 @@ class CubexTest extends TestCase
     $logger = new TestLogger();
     $cubex->setLogger($logger);
     Cubex::log()->error("TEST");
-    $this->assertTrue($logger->hasError("TEST"));
-    $this->assertFalse($logger->hasError("NOTHING"));
+    self::assertTrue($logger->hasError("TEST"));
+    self::assertFalse($logger->hasError("NOTHING"));
     Cubex::destroyGlobalInstance();
   }
 
@@ -256,25 +256,25 @@ class CubexTest extends TestCase
   {
     $cubex = $this->_cubex();
 
-    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    self::assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
     $cubex->removeShared(Context::class);
 
     $cubex->factory(Context::class, function () { return new Context(); });
 
     $cubex->removeShared(Context::class);
     $cubex->removeFactory(Context::class);
-    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    self::assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
   }
 
   public function testCustomContext()
   {
     $cubex = Cubex::withCustomContext(Context::class, __DIR__, null, false);
-    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
-    $this->assertInstanceOf(Context::class, $cubex->getContext());
+    self::assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    self::assertInstanceOf(Context::class, $cubex->getContext());
 
     $cubex = Cubex::withCustomContext(\Cubex\Context\Context::class, __DIR__, null, false);
-    $this->assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
-    $this->assertInstanceOf(\Cubex\Context\Context::class, $cubex->getContext());
+    self::assertEquals(__DIR__, $cubex->getContext()->getProjectRoot());
+    self::assertInstanceOf(\Cubex\Context\Context::class, $cubex->getContext());
   }
 
   /**
@@ -286,9 +286,9 @@ class CubexTest extends TestCase
     $input = new ArgvInput([]);
     $output = new BufferedOutput();
     $result = $cubex->cli($input, $output);
-    $this->assertIsInt($result);
-    $this->assertEquals(0, $result);
-    $this->assertStringStartsWith('Cubex Console', $output->fetch());
+    self::assertIsInt($result);
+    self::assertEquals(0, $result);
+    self::assertStringStartsWith('Cubex Console', $output->fetch());
   }
 
   /**
@@ -303,22 +303,22 @@ class CubexTest extends TestCase
         $event->getConsole()->setCatchExceptions(false);
         $event->getConsole()->add(new TestExceptionCommand());
         $event->getConsole()->getContext()->meta()->set('TestExceptionCommand', true);
-        $this->assertInstanceOf(InputInterface::class, $event->getInput());
-        $this->assertInstanceOf(OutputInterface::class, $event->getOutput());
+        self::assertInstanceOf(InputInterface::class, $event->getInput());
+        self::assertInstanceOf(OutputInterface::class, $event->getOutput());
       }
     );
     $cubex->listen(
       ConsoleCreateEvent::class,
       function (ConsoleCreateEvent $event) {
-        $this->assertInstanceOf(Console::class, $event->getConsole());
+        self::assertInstanceOf(Console::class, $event->getConsole());
       }
     );
     $input = new ArgvInput(['', 'TestExceptionCommand']);
     $output = new BufferedOutput();
     $result = $cubex->cli($input, $output);
-    $this->assertIsInt($result);
-    $this->assertEquals(1, $result);
-    $this->assertContains('GENERIC EXCEPTION', $output->fetch());
+    self::assertIsInt($result);
+    self::assertEquals(1, $result);
+    self::assertStringContainsString('GENERIC EXCEPTION', $output->fetch());
   }
 
   public function testContextFactory()
@@ -326,7 +326,7 @@ class CubexTest extends TestCase
     $_ENV[Cubex::_ENV_VAR] = Context::ENV_DEV;
     $cubex = $this->_cubex();
     $ctx = $cubex->getContext();
-    $this->assertEquals(Context::ENV_DEV, $ctx->getEnvironment());
+    self::assertEquals(Context::ENV_DEV, $ctx->getEnvironment());
 
     $cubex = $this->_cubex();
     $factory = function () {
@@ -336,28 +336,28 @@ class CubexTest extends TestCase
     };
     $cubex->factory(Context::class, $factory);
     $ctx = $cubex->getContext();
-    $this->assertEquals("xyz", $ctx->meta()->get('abc'));
+    self::assertEquals("xyz", $ctx->meta()->get('abc'));
   }
 
   public function testExceptionThrowing()
   {
     $cubex = $this->_cubex();
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
 
     $cubex = $this->_cubex()->setThrowEnvironments([]);
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
-    $this->assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
+    self::assertTrue($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
 
     $cubex = $this->_cubex()->setThrowEnvironments(
       [
@@ -370,25 +370,25 @@ class CubexTest extends TestCase
         Context::ENV_PROD,
       ]
     );
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
-    $this->assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_LOCAL)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_DEV)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PHPUNIT)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_QA)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_UAT)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_STAGE)));
+    self::assertFalse($cubex->willCatchExceptions(Context::create('', Context::ENV_PROD)));
   }
 
   public function testFromContext()
   {
     $cubex = $this->_cubex();
     $ctx = $cubex->getContext();
-    $this->assertSame($cubex, Cubex::fromContext($ctx));
-    $this->assertNull(Cubex::fromContext(new Context()));
+    self::assertSame($cubex, Cubex::fromContext($ctx));
+    self::assertNull(Cubex::fromContext(new Context()));
 
     $cubex = new Cubex('', null, true);
-    $this->assertSame($cubex, Cubex::fromContext(new Context()));
+    self::assertSame($cubex, Cubex::fromContext(new Context()));
     Cubex::destroyGlobalInstance();
-    $this->assertNull(Cubex::fromContext(new Context()));
+    self::assertNull(Cubex::fromContext(new Context()));
   }
 }

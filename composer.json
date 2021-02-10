@@ -18,7 +18,7 @@
     "optimize-autoloader": true
   },
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.3",
     "ext-json": "*",
     "packaged/config": "~1.5",
     "packaged/context": "~1.4",
@@ -39,7 +39,7 @@
     "ext-xdebug": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "7.5.*"
+    "phpunit/phpunit": "9.5.*"
   },
   "autoload": {
     "psr-4": {

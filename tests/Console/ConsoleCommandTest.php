@@ -14,38 +14,38 @@ class ConsoleCommandTest extends ConsoleCommandTestCase
   public function testClassDocBlocks()
   {
     $command = new TestConsoleCommand();
-    $this->assertEquals('Tester', $command->getName());
-    $this->assertEquals('This is a test command', $command->getDescription());
+    self::assertEquals('Tester', $command->getName());
+    self::assertEquals('This is a test command', $command->getDescription());
 
     $def = $command->getDefinition();
-    $this->assertTrue($def->hasArgument('name'));
-    $this->assertTrue($def->hasArgument('surname'));
-    $this->assertTrue($def->hasArgument('middleNames'));
-    $this->assertTrue($def->getArgument('middleNames')->isArray());
+    self::assertTrue($def->hasArgument('name'));
+    self::assertTrue($def->hasArgument('surname'));
+    self::assertTrue($def->hasArgument('middleNames'));
+    self::assertTrue($def->getArgument('middleNames')->isArray());
 
-    $this->assertEquals('John', $def->getArgument('name')->getDefault());
-    $this->assertEquals('Smith', $def->getArgument('surname')->getDefault());
-    $this->assertEquals(
+    self::assertEquals('John', $def->getArgument('name')->getDefault());
+    self::assertEquals('Smith', $def->getArgument('surname')->getDefault());
+    self::assertEquals(
       ['Simon', 'Dennis'],
       $def->getArgument('middleNames')->getDefault()
     );
-    $this->assertEquals(
+    self::assertEquals(
       'longParam',
       $def->getOptionForShortcut('y')->getName()
     );
 
-    $this->assertTrue($def->getOption('who')->isValueRequired());
+    self::assertTrue($def->getOption('who')->isValueRequired());
 
     $command = new TestExecuteConsoleCommand();
     $def = $command->getDefinition();
-    $this->assertEquals(
+    self::assertEquals(
       'This should become a named parameter',
       $def->getOption('demand')->getDescription()
     );
-    $this->assertFalse($def->getOption('on')->acceptValue());
+    self::assertFalse($def->getOption('on')->acceptValue());
 
     $cmd = new NoDocBlockTestConsoleCommand();
-    $this->assertEquals('nodocblocktestconsolecommand', $cmd->getName());
+    self::assertEquals('nodocblocktestconsolecommand', $cmd->getName());
   }
 
   /**
@@ -54,7 +54,7 @@ class ConsoleCommandTest extends ConsoleCommandTestCase
   public function testOutput()
   {
     $command = new TestConsoleCommand();
-    $this->assertContains(
+    self::assertStringContainsString(
       'First: Brooke
 Last: Bryan
 Middle(s): Anthony James',
@@ -75,7 +75,7 @@ Middle(s): Anthony James',
   public function testOutputProcess()
   {
     $command = new TestProcessConsoleCommand();
-    $this->assertContains(
+    self::assertStringContainsString(
       'First: Brooke
 Last: Bryan
 Middle(s): Anthony James',
