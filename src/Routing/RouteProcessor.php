@@ -131,6 +131,6 @@ abstract class RouteProcessor extends RouteSelector
    */
   protected function _prepareResponse(Context $c, $result, $buffer = null)
   {
-    return $result ?? ($buffer !== false ? $buffer : null);
+    return $result ?? $buffer ?: $result;
   }
 }
