@@ -25,6 +25,7 @@ class TestController extends AuthedController
     yield self::_route('/missing', 'missing');
     yield self::_route('/exception', 'exception');
     yield self::_route('/safe-html', 'safeHtml');
+    yield self::_route('/user/{id}', 'user');
     yield self::_route('/google', RedirectResponse::create('http://www.google.com'));
     yield self::_route('/subs/{dynamic}', SubTestController::class);
     yield self::_route('/sub/call', [SubTestController::class, 'remoteCall']);
@@ -99,6 +100,11 @@ class TestController extends AuthedController
   public function getException()
   {
     throw new Exception("Broken");
+  }
+
+  public function getUser()
+  {
+    return $this->routeData()->get('id');
   }
 
   /**

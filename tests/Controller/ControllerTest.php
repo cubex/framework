@@ -426,4 +426,10 @@ class ControllerTest extends TestCase
     $resp = null;
     $this->assertFalse($controller->processObject(new Context(), null, $resp));
   }
+
+  public function testZeroResponse(){
+    $ctx = new Context(Request::create('/user/0'));
+    $controller = new TestController();
+    $this->assertEquals('0', $controller->handle($ctx)->getContent());
+  }
 }
