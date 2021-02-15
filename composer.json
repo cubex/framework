@@ -32,7 +32,7 @@
     "packaged/ui": "~1.0",
     "packaged/docblock": "~1.1",
     "packaged/i18n": "~1.2",
-    "symfony/console": "~4.2",
+    "symfony/console": "~4.2||~5.0",
     "psr/log": "~1.1"
   },
   "suggest": {
