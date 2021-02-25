@@ -11,6 +11,7 @@ use Packaged\Http\Headers\ServerTiming;
 use Packaged\Http\Response;
 use Packaged\I18n\Catalog\ArrayCatalog;
 use Packaged\I18n\Catalog\DynamicArrayCatalog;
+use Packaged\I18n\Catalog\MessageCatalog;
 use Packaged\I18n\Translators\CatalogTranslator;
 use Packaged\I18n\Translators\TranslationLogger;
 use Packaged\I18n\Translators\Translator;
@@ -85,6 +86,8 @@ class Context extends I18nContext implements CubexAware
     $transDir = $this->getProjectRoot() . $path;
     $catalog = new ArrayCatalog([]);
 
+    $cubex = $this->getCubex();
+
     foreach($this->_attemptLanguages() as $language)
     {
       $transFile = $transDir . $language . '.php';
@@ -96,10 +99,12 @@ class Context extends I18nContext implements CubexAware
       }
     }
 
+    $cubex->share(MessageCatalog::class, $catalog);
+
     if($withUpdater)
     {
       //Push all translations via a translation logger
-      $this->getCubex()->share(Translator::class, new TranslationLogger(new CatalogTranslator($catalog)));
+      $cubex->share(Translator::class, new TranslationLogger(new CatalogTranslator($catalog)));
 
       //Keep track of all new translations within _tpl.php
       $catFile = $transDir . '_tpl.php';
@@ -114,14 +119,11 @@ class Context extends I18nContext implements CubexAware
       }
 
       //Setup the translation logger to listen @ shutdown
-      $this->getCubex()->retrieve(
-        TranslationUpdater::class,
-        [$this->getCubex(), $tplCatalog, $catFile, static::DEFAULT_LANGUAGE]
-      );
+      $cubex->retrieve(TranslationUpdater::class, [$this->getCubex(), $tplCatalog, $catFile, static::DEFAULT_LANGUAGE]);
     }
     else
     {
-      $this->getCubex()->share(Translator::class, new CatalogTranslator($catalog));
+      $cubex->share(Translator::class, new CatalogTranslator($catalog));
     }
   }
 
