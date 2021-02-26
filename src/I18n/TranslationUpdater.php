@@ -22,7 +22,7 @@ class TranslationUpdater implements CubexAware
   protected $_file;
   protected $_lang;
 
-  public function __construct(Cubex $cubex, MessageCatalog $catalog, $file, $lang)
+  public function __construct(Cubex $cubex, MessageCatalog $catalog, $file, $lang, TranslationLogger $translationLogger = null)
   {
     $this->_catalog = $catalog;
     $this->_file = $file;
@@ -30,12 +30,20 @@ class TranslationUpdater implements CubexAware
     $this->setCubex($cubex);
     $cubex->listen(
       ShutdownEvent::class,
-      function () {
-        $translator = $this->getCubex()->retrieve(Translator::class);
-        if($translator instanceof TranslationLogger)
+      function () use ($translationLogger) {
+        if ($translationLogger !== null)
         {
-          $this->storeTranslations($translator);
+          $this->storeTranslations($translationLogger);
         }
+        else
+        {
+          $translator = $this->getCubex()->retrieve(Translator::class);
+          if($translator instanceof TranslationLogger)
+          {
+            $this->storeTranslations($translator);
+          }
+        }
+
       }
     );
   }
