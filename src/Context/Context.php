@@ -104,7 +104,8 @@ class Context extends I18nContext implements CubexAware
     if($withUpdater)
     {
       //Push all translations via a translation logger
-      $cubex->share(Translator::class, new TranslationLogger(new CatalogTranslator($catalog)));
+      $translationLogger = new TranslationLogger(new CatalogTranslator($catalog));
+      $cubex->share(Translator::class, $translationLogger);
 
       //Keep track of all new translations within _tpl.php
       $catFile = $transDir . '_tpl.php';
@@ -119,7 +120,13 @@ class Context extends I18nContext implements CubexAware
       }
 
       //Setup the translation logger to listen @ shutdown
-      $cubex->retrieve(TranslationUpdater::class, [$this->getCubex(), $tplCatalog, $catFile, static::DEFAULT_LANGUAGE]);
+      $cubex->retrieve(TranslationUpdater::class, [
+        $this->getCubex(),
+        $tplCatalog,
+        $catFile,
+        static::DEFAULT_LANGUAGE,
+        $translationLogger
+      ]);
     }
     else
     {
