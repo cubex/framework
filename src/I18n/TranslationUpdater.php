@@ -31,7 +31,7 @@ class TranslationUpdater implements CubexAware
     $cubex->listen(
       ShutdownEvent::class,
       function () use ($translationLogger) {
-        if ($translationLogger)
+        if ($translationLogger !== null)
         {
           $this->storeTranslations($translationLogger);
         }
