@@ -120,13 +120,7 @@ class Context extends I18nContext implements CubexAware
       }
 
       //Setup the translation logger to listen @ shutdown
-      $cubex->retrieve(TranslationUpdater::class, [
-        $cubex,
-        $tplCatalog,
-        $catFile,
-        static::DEFAULT_LANGUAGE,
-        $translationLogger
-      ]);
+      $cubex->retrieve(TranslationUpdater::class, [$cubex, $tplCatalog, $catFile, static::DEFAULT_LANGUAGE, $translationLogger]);
     }
     else
     {
