@@ -5,7 +5,7 @@
 
 ## Cubex PHP Framework
 
-The Cubex PHP Framework has been designed for PHP 5.4 onwards, using components available within the PHP community.
+The Cubex PHP Framework has been designed for PHP 7.3 onwards, using components available within the PHP community.
 The main goal from the Cubex framework is to cut down boilerplate code as much as possible, and to simplify development.
 
 ## Official Website
