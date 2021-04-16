@@ -13,10 +13,11 @@ use Cubex\Tests\Supporting\Controller\TestController;
 use Cubex\Tests\Supporting\Controller\TestIncompleteController;
 use Packaged\Context\Context;
 use Packaged\Http\Request;
+use Packaged\Http\Requests\HttpRequest;
 use Packaged\Http\Response;
+use Packaged\Http\Responses\RedirectResponse;
 use Packaged\Routing\ConditionHandler;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ControllerTest extends TestCase
 {
@@ -44,7 +45,7 @@ class ControllerTest extends TestCase
   public function testController(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/route");
+    $request = HttpRequest::create("/route");
     $this->_prepareCubex($cubex, $request);
 
     $controller->setContext($cubex->getContext());
@@ -61,7 +62,7 @@ class ControllerTest extends TestCase
   public function testGetRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/route");
+    $request = HttpRequest::create("/route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('GET ROUTE', $response->getContent());
@@ -77,7 +78,7 @@ class ControllerTest extends TestCase
   public function testGetSafeHtml(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/safe-html");
+    $request = HttpRequest::create("/safe-html");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('<b>Test</b>', $response->getContent());
@@ -93,7 +94,7 @@ class ControllerTest extends TestCase
   public function testGetRedirect(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/google");
+    $request = HttpRequest::create("/google");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertInstanceOf(RedirectResponse::class, $response);
@@ -110,7 +111,7 @@ class ControllerTest extends TestCase
   public function testPostRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/route", 'POST');
+    $request = HttpRequest::create("/route", 'POST');
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('POST ROUTE', $response->getContent());
@@ -126,8 +127,8 @@ class ControllerTest extends TestCase
   public function testAjaxRouting(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/route");
-    $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+    $request = HttpRequest::create("/route");
+    $request->headers()->set('X-Requested-With', 'XMLHttpRequest');
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('AJAX GET ROUTE', $response->getContent());
@@ -143,7 +144,7 @@ class ControllerTest extends TestCase
   public function testUiResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/ui");
+    $request = HttpRequest::create("/ui");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('Testing UI Route', $response->getContent());
@@ -159,7 +160,7 @@ class ControllerTest extends TestCase
   public function testBufferedResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/buffered");
+    $request = HttpRequest::create("/buffered");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('BUFFER', $response->getContent());
@@ -175,7 +176,7 @@ class ControllerTest extends TestCase
   public function testResponseResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/response");
+    $request = HttpRequest::create("/response");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('Fixed Response', $response->getContent());
@@ -191,7 +192,7 @@ class ControllerTest extends TestCase
   public function testSubClass(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/sub/route");
+    $request = HttpRequest::create("/sub/route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('Default', $response->getContent());
@@ -207,7 +208,7 @@ class ControllerTest extends TestCase
   public function testSubClassFullRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/sub/router");
+    $request = HttpRequest::create("/sub/router");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('Router', $response->getContent());
@@ -223,7 +224,7 @@ class ControllerTest extends TestCase
   public function testCallableRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/sub/call");
+    $request = HttpRequest::create("/sub/call");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('Remote', $response->getContent());
@@ -239,7 +240,7 @@ class ControllerTest extends TestCase
   public function testRouteData(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/subs/testing");
+    $request = HttpRequest::create("/subs/testing");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertEquals('testing', $controller->routeData()->get('dynamic'));
@@ -256,7 +257,7 @@ class ControllerTest extends TestCase
   public function testInvalidSubClass(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/badsub");
+    $request = HttpRequest::create("/badsub");
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage(Controller::ERROR_INVALID_ROUTE_RESPONSE);
     $controller->handle($cubex->getContext());
@@ -272,7 +273,7 @@ class ControllerTest extends TestCase
   public function testResponseClass(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/default-response");
+    $request = HttpRequest::create("/default-response");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('Access Denied', $response->getContent());
@@ -289,7 +290,7 @@ class ControllerTest extends TestCase
   public function testInvalidRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/missing");
+    $request = HttpRequest::create("/missing");
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage(RouteProcessor::ERROR_NO_ROUTE);
     $controller->handle($cubex->getContext());
@@ -302,7 +303,7 @@ class ControllerTest extends TestCase
   {
     $controller = new TestController();
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/not-found");
+    $request = HttpRequest::create("/not-found");
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage(RouteProcessor::ERROR_NO_ROUTE);
     $controller->handle($cubex->getContext());
@@ -315,7 +316,7 @@ class ControllerTest extends TestCase
   {
     $controller = new TestArrayRouteController();
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/not-found");
+    $request = HttpRequest::create("/not-found");
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage(ConditionHandler::ERROR_NO_HANDLER);
     $controller->handle($cubex->getContext());
@@ -331,7 +332,7 @@ class ControllerTest extends TestCase
   public function testExceptionalRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/exception");
+    $request = HttpRequest::create("/exception");
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage("Broken");
     $controller->handle($cubex->getContext());
@@ -347,7 +348,7 @@ class ControllerTest extends TestCase
   public function testHandlerRoute(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/handler-route");
+    $request = HttpRequest::create("/handler-route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertEquals($response->getContent(), 'handled route');
@@ -363,7 +364,7 @@ class ControllerTest extends TestCase
   public function testAuthResponse(TestController $controller)
   {
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/route");
+    $request = HttpRequest::create("/route");
     $this->_prepareCubex($cubex, $request);
     $response = $controller->handle($cubex->getContext());
     self::assertInstanceOf(Response::class, $response);
@@ -388,7 +389,7 @@ class ControllerTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $controller = new TestIncompleteController();
-    $request = Request::create("/route");
+    $request = HttpRequest::create("/route");
     $this->_prepareCubex($cubex, $request);
     $this->expectExceptionMessage(ConditionHandler::ERROR_NO_HANDLER);
     $controller->handle($cubex->getContext());
@@ -405,7 +406,7 @@ class ControllerTest extends TestCase
   {
     $run = null;
     $cubex = new Cubex(__DIR__, null, false);
-    $request = Request::create("/subs/events");
+    $request = HttpRequest::create("/subs/events");
     $this->_prepareCubex($cubex, $request);
     $cubex->getContext()->events()->listen(
       PreExecuteEvent::class,
@@ -427,8 +428,9 @@ class ControllerTest extends TestCase
     self::assertFalse($controller->processObject(new Context(), null, $resp));
   }
 
-  public function testZeroResponse(){
-    $ctx = new Context(Request::create('/user/0'));
+  public function testZeroResponse()
+  {
+    $ctx = new Context(HttpRequest::create('/user/0'));
     $controller = new TestController();
     self::assertEquals('0', $controller->handle($ctx)->getContent());
   }

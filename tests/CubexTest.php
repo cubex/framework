@@ -17,7 +17,7 @@ use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Context\Context;
-use Packaged\Http\Request;
+use Packaged\Http\Requests\GlobalsRequest;
 use Packaged\Http\Response;
 use Packaged\Routing\ConditionHandler;
 use Packaged\Routing\Handler\FuncHandler;
@@ -330,7 +330,7 @@ class CubexTest extends TestCase
 
     $cubex = $this->_cubex();
     $factory = function () {
-      $ctx = new Context(Request::createFromGlobals());
+      $ctx = new Context(GlobalsRequest::create());
       $ctx->meta()->set("abc", 'xyz');
       return $ctx;
     };

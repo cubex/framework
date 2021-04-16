@@ -18,7 +18,7 @@
     "optimize-autoloader": true
   },
   "require": {
-    "php": ">=7.3",
+    "php": ">=7.4",
     "ext-json": "*",
     "packaged/config": "~1.5",
     "packaged/context": "~1.4",
@@ -27,13 +27,14 @@
     "packaged/event": "~1.2",
     "packaged/figlet": "~0.0",
     "packaged/helpers": "~2.0",
-    "packaged/http": "~1.18",
+    "packaged/http": "2.0.x-dev as 1.50",
     "packaged/routing": "~2.1",
     "packaged/ui": "~1.0",
     "packaged/docblock": "~1.1",
     "packaged/i18n": "~1.2",
     "symfony/console": "~4.2||~5.0",
-    "psr/log": "~1.1"
+    "psr/log": "~1.1",
+    "psr/http-message": "^1.0"
   },
   "suggest": {
     "ext-xdebug": "*"
@@ -50,5 +51,11 @@
     "psr-4": {
       "Cubex\\Tests\\": "tests/"
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:packaged/http.git"
+    }
+  ]
 }

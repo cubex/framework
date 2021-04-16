@@ -3,7 +3,8 @@
 namespace Cubex\Tests\Routing;
 
 use Packaged\Context\Context;
-use Packaged\Http\Request;
+use Packaged\Http\Interfaces\RequestMethod;
+use Packaged\Http\Requests\HttpRequest;
 use Packaged\Routing\RequestCondition;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +12,7 @@ class RequestConditionTest extends TestCase
 {
   public function testConstraints()
   {
-    $request = Request::create('http://www.test.com:8080/path/one', 'POST');
+    $request = HttpRequest::create('http://www.test.com:8080/path/one', RequestMethod::POST);
     $ctx = new Context($request);
 
     self::assertTrue(RequestCondition::i()->match($ctx));
@@ -40,8 +41,8 @@ class RequestConditionTest extends TestCase
     self::assertTrue(RequestCondition::i()->subDomain('www')->domain('test')->tld('com')->match($ctx));
     self::assertFalse(RequestCondition::i()->subDomain('my')->domain('test')->tld('com')->match($ctx));
 
-    $request = Request::create('HTTPS://www.tesT.com:9090/InV123');
-    $request->server->set('HTTPS', 'on');
+    $request = HttpRequest::create('HTTPS://www.tesT.com:9090/InV123');
+    //$request->server->set('HTTPS', 'on');
     $ctx = new Context($request);
     self::assertTrue(
       RequestCondition::i()->path('/INV{invoiceNumber@num}', RequestCondition::TYPE_MATCH)->match($ctx)
@@ -65,7 +66,7 @@ class RequestConditionTest extends TestCase
         ->match($ctx)
     );
 
-    $request = Request::create('HTTPS://www.tesT.com:9090/?x=y&abc');
+    $request = HttpRequest::create('HTTPS://www.tesT.com:9090/?x=y&abc');
     $request->server->set('HTTPS', 'on');
     $ctx = new Context($request);
     self::assertTrue(
@@ -88,9 +89,9 @@ class RequestConditionTest extends TestCase
 
   public function testRouteData()
   {
-    $request = Request::create(
+    $request = HttpRequest::create(
       'http://www.test.com:8080/one/two/three/4/5/s1x/s3^eN!/all/remain/path/end/finished',
-      'POST'
+      RequestMethod::POST
     );
     $ctx = new Context($request);
 
@@ -113,7 +114,7 @@ class RequestConditionTest extends TestCase
       $ctx->meta()->get(RequestCondition::META_ROUTED_PATH)
     );
 
-    $request = Request::create('http://www.test.com:8080/INV123');
+    $request = HttpRequest::create('http://www.test.com:8080/INV123');
     $ctx = new Context($request);
     $constraint2 = RequestCondition::i()->path('/INV{invoiceNumber@num}');
     self::assertTrue($constraint2->match($ctx));
@@ -126,7 +127,7 @@ class RequestConditionTest extends TestCase
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Invalid regex passed to path #^/{test#test}(?=/|$)#ui');
 
-    $request = Request::create('http://www.test.com:8080/INV123');
+    $request = HttpRequest::create('http://www.test.com:8080/INV123');
     $ctx = new Context($request);
     RequestCondition::i()->path('/{test#test}')->match($ctx);
   }

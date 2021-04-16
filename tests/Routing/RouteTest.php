@@ -3,7 +3,7 @@
 namespace Cubex\Tests\Routing;
 
 use Packaged\Context\Context;
-use Packaged\Http\Request;
+use Packaged\Http\Requests\HttpRequest;
 use Packaged\Routing\Handler\FuncHandler;
 use Packaged\Routing\RequestCondition;
 use Packaged\Routing\Route;
@@ -48,7 +48,7 @@ class RouteTest extends TestCase
     $handler = new FuncHandler(function () { });
     $route->setHandler($handler);
 
-    $ctx = new Context(Request::create('/route_extra'));
+    $ctx = new Context(HttpRequest::create('/route_extra'));
     $route->add(RequestCondition::i()->path('/route'));
     self::assertFalse($route->match($ctx));
   }
@@ -63,7 +63,7 @@ class RouteTest extends TestCase
     $route->setHandler($handler);
     self::assertSame($handler, $route->getHandler());
 
-    $ctx = new Context(Request::create('/route'));
+    $ctx = new Context(HttpRequest::create('/route'));
     self::assertTrue($route->match($ctx));
     return [$route, $ctx];
   }

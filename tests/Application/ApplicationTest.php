@@ -8,7 +8,7 @@ use Cubex\Tests\Supporting\Application\TestApplication;
 use Cubex\Tests\Supporting\Application\TestApplicationDefaultHandler;
 use Cubex\Tests\Supporting\Application\TestExtendedApplication;
 use Packaged\Context\Context;
-use Packaged\Http\Request;
+use Packaged\Http\Requests\HttpRequest;
 use PHPUnit\Framework\TestCase;
 
 class ApplicationTest extends TestCase
@@ -35,7 +35,7 @@ class ApplicationTest extends TestCase
     self::assertEquals(404, $response->getStatusCode());
     self::assertStringContainsString("Not Found", $response->getContent());
 
-    $request = Request::create("/some-route");
+    $request = HttpRequest::create("/some-route");
     $ctx = new Context($request);
     $cubex->share(Context::class, $ctx);
     $response = $cubex->handle($app, false);
@@ -47,7 +47,7 @@ class ApplicationTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $app = new TestApplication($cubex);
-    $request = Request::create("/buffered");
+    $request = HttpRequest::create("/buffered");
     $ctx = new Context($request);
     $cubex->listen(
       ResponsePrepareEvent::class,

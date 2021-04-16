@@ -4,11 +4,11 @@ namespace Cubex\Tests\Http;
 
 use Cubex\Routing\LazyHandler;
 use Packaged\Context\Context;
-use Packaged\Http\Request;
+use Packaged\Http\Requests\HttpRequest;
+use Packaged\Http\Response;
 use Packaged\Routing\Handler\FuncHandler;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Symfony\Component\HttpFoundation\Response;
 
 class LazyHandlerTest extends TestCase
 {
@@ -17,7 +17,7 @@ class LazyHandlerTest extends TestCase
    */
   public function testLazyHandler()
   {
-    $ctx = new Context(Request::create('/'));
+    $ctx = new Context(HttpRequest::create('/'));
     $handler = new LazyHandler(
       function () {
         return new FuncHandler(function () { return Response::create('Lazy Func'); });

@@ -2,10 +2,10 @@
 
 namespace Cubex\Tests\Controller;
 
-use Packaged\Context\Context;
 use Cubex\Cubex;
 use Cubex\Tests\Supporting\Controller\TestSingleRoutedController;
-use Packaged\Http\Request;
+use Packaged\Context\Context;
+use Packaged\Http\Requests\HttpRequest;
 use PHPUnit\Framework\TestCase;
 
 class SingleRouteControllerTest extends TestCase
@@ -17,7 +17,7 @@ class SingleRouteControllerTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $controller = new TestSingleRoutedController();
-    $request = Request::create("/route");
+    $request = HttpRequest::create("/route");
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('GET REQ', $response->getContent());
@@ -30,7 +30,7 @@ class SingleRouteControllerTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $controller = new TestSingleRoutedController();
-    $request = Request::create("/route", 'POST');
+    $request = HttpRequest::create("/route", 'POST');
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('POST REQ', $response->getContent());
@@ -43,8 +43,8 @@ class SingleRouteControllerTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $controller = new TestSingleRoutedController();
-    $request = Request::create("/route");
-    $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+    $request = HttpRequest::create("/route");
+    $request->headers()->set('X-Requested-With', 'XMLHttpRequest');
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('AJAX REQ', $response->getContent());
@@ -57,7 +57,7 @@ class SingleRouteControllerTest extends TestCase
   {
     $cubex = new Cubex(__DIR__, null, false);
     $controller = new TestSingleRoutedController();
-    $request = Request::create("/route", 'DELETE');
+    $request = HttpRequest::create("/route", 'DELETE');
     $cubex->share(Context::class, new Context($request));
     $response = $controller->handle($cubex->getContext());
     self::assertStringContainsString('PROCESS REQ', $response->getContent());

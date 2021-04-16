@@ -23,7 +23,7 @@ use Packaged\Context\Context;
 use Packaged\Context\ContextAware;
 use Packaged\DiContainer\DependencyInjector;
 use Packaged\Event\Channel\Channel;
-use Packaged\Http\Request;
+use Packaged\Http\Requests\GlobalsRequest;
 use Packaged\Routing\Handler\Handler;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -31,7 +31,6 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpFoundation\Response;
 use function flush;
 use function getenv;
 use function in_array;
@@ -100,7 +99,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
 
   protected function _defaultContextFactory()
   {
-    return function () { return $this->prepareContext(new $this->_contextClass(Request::createFromGlobals())); };
+    return function () { return $this->prepareContext(new $this->_contextClass(GlobalsRequest::create())); };
   }
 
   public function prepareContext(Context $ctx): Context
@@ -303,7 +302,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    *
    * @param bool      $throwEventExceptions
    *
-   * @return Response
+   * @return \Packaged\Http\Response
    * @throws \Throwable
    */
   public function handle(

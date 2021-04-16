@@ -3,7 +3,8 @@
 namespace Cubex\Tests\Routing;
 
 use Packaged\Context\Context;
-use Packaged\Http\Request;
+use Packaged\Http\Interfaces\RequestMethod;
+use Packaged\Http\Requests\HttpRequest;
 use Packaged\Routing\RequestDataCondition;
 use PHPUnit\Framework\TestCase;
 
@@ -12,9 +13,10 @@ class RequestDataContraintTest extends TestCase
   protected function _makeContext()
   {
     return new Context(
-      Request::create(
+      HttpRequest::create(
         'https://localhost/?query1=val1&query2=val2&query3=val3',
-        'POST',
+        RequestMethod::POST,
+        [],
         ['post1' => 'val1', 'post2' => 'val2', 'post3' => 'val3'],
         ['cookie1' => 'val1', 'cookie2' => 'val2'],
         [],
