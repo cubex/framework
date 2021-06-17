@@ -448,4 +448,16 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
   }
 
+  public function __debugInfo()
+  {
+    return [
+      'logger'            => get_class($this->_logger),
+      'projectRoot'       => $this->_projectRoot,
+      'contextClass'      => $this->_contextClass,
+      'throwEnvironments' => $this->_throwEnvironments,
+      'hasShutdown'       => $this->_hasShutdown,
+      'factories'         => array_keys($this->_factories),
+      'instances'         => array_keys($this->_instances),
+    ];
+  }
 }
