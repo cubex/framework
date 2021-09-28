@@ -391,4 +391,10 @@ class CubexTest extends TestCase
     Cubex::destroyGlobalInstance();
     self::assertNull(Cubex::fromContext(new Context()));
   }
+
+  public function testDir()
+  {
+    $cubex = $this->_cubex();
+    self::assertEquals(__DIR__ . '/.cubex/', Cubex::dir($cubex->getContext()));
+  }
 }

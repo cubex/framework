@@ -460,4 +460,10 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
       'instances'         => $this->_instances ? array_keys($this->_instances) : '',
     ];
   }
+
+  //Return the cubex directory
+  public static function dir(Context $ctx)
+  {
+    return $ctx->getProjectRoot() . DIRECTORY_SEPARATOR . '.cubex' . DIRECTORY_SEPARATOR;
+  }
 }
