@@ -50,7 +50,7 @@ class Context extends I18nContext implements CubexAware
       ResponsePreSendHeadersEvent::class,
       function (ResponsePreSendHeadersEvent $e) {
         $response = $e->getResponse();
-        if($this->_timings && $response instanceof Response)
+        if(($this->_timings || $this->_timers) && $response instanceof Response)
         {
           $timing = new ServerTiming();
           foreach($this->_timings as $i => $tdata)
