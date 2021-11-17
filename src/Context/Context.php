@@ -60,7 +60,7 @@ class Context extends I18nContext implements CubexAware
           /** @var Timer $timer */
           foreach($this->_timers as $timer)
           {
-            $timing->add($timer->key(), floor($timer->duration() * 1000), $timer->description());
+            $timing->add($timer->key(), $timer->duration() * 1000, $timer->description());
           }
           $response->addHeader($timing);
         }
