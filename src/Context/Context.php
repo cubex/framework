@@ -7,6 +7,7 @@ use Cubex\CubexAwareTrait;
 use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\I18n\TranslationUpdater;
 use Packaged\ContextI18n\I18nContext;
+use Packaged\Helpers\Timer;
 use Packaged\Http\Headers\ServerTiming;
 use Packaged\Http\Response;
 use Packaged\I18n\Catalog\ArrayCatalog;
@@ -25,11 +26,21 @@ class Context extends I18nContext implements CubexAware
   }
 
   protected $_timings = [];
+  protected $_timers = [];
 
+  /** @deprecated - Please switch to using newTimer */
   public function addTiming($key, $duration, $description = "")
   {
     $this->_timings[] = ['k' => $key, 'd' => $duration, 't' => $description];
     return $this;
+  }
+
+  public function newTimer(string $key, string $description = ''): Timer
+  {
+    $timer = new Timer($key);
+    $timer->setDescription($description);
+    $this->_timers[$key] = $timer;
+    return $timer;
   }
 
   public function setCubex(Cubex $cubex)
@@ -39,12 +50,17 @@ class Context extends I18nContext implements CubexAware
       ResponsePreSendHeadersEvent::class,
       function (ResponsePreSendHeadersEvent $e) {
         $response = $e->getResponse();
-        if($this->_timings && $response instanceof Response)
+        if(($this->_timings || $this->_timers) && $response instanceof Response)
         {
           $timing = new ServerTiming();
           foreach($this->_timings as $i => $tdata)
           {
             $timing->add($i . '-' . $tdata['k'], $tdata['d'], $tdata['t']);
+          }
+          /** @var Timer $timer */
+          foreach($this->_timers as $timer)
+          {
+            $timing->add($timer->key(), floor($timer->duration() * 1000), $timer->description());
           }
           $response->addHeader($timing);
         }
@@ -120,7 +136,10 @@ class Context extends I18nContext implements CubexAware
       }
 
       //Setup the translation logger to listen @ shutdown
-      $cubex->retrieve(TranslationUpdater::class, [$cubex, $tplCatalog, $catFile, static::DEFAULT_LANGUAGE, $translationLogger]);
+      $cubex->retrieve(
+        TranslationUpdater::class,
+        [$cubex, $tplCatalog, $catFile, static::DEFAULT_LANGUAGE, $translationLogger]
+      );
     }
     else
     {
