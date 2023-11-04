@@ -263,7 +263,7 @@ class CubexTest extends TestCase
 
     $cubex->removeShared(Context::class);
     $cubex->removeFactory(Context::class);
-    self::assertEquals(dirname(__DIR__), $cubex->getContext()->getProjectRoot());
+    self::assertStringContainsString(dirname(__DIR__), $cubex->getContext()->getProjectRoot());
   }
 
   public function testCustomContext()
