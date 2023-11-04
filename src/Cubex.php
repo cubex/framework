@@ -16,6 +16,7 @@ use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Events\ShutdownEvent;
 use Cubex\Logger\ErrorLogLogger;
+use Cubex\Middleware\Middlewares;
 use Cubex\Routing\ExceptionHandler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
@@ -331,7 +332,11 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     try
     {
       $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler));
-      $r = $handler->handle($c);
+
+      $middle = new Middlewares();
+      $middle->setHandler($handler);
+      $r = $middle->handle($c);
+      //$r = $handler->handle($c);
       $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r));
       //Apply context cookies to the response
       $c->cookies()->applyToResponse($r);
