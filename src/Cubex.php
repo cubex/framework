@@ -268,6 +268,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     catch(Exception $e)
     {
       $ctx = $this->_defaultContextFactory()();
+      $this->share(Context::class, $ctx);
     }
 
     return $ctx;
