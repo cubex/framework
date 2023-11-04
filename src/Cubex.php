@@ -16,7 +16,6 @@ use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\Events\PreExecuteEvent;
 use Cubex\Events\ShutdownEvent;
 use Cubex\Logger\ErrorLogLogger;
-use Cubex\Middleware\Middleware;
 use Cubex\Routing\ExceptionHandler;
 use Exception;
 use Packaged\Config\Provider\Ini\IniConfigProvider;
@@ -52,9 +51,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
   private $_projectRoot;
   private $_contextClass = CubexContext::class;
 
-  /** @var \Cubex\Middleware\Middleware[] */
-  protected $_middlewares = [];
-
   protected $_throwEnvironments = [Context::ENV_LOCAL, Context::ENV_DEV];
   /**
    * @var bool
@@ -80,12 +76,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $c = new static($projectRoot, $loader, $global);
     $c->_contextClass = $ctxClass;
     return $c;
-  }
-
-  public function addMiddleware(Middleware $middleware)
-  {
-    $this->_middlewares[] = $middleware;
-    return $this;
   }
 
   public function retrieve($abstract, array $parameters = [], $shared = true, $attemptNewAbstract = true)
@@ -341,15 +331,6 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     try
     {
       $this->_eventChannel->trigger(PreExecuteEvent::i($c, $handler));
-
-      if($this->_middlewares)
-      {
-        foreach($this->_middlewares as $middleware)
-        {
-          $handler = $middleware->setNext($handler);
-        }
-      }
-
       $r = $handler->handle($c);
       $this->_eventChannel->trigger(ResponsePrepareEvent::i($c, $handler, $r));
       //Apply context cookies to the response

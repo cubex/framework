@@ -6,5 +6,5 @@ use Packaged\Routing\Handler\Handler;
 
 interface MiddlewareInterface extends Handler
 {
-  public function setNext(Handler $handler);
+  public function setNext(Handler $handler): Handler;
 }
