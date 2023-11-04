@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Controller;
 
+use Cubex\Cubex;
+use Cubex\CubexAware;
 use Cubex\Routing\RouteProcessor;
 use Packaged\Context\Context;
 use Packaged\Context\ContextAware;
@@ -23,6 +25,17 @@ abstract class Controller extends RouteProcessor implements ContextAware
   use ContextAwareTrait;
 
   protected $_callStartTime;
+
+  // retrieve cubex from the request context
+  protected function _cubex(): ?Cubex
+  {
+    $ctx = $this->hasContext() ? $this->getContext() : null;
+    if($ctx instanceof CubexAware)
+    {
+      return $ctx->getCubex();
+    }
+    return null;
+  }
 
   /**
    * Standard route handler, with call time set

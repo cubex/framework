@@ -427,9 +427,23 @@ class ControllerTest extends TestCase
     self::assertFalse($controller->processObject(new Context(), null, $resp));
   }
 
-  public function testZeroResponse(){
+  public function testZeroResponse()
+  {
     $ctx = new Context(Request::create('/user/0'));
     $controller = new TestController();
     self::assertEquals('0', $controller->handle($ctx)->getContent());
+  }
+
+  public function testGetCubex()
+  {
+    $controller = new TestController();
+    static::assertNull($controller->getCubex());
+
+    $cubex = new Cubex(__DIR__, null, false);
+    $ctx = $cubex->getContext();
+
+    $controller = new TestController();
+    $controller->setContext($ctx);
+    static::assertSame($cubex, $controller->getCubex());
   }
 }

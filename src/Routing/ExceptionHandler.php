@@ -17,7 +17,6 @@ class ExceptionHandler implements Handler
   public function handle(Context $c): Response
   {
     $e = $this->_exception;
-    $r = new Response($e->getMessage(), $e->getCode() >= 400 ? $e->getCode() : 500);
-    return $r;
+    return new Response($e->getMessage(), $e->getCode() >= 400 ? $e->getCode() : 500);
   }
 }

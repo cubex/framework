@@ -2,6 +2,7 @@
 namespace Cubex\Tests\Supporting\Controller;
 
 use Cubex\Controller\AuthedController;
+use Cubex\Cubex;
 use Cubex\Tests\Supporting\TestObject;
 use Cubex\Tests\Supporting\Ui\TestElement\TestUiElement;
 use Cubex\Tests\Supporting\Ui\TestSafeHtmlProducer;
@@ -118,6 +119,11 @@ class TestController extends AuthedController
   public function processObject(Context $c, $handler, &$response): bool
   {
     return parent::_processHandler($c, $handler, $response);
+  }
+
+  public function getCubex(): ?Cubex
+  {
+    return $this->_cubex();
   }
 
 }
