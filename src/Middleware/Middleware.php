@@ -6,7 +6,18 @@ use Packaged\Context\Context;
 use Packaged\Routing\Handler\Handler;
 use Symfony\Component\HttpFoundation\Response;
 
-interface Middleware
+abstract class Middleware implements MiddlewareInterface
 {
-  public function handle(Context $c, Handler $next): Response;
+  protected Handler $_next;
+
+  public function setNext(Handler $handler)
+  {
+    $this->_next = $handler;
+    return $this;
+  }
+
+  protected function next(Context $c): Response
+  {
+    return $this->_next->handle($c);
+  }
 }
