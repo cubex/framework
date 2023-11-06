@@ -9,6 +9,7 @@ use Cubex\ViewModel\ViewModel;
 use Packaged\Context\Context;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
+use Packaged\DiContainer\DependencyInjector;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
@@ -79,7 +80,15 @@ abstract class Controller extends RouteProcessor implements ContextAware
       {
         if(method_exists($this, $attemptMethod))
         {
-          return [$this, $attemptMethod];
+          $di = $this->_cubex();
+          if($di instanceof DependencyInjector)
+          {
+            return fn(Context $c) => $di->resolveMethod($this, $attemptMethod);
+          }
+          else
+          {
+            return [$this, $attemptMethod];
+          }
         }
       }
     }
