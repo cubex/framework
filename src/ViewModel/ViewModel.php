@@ -13,6 +13,7 @@ class ViewModel implements Model, ContextAware
    * @var bool locking property modification
    */
   private bool $_locked;
+  private array $_lockedData = [];
 
   use ContextAwareTrait;
   use WithContextTrait;
@@ -57,8 +58,22 @@ class ViewModel implements Model, ContextAware
 
   public function lock()
   {
+    foreach(Objects::propertyValues($this) as $k => $v)
+    {
+      $this->_lockedData[$k] = $v;
+      unset($this->$k);
+    }
     $this->_locked = true;
     return $this;
+  }
+
+  public function __get(string $propertyName): mixed
+  {
+    if($this->_locked && isset($this->_lockedData[$propertyName]))
+    {
+      return $this->_lockedData[$propertyName];
+    }
+    return null;
   }
 
   public function __set(string $propertyName, $value): void
