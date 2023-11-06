@@ -35,7 +35,7 @@ class ArrayModel extends ViewModel
     return $this->_data;
   }
 
-  public function jsonSerialize()
+  public function jsonSerialize(): mixed
   {
     return $this->_data;
   }

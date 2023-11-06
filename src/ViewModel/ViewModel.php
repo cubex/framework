@@ -17,7 +17,7 @@ class ViewModel implements Model, ContextAware
   use ContextAwareTrait;
   use WithContextTrait;
 
-  public function jsonSerialize()
+  public function jsonSerialize(): mixed
   {
     $values = Objects::propertyValues($this);
     return empty($values) ? $this : $values;
@@ -51,7 +51,7 @@ class ViewModel implements Model, ContextAware
     {
       $view->setContext($this->getContext());
     }
-    
+
     return $view;
   }
 
