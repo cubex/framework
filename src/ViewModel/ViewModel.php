@@ -41,11 +41,17 @@ class ViewModel implements Model, ContextAware
       throw new \Exception("Invalid view class provided '$viewClass'");
     }
 
-    $view = new $viewClass($this);
+    $view = new $viewClass();
+    if($view instanceof View)
+    {
+      $view->setModel($this);
+    }
+
     if($view instanceof ContextAware && $this->hasContext())
     {
       $view->setContext($this->getContext());
     }
+    
     return $view;
   }
 
