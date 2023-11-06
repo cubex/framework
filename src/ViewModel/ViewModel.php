@@ -20,7 +20,7 @@ class ViewModel implements Model, ContextAware
 
   public function jsonSerialize(): mixed
   {
-    $values = Objects::propertyValues($this);
+    $values = $this->_locked ? $this->_lockedData : Objects::propertyValues($this);
     return empty($values) ? $this : $values;
   }
 
