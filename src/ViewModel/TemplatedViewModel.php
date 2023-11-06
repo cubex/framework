@@ -1,14 +1,22 @@
 <?php
-
 namespace Cubex\ViewModel;
 
-use Packaged\SafeHtml\ISafeHtmlProducer;
-use Packaged\SafeHtml\SafeHtml;
 use Packaged\Ui\TemplateLoaderTrait;
 
-class TemplatedViewModel extends ViewModel
+class TemplatedViewModel extends ViewModel implements View
 {
   use TemplateLoaderTrait;
+
+  public function setModel(Model $data)
+  {
+    // To not use external models
+    return $this;
+  }
+
+  public function render(): string
+  {
+    return $this->_renderTemplate();
+  }
 
   public function createView(string $viewClass = null)
   {
@@ -18,10 +26,5 @@ class TemplatedViewModel extends ViewModel
     }
 
     return parent::createView($viewClass);
-  }
-
-  protected function _render(): ?ISafeHtmlProducer
-  {
-    return new SafeHtml($this->_renderTemplate());
   }
 }
