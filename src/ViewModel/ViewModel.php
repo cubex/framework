@@ -28,25 +28,26 @@ class ViewModel implements Model, ContextAware, CubexAware
     return empty($values) ? $this : $values;
   }
 
-  public function setDefaultView(string $viewClass)
+  public function setView(string $viewClass)
   {
     $this->_defaultView = $viewClass;
     return $this;
   }
 
-  public function createView(string $viewClass = null): ?View
+  public function createView(string $overrideViewClass = null): ?View
   {
-    if($viewClass === null && !empty($this->_defaultView))
+    if($overrideViewClass === null && !empty($this->_defaultView))
     {
-      $viewClass = $this->_defaultView;
+      $overrideViewClass = $this->_defaultView;
     }
 
-    if($viewClass === '' || !class_exists($viewClass))
+    if($overrideViewClass === '' || !class_exists($overrideViewClass))
     {
-      throw new \Exception("Invalid view class provided '$viewClass'");
+      throw new \Exception("Invalid view class provided '$overrideViewClass'");
     }
 
-    $view = $this->hasCubex() ? $this->getCubex()->retrieve($viewClass, [], false, false) : new $viewClass();
+    $view = $this->hasCubex() ? $this->getCubex()->retrieve($overrideViewClass, [], false, false) :
+      new $overrideViewClass();
     if($view instanceof View)
     {
       $view->setModel($this);

@@ -18,13 +18,13 @@ class TemplatedViewModel extends ViewModel implements View
     return $this->_renderTemplate();
   }
 
-  public function createView(string $viewClass = null): ?View
+  public function createView(string $overrideViewClass = null): ?View
   {
-    if($viewClass === null && empty($this->_defaultView))
+    if($overrideViewClass === null && empty($this->_defaultView))
     {
       return $this;
     }
 
-    return parent::createView($viewClass);
+    return parent::createView($overrideViewClass);
   }
 }
