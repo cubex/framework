@@ -1,13 +1,17 @@
 <?php
 namespace Cubex\ViewModel;
 
+use Cubex\CubexAware;
+use Cubex\CubexAwareTrait;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
 use Packaged\Context\WithContextTrait;
 use Packaged\Helpers\Objects;
 
-class ViewModel implements Model, ContextAware
+class ViewModel implements Model, ContextAware, CubexAware
 {
+  use CubexAwareTrait;
+
   protected string $_defaultView;
   /**
    * @var bool locking property modification
@@ -30,7 +34,7 @@ class ViewModel implements Model, ContextAware
     return $this;
   }
 
-  public function createView(string $viewClass = null)
+  public function createView(string $viewClass = null): ?View
   {
     if($viewClass === null && !empty($this->_defaultView))
     {
@@ -42,7 +46,7 @@ class ViewModel implements Model, ContextAware
       throw new \Exception("Invalid view class provided '$viewClass'");
     }
 
-    $view = new $viewClass();
+    $view = $this->hasCubex() ? $this->getCubex()->retrieve($viewClass, [], false, false) : new $viewClass();
     if($view instanceof View)
     {
       $view->setModel($this);

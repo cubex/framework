@@ -18,7 +18,7 @@ class TemplatedViewModel extends ViewModel implements View
     return $this->_renderTemplate();
   }
 
-  public function createView(string $viewClass = null)
+  public function createView(string $viewClass = null): ?View
   {
     if($viewClass === null && empty($this->_defaultView))
     {

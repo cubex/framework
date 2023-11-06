@@ -4,6 +4,8 @@ namespace Cubex\Controller;
 use Cubex\Cubex;
 use Cubex\CubexAware;
 use Cubex\Routing\RouteProcessor;
+use Cubex\ViewModel\View;
+use Cubex\ViewModel\ViewModel;
 use Packaged\Context\Context;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
@@ -122,9 +124,27 @@ abstract class Controller extends RouteProcessor implements ContextAware
       $result->setContext($c);
     }
 
+    if($result instanceof CubexAware)
+    {
+      $cubex = $this->_cubex();
+      if($cubex instanceof Cubex)
+      {
+        $result->setCubex($cubex);
+      }
+    }
+
     if($this->_callStartTime && $result instanceof CubexResponse)
     {
       return $result->setCallStartTime($this->_callStartTime);
+    }
+
+    if($result instanceof ViewModel)
+    {
+      $result = $result->createView($this->_defaultModelView());
+      if($result instanceof View)
+      {
+        $result = $result->render();
+      }
     }
 
     if($result instanceof Response)
@@ -165,5 +185,10 @@ abstract class Controller extends RouteProcessor implements ContextAware
       $result->setCallStartTime($this->_callStartTime);
     }
     return $result;
+  }
+
+  protected function _defaultModelView(): ?string
+  {
+    return null;
   }
 }
