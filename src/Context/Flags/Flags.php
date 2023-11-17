@@ -60,7 +60,7 @@ class Flags
    *
    * @return bool
    */
-  public function has(string $flag, bool $default): bool
+  public function has(string $flag, bool $default = false): bool
   {
     return $this->_flags[$flag] ?? $this->_getDefault($flag, $default);
   }
