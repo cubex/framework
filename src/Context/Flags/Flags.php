@@ -12,12 +12,20 @@ class Flags
    */
   protected $_flags = [];
   protected $_rules = [];
+  protected $_globalRules = [];
 
   public function addRule(FlagRule $rule, string ...$flags): Flags
   {
-    foreach($flags as $flag)
+    if(empty($flags))
     {
-      $this->_addRule($flag, $rule);
+      $this->_globalRules[] = $rule;
+    }
+    else
+    {
+      foreach($flags as $flag)
+      {
+        $this->_addRule($flag, $rule);
+      }
     }
     return $this;
   }
@@ -67,10 +75,11 @@ class Flags
 
   protected function _getDefault(string $flag, bool $default): bool
   {
-    if(isset($this->_rules[$flag]))
+    $rules = array_merge($this->_globalRules, $this->_rules[$flag] ?? []);
+    if(!empty($rules))
     {
       $rulesPassed = null;
-      foreach($this->_rules[$flag] as $rule)
+      foreach($rules as $rule)
       {
         switch($rule->evaluate($flag))
         {

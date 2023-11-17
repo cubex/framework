@@ -37,14 +37,23 @@ class FlagsTest extends TestCase
 
   public function testRules()
   {
+    $flags = new Flags();
+
     $ruleSet = new RuleSet();
     $ruleSet->set('test', true);
+    $ruleSet->set('test2', false);
     $ruleSet->set('not', false);
-
-    $flags = new Flags();
     $ruleSet->apply($flags);
 
+    $globalRuleSet = new RuleSet();
+    $globalRuleSet->set('test', true);
+    $globalRuleSet->set('test2', true);// Expect first rule set to deny
+    $globalRuleSet->set('test3', true);
+    $flags->addRule($globalRuleSet);
+
     $this->assertTrue($flags->has('test', false));
+    $this->assertFalse($flags->has('test2', false));
+    $this->assertTrue($flags->has('test3', true));
     $this->assertFalse($flags->has('not', true));
   }
 }
