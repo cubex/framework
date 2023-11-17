@@ -3,6 +3,7 @@ namespace Cubex\Controller;
 
 use Cubex\Cubex;
 use Cubex\CubexAware;
+use Cubex\CubexAwareTrait;
 use Cubex\Routing\RouteProcessor;
 use Cubex\ViewModel\View;
 use Cubex\ViewModel\ViewModel;
@@ -23,9 +24,10 @@ use function microtime;
 use function strtolower;
 use function ucfirst;
 
-abstract class Controller extends RouteProcessor implements ContextAware
+abstract class Controller extends RouteProcessor implements ContextAware, CubexAware
 {
   use ContextAwareTrait;
+  use CubexAwareTrait;
 
   protected $_callStartTime;
 

@@ -446,4 +446,10 @@ class ControllerTest extends TestCase
     $controller->setContext($ctx);
     static::assertSame($cubex, $controller->getCubex());
   }
+
+  public function testDefaultModelViewReturnsNull()
+  {
+    $controller = new TestController();
+    static::assertNull($controller->defaultModelView());
+  }
 }
