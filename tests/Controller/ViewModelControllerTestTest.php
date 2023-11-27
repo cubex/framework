@@ -5,6 +5,7 @@ namespace Cubex\Tests\Controller;
 use Cubex\Context\Context as CubexContext;
 use Cubex\Cubex;
 use Cubex\Tests\Supporting\Controller\TestViewModelController;
+use Cubex\ViewModel\JsonView;
 use Packaged\Context\Context;
 use Packaged\Http\Request;
 use PHPUnit\Framework\TestCase;
@@ -65,4 +66,22 @@ class ViewModelControllerTestTest extends TestCase
 
     self::assertStringContainsString('<h1>Test Data View</h1>', $response->getContent());
   }
+
+  public function testViewModelWithJSONRender()
+  {
+    $cubex = new Cubex(__DIR__, null, false);
+    $request = Request::create('/test-data');
+    $this->_prepareCubex($cubex, $request);
+
+    $controller = new TestViewModelController();
+    $controller->setCubex($cubex);
+    $controller->setDefaultView(JsonView::class);
+
+    $response = $controller->handle($cubex->getContext());
+
+    // remove linebreaks
+    $responseContent = preg_replace('/\s+/', '', $response->getContent());
+    self::assertStringContainsString('{"test":"TestData"}', $responseContent);
+  }
+
 }

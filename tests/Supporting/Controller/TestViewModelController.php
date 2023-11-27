@@ -4,11 +4,12 @@ namespace Cubex\Tests\Supporting\Controller;
 
 use Cubex\Controller\Controller;
 use Cubex\Tests\Supporting\ViewModel\TestDefaultView;
-use Cubex\Tests\Supporting\ViewModel\TestDefaultViewModel;
 use Cubex\Tests\Supporting\ViewModel\TestViewModel;
 
 class TestViewModelController extends Controller
 {
+  protected ?string $defaultView = null;
+
   protected function _generateRoutes()
   {
     yield self::_route('/test', 'test');
@@ -34,5 +35,16 @@ class TestViewModelController extends Controller
     $viewModel = $cubex->resolve(TestViewModel::class);
     $viewModel->test = 'Test Data';
     return $viewModel;
+  }
+
+  public function setDefaultView(string $view): self
+  {
+    $this->defaultView = $view;
+    return $this;
+  }
+
+  protected function _defaultModelView(): ?string
+  {
+    return $this->defaultView;
   }
 }

@@ -16,7 +16,7 @@ class ViewModel implements Model, ContextAware, CubexAware
   /**
    * @var bool locking property modification
    */
-  private bool $_locked;
+  private bool $_locked = false;
   private array $_lockedData = [];
 
   use ContextAwareTrait;
