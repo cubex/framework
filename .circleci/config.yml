@@ -22,18 +22,23 @@ defaults: &defaults
 
 version: 2
 jobs:
-  build-php74:
-    <<: *defaults
-    docker:
-      - image: php:7.4-alpine
   build-php80:
     <<: *defaults
     docker:
       - image: php:8.0-alpine
+  build-php81:
+    <<: *defaults
+    docker:
+      - image: php:8.1-alpine
+  build-php82:
+    <<: *defaults
+    docker:
+      - image: php:8.2-alpine
 
 workflows:
   version: 2
   build:
     jobs:
-      - build-php74
       - build-php80
+      - build-php81
+      - build-php82
