@@ -10,7 +10,7 @@ use Packaged\Context\Context;
 use Packaged\Http\Request;
 use PHPUnit\Framework\TestCase;
 
-class ViewModelControllerTestTest extends TestCase
+class ViewModelControllerTest extends TestCase
 {
   protected function _prepareCubex(Cubex $cubex, Request $request)
   {
