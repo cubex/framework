@@ -81,14 +81,22 @@ class Flags
       $rulesPassed = null;
       foreach($rules as $rule)
       {
-        switch($rule->evaluate($flag))
+        $eval = $rule->evaluate($flag);
+        if($eval === null)
         {
-          case true:
-            $rulesPassed = true;
-            break;
-          case false:
-            $rulesPassed = false;
-            break 2;
+          // Rule set has no preference, continue to next rule
+          continue;
+        }
+        else if($eval === true)
+        {
+          // Set the flag to true, but allow other rules to turn this flag off
+          $rulesPassed = true;
+        }
+        else if($eval === false)
+        {
+          $rulesPassed = false;
+          // If any rule returns false, the flag is off
+          break;
         }
       }
       if($rulesPassed !== null)
