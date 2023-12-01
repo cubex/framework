@@ -2,6 +2,7 @@
 
 namespace Cubex\Context\Flags;
 
+use Packaged\Helpers\ValueAs;
 use Packaged\Http\Request;
 
 class QueryStringFlag implements FlagRule
@@ -15,6 +16,10 @@ class QueryStringFlag implements FlagRule
 
   public function evaluate(string $flag): ?bool
   {
-    return $this->_request->query->has($flag);
+    if($this->_request->query->has($flag))
+    {
+      return ValueAs::bool($this->_request->query->get($flag) ?: 'true', true);
+    }
+    return null;
   }
 }
