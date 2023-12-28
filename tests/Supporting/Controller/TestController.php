@@ -126,4 +126,9 @@ class TestController extends AuthedController
     return $this->_cubex();
   }
 
+  public function defaultModelView(): ?string
+  {
+    return $this->_defaultModelView();
+  }
+
 }

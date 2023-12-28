@@ -5,7 +5,9 @@ use Cubex\Events\PreExecuteEvent;
 use Exception;
 use Packaged\Context\Context;
 use Packaged\Context\ContextAware;
+use Packaged\Http\Responses\RedirectResponse;
 use Packaged\Routing\ConditionHandler;
+use Packaged\Routing\Handler\FuncHandler;
 use Packaged\Routing\Handler\Handler;
 use Packaged\Routing\RouteSelector;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,9 +65,23 @@ abstract class RouteProcessor extends RouteSelector
    */
   protected function _prepareHandler(Context $c, $handler)
   {
-    if(is_string($handler) && strpos($handler, '\\') !== false && class_exists($handler))
+    if(is_string($handler) && !empty($handler))
     {
-      return new $handler();
+      if(strpos($handler, '\\') !== false && class_exists($handler))
+      {
+        return new $handler();
+      }
+
+      if($handler[0] === '@')
+      {
+        [$code, $url] = sscanf($handler, "@%d!%s");
+        if($code > 0 && $code < 600 && !empty($url))
+        {
+          return new FuncHandler(function () use ($code, $url) {
+            return RedirectResponse::create($url, $code);
+          });
+        }
+      }
     }
     return $handler;
   }

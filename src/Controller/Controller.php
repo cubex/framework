@@ -3,10 +3,14 @@ namespace Cubex\Controller;
 
 use Cubex\Cubex;
 use Cubex\CubexAware;
+use Cubex\CubexAwareTrait;
 use Cubex\Routing\RouteProcessor;
+use Cubex\ViewModel\View;
+use Cubex\ViewModel\ViewModel;
 use Packaged\Context\Context;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
+use Packaged\DiContainer\DependencyInjector;
 use Packaged\Helpers\Strings;
 use Packaged\Http\Request;
 use Packaged\Http\Response as CubexResponse;
@@ -20,9 +24,10 @@ use function microtime;
 use function strtolower;
 use function ucfirst;
 
-abstract class Controller extends RouteProcessor implements ContextAware
+abstract class Controller extends RouteProcessor implements ContextAware, CubexAware
 {
   use ContextAwareTrait;
+  use CubexAwareTrait;
 
   protected $_callStartTime;
 
@@ -77,6 +82,12 @@ abstract class Controller extends RouteProcessor implements ContextAware
       {
         if(method_exists($this, $attemptMethod))
         {
+          $di = $this->_cubex();
+          if($di instanceof DependencyInjector && method_exists($di, 'resolveMethod'))
+          {
+            return fn(Context $c) => $di->resolveMethod($this, $attemptMethod);
+          }
+
           return [$this, $attemptMethod];
         }
       }
@@ -122,9 +133,27 @@ abstract class Controller extends RouteProcessor implements ContextAware
       $result->setContext($c);
     }
 
+    if($result instanceof CubexAware)
+    {
+      $cubex = $this->_cubex();
+      if($cubex instanceof Cubex)
+      {
+        $result->setCubex($cubex);
+      }
+    }
+
     if($this->_callStartTime && $result instanceof CubexResponse)
     {
       return $result->setCallStartTime($this->_callStartTime);
+    }
+
+    if($result instanceof ViewModel)
+    {
+      $result = $result->createView($this->_defaultModelView());
+      if($result instanceof View)
+      {
+        $result = $result->render();
+      }
     }
 
     if($result instanceof Response)
@@ -165,5 +194,10 @@ abstract class Controller extends RouteProcessor implements ContextAware
       $result->setCallStartTime($this->_callStartTime);
     }
     return $result;
+  }
+
+  protected function _defaultModelView(): ?string
+  {
+    return null;
   }
 }

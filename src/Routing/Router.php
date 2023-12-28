@@ -33,7 +33,7 @@ class Router extends RouteProcessor
     return $this->onPath($path, new FuncHandler($handleFunc));
   }
 
-  public function onPath($path, Handler $handler): Condition
+  public function onPath($path, $handler): Condition
   {
     $condition = RequestCondition::i()->path($path);
     $this->addCondition(Route::with($condition)->setHandler($handler));
