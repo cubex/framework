@@ -112,7 +112,6 @@ abstract class CubexKernel
 
   /**
    * Authentication hook, allowing validation before the router is attempted
-   *
    * To verify the process can process, return true.
    * To reject the request, and return a custom response, simply return the
    * desired response
@@ -127,7 +126,6 @@ abstract class CubexKernel
 
   /**
    * Handles a Request to convert it to a Response.
-   *
    * When $catch is true, the implementation must catch all exceptions
    * and do its best to convert them to a Response instance.
    *
@@ -138,9 +136,7 @@ abstract class CubexKernel
    * @param Boolean $catch    Whether to catch exceptions or not
    *
    * @return Response A Response instance
-   *
    * @throws \Exception When an Exception occurs during processing
-   *
    * @api
    */
   public function handle(
@@ -331,7 +327,7 @@ abstract class CubexKernel
    */
   public function executeRoute(
     IRoute $route, Request $request, $type = self::MASTER_REQUEST,
-    $catch = true
+           $catch = true
   )
   {
     $value = $route->getValue();
@@ -482,7 +478,6 @@ abstract class CubexKernel
    * @param null|array $params Parameters to send into the method
    *
    * @return \Cubex\Http\Response|null
-   *
    * @throws \Exception
    */
   protected function _getCallableResult($method, $params = null)
@@ -781,6 +776,12 @@ abstract class CubexKernel
     if($key === null)
     {
       return $this->_processParams;
+    }
+
+    // Since Arrays Value requires an array,we can break out early
+    if(!is_array($this->_processParams))
+    {
+      return $this->_processParams ?? $default;
     }
 
     return Arrays::value($this->_processParams, $key, $default);
