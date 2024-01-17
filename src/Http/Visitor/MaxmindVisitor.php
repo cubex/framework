@@ -23,7 +23,7 @@ class MaxmindVisitor implements IVisitorInfo
   public function configure(ConfigSectionInterface $config)
   {
     $this->_config = $config;
-    $mode          = $config->getItem('mode', 'reader');
+    $mode = $config->getItem('mode', 'reader');
     if($mode == 'reader')
     {
       $this->_reader = new Reader(
@@ -45,7 +45,7 @@ class MaxmindVisitor implements IVisitorInfo
           new \Exception("No maxmind licence key specified")
         ),
         ValueAs::arr($config->getItem('locales', 'en')),
-        $config->getItem('host', 'geoip.maxmind.com')
+        ['host' => $config->getItem('host', 'geoip.maxmind.com')]
       );
     }
   }
@@ -85,7 +85,6 @@ class MaxmindVisitor implements IVisitorInfo
    * as an ISO 3166-1 alpha-2 country code.
    *
    * @return string
-   *
    * @throws \Exception
    */
   public function getCountry()

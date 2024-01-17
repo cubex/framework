@@ -77,7 +77,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
         'http_visitor',
         [
           'mode'    => 'client',
-          'user_id' => '',
+          'user_id' => 0,
         ]
       )
     );
@@ -112,7 +112,7 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
         [
           'mode'        => 'client',
           'licence_key' => '',
-          'user_id'     => '',
+          'user_id'     => 0,
         ]
       )
     );
