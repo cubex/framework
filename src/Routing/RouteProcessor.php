@@ -1,6 +1,7 @@
 <?php
 namespace Cubex\Routing;
 
+use Cubex\CubexAware;
 use Cubex\Events\PreExecuteEvent;
 use Exception;
 use Packaged\Context\Context;
@@ -69,6 +70,10 @@ abstract class RouteProcessor extends RouteSelector
     {
       if(strpos($handler, '\\') !== false && class_exists($handler))
       {
+        if($c instanceof CubexAware && $c->hasCubex())
+        {
+          return $c->getCubex()->resolve($handler);
+        }
         return new $handler();
       }
 
