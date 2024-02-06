@@ -83,7 +83,7 @@ abstract class Controller extends RouteProcessor implements ContextAware, CubexA
         if(method_exists($this, $attemptMethod))
         {
           $di = $this->_cubex();
-          if($di instanceof DependencyInjector && method_exists($di, 'resolveMethod'))
+          if($di instanceof DependencyInjector)
           {
             return fn(Context $c) => $di->resolveMethod($this, $attemptMethod);
           }
