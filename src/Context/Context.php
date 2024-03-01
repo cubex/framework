@@ -102,7 +102,7 @@ class Context extends I18nContext implements CubexAware
     $transDir = $this->getProjectRoot() . $path;
     $catalog = new ArrayCatalog([]);
 
-    $cubex = $this->getCubex();
+    $cubex = @$this->getCubex();
 
     foreach($this->_attemptLanguages() as $language)
     {

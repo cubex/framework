@@ -18,7 +18,7 @@
     "optimize-autoloader": true
   },
   "require": {
-    "php": ">=7.4",
+    "php": ">=8.0",
     "ext-json": "*",
     "packaged/config": "~1.5",
     "packaged/context": "~1.4",
@@ -33,7 +33,7 @@
     "packaged/docblock": "~1.1",
     "packaged/i18n": "~1.2",
     "symfony/console": "~4.2||~5.0",
-    "psr/log": "~1.1"
+    "psr/log": "^3.0.0"
   },
   "suggest": {
     "ext-xdebug": "*"

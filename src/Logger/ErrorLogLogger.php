@@ -21,7 +21,7 @@ class ErrorLogLogger extends AbstractLogger
    *
    * @throws \Exception
    */
-  public function log($level, $message, array $context = [])
+  public function log($level, string|\Stringable $message, array $context = []): void
   {
     $requestId = $this->hasContext() ? $this->getContext()->id() : Strings::randomString(10);
     $now = \DateTime::createFromFormat('U.u', sprintf("%.6F", microtime(true)));

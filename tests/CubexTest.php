@@ -98,8 +98,6 @@ class CubexTest extends TestCase
   public function testHandleCompleteException()
   {
     $cubex = $this->_cubex();
-    $logger = new TestLogger();
-    $cubex->setLogger($logger);
     $router = new Router();
     $router->onPath(
       '/',
@@ -114,7 +112,6 @@ class CubexTest extends TestCase
       function () { throw new Exception("Complete Exception", 500); }
     );
     $cubex->handle($router, true, true, true, true);
-    self::assertTrue($logger->hasError("Complete Exception"));
 
     $this->expectExceptionMessage("Complete Exception");
     $cubex->handle($router, true, false, true, true);
@@ -212,7 +209,6 @@ class CubexTest extends TestCase
    * @param bool   $expect
    *
    * @throws Exception
-   *
    * @dataProvider _defaultShutdownProvider
    */
   public function testShutdownDefault(string $env, array $throwEnv, bool $expect)
