@@ -162,7 +162,7 @@ class Console extends Application implements ContextAware
    * @return array|Command[]
    * @throws \ReflectionException
    */
-  protected function getDefaultCommands()
+  protected function getDefaultCommands(): array
   {
     $commands = parent::getDefaultCommands();
     $commands[] = $this->_prepareCommand(new BuiltInWebServer());
