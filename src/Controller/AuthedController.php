@@ -5,6 +5,7 @@ use Packaged\Context\Context;
 use Symfony\Component\HttpFoundation\Response;
 use function microtime;
 
+/** @deprecated - Please use middleware */
 abstract class AuthedController extends Controller
 {
   const ERROR_ACCESS_DENIED = "you are not permitted to access this url";
