@@ -6,19 +6,19 @@ use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
 use Cubex\Events\Handle\ResponsePreSendHeadersEvent;
 use Cubex\I18n\TranslationUpdater;
-use Packaged\ContextI18n\I18nContext;
 use Packaged\Helpers\Timer;
 use Packaged\Http\Headers\ServerTiming;
 use Packaged\Http\Response;
 use Packaged\I18n\Catalog\ArrayCatalog;
 use Packaged\I18n\Catalog\DynamicArrayCatalog;
 use Packaged\I18n\Catalog\MessageCatalog;
+use Packaged\I18n\Translatable;
 use Packaged\I18n\Translators\CatalogTranslator;
 use Packaged\I18n\Translators\TranslationLogger;
 use Packaged\I18n\Translators\Translator;
 use Psr\Log\LoggerInterface;
 
-class Context extends I18nContext implements CubexAware
+class Context extends \Packaged\Context\Context implements CubexAware
 {
   use CubexAwareTrait
   {
@@ -75,7 +75,7 @@ class Context extends I18nContext implements CubexAware
     $this->request()->defineTlds(['cubex-local.com', 'local-host.xyz'], true);
   }
 
-  private $_initialized;
+  private ?bool $_initialized = null;
 
   final public function initialize()
   {
@@ -121,7 +121,7 @@ class Context extends I18nContext implements CubexAware
     {
       //Push all translations via a translation logger
       $translationLogger = new TranslationLogger(new CatalogTranslator($catalog));
-      $cubex->share(Translator::class, $translationLogger);
+      $cubex->share(Translatable::class, $translationLogger);
 
       //Keep track of all new translations within _tpl.php
       $catFile = $transDir . '_tpl.php';
@@ -143,18 +143,62 @@ class Context extends I18nContext implements CubexAware
     }
     else
     {
-      $cubex->share(Translator::class, new CatalogTranslator($catalog));
+      $cubex->share(Translatable::class, new CatalogTranslator($catalog));
     }
   }
 
-  protected function _translator(): Translator
-  {
-    return $this->getCubex()->retrieve(Translator::class);
-  }
+  protected ?Translator $_translator;
 
   public function translator(): Translator
   {
-    return $this->_translator();
+    if($this->_translator === null)
+    {
+      $this->_translator = new Translator($this->getCubex()->retrieve(Translatable::class), $this->currentLanguage());
+    }
+    return $this->_translator;
+  }
+
+  const DEFAULT_LANGUAGE = 'en';
+  protected string $_language = self::DEFAULT_LANGUAGE;
+
+  /**
+   * Visitors preferred languages
+   *
+   * @return array
+   */
+  protected function _preferredLanguages(): array
+  {
+    return [$this->request()->getPreferredLanguage()];
+  }
+
+  /**
+   * Languages supported by the visitor
+   *
+   * @return array
+   */
+  protected function _attemptLanguages()
+  {
+    return array_filter(
+      array_unique(
+        array_merge($this->_preferredLanguages(), $this->request()->getLanguages(), [static::DEFAULT_LANGUAGE])
+      )
+    );
+  }
+
+  protected function _setLanguage($language)
+  {
+    $this->_language = $language;
+    return $this;
+  }
+
+  /**
+   * Current displayed language (this is set AFTER prepare translator is called)
+   *
+   * @return string
+   */
+  public function currentLanguage()
+  {
+    return $this->_language;
   }
 
 }
