@@ -109,7 +109,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
       $transFile = $transDir . $language . '.php';
       if(file_exists($transFile))
       {
-        $this->_language = $language;
+        $this->_setLanguage($language);
         $catalog = ArrayCatalog::fromFile($transFile);
         break;
       }
