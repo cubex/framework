@@ -147,7 +147,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
     }
   }
 
-  protected ?Translator $_translator;
+  protected ?Translator $_translator = null;
 
   public function translator(): Translator
   {
