@@ -4,9 +4,10 @@ namespace Cubex\I18n;
 use Cubex\Cubex;
 use Cubex\CubexAware;
 use Packaged\Context\ContextAware;
-use Packaged\I18n\Translators\ReplacementsOnlyTranslator;
+use Packaged\I18n\Translatable;
 use Packaged\I18n\Translators\Translator;
 
+/** @deprecated */
 trait GetTranslatorTrait
 {
   protected function _getTranslator(): Translator
@@ -29,12 +30,12 @@ trait GetTranslatorTrait
     {
       try
       {
-        return $cubex->retrieve(Translator::class);
+        return new Translator($this->getCubex()->retrieve(Translatable::class), $this->currentLanguage());
       }
       catch(\Exception $e)
       {
       }
     }
-    return new ReplacementsOnlyTranslator();
+    return new Translator();
   }
 }
