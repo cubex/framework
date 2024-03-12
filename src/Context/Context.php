@@ -12,8 +12,8 @@ use Packaged\Http\Response;
 use Packaged\I18n\Catalog\ArrayCatalog;
 use Packaged\I18n\Catalog\DynamicArrayCatalog;
 use Packaged\I18n\Catalog\MessageCatalog;
-use Packaged\I18n\Translatable;
 use Packaged\I18n\Translators\CatalogTranslator;
+use Packaged\I18n\Translators\ReplacementsOnlyTranslator;
 use Packaged\I18n\Translators\TranslationLogger;
 use Packaged\I18n\Translators\Translator;
 use Psr\Log\LoggerInterface;
@@ -121,7 +121,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
     {
       //Push all translations via a translation logger
       $translationLogger = new TranslationLogger(new CatalogTranslator($catalog));
-      $cubex->share(Translatable::class, $translationLogger);
+      $cubex->share(Translator::class, $translationLogger);
 
       //Keep track of all new translations within _tpl.php
       $catFile = $transDir . '_tpl.php';
@@ -143,7 +143,7 @@ class Context extends \Packaged\Context\Context implements CubexAware
     }
     else
     {
-      $cubex->share(Translatable::class, new CatalogTranslator($catalog));
+      $cubex->share(Translator::class, new CatalogTranslator($catalog));
     }
   }
 
@@ -153,7 +153,14 @@ class Context extends \Packaged\Context\Context implements CubexAware
   {
     if($this->_translator === null)
     {
-      $this->_translator = new Translator($this->getCubex()->retrieve(Translatable::class), $this->currentLanguage());
+      try
+      {
+        $this->_translator = $this->getCubex()->retrieve(Translator::class);
+      }
+      catch(\Exception $e)
+      {
+        $this->_translator = new ReplacementsOnlyTranslator();
+      }
     }
     return $this->_translator;
   }
