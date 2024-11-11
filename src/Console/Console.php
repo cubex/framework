@@ -2,6 +2,7 @@
 namespace Cubex\Console;
 
 use Cubex\Console\Commands\BuiltInWebServer;
+use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
 use Packaged\Config\ConfigProviderInterface;
 use Packaged\Context\ContextAware;
@@ -128,6 +129,11 @@ class Console extends Application implements ContextAware
     if($this->hasContext() && $command instanceof ContextAware)
     {
       $command->setContext($this->getContext());
+    }
+
+    if($this->hasCubex() && $command instanceof CubexAware)
+    {
+      $command->setCubex($this->getCubex());
     }
     return $command;
   }

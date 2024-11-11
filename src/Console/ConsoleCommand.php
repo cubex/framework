@@ -1,6 +1,8 @@
 <?php
 namespace Cubex\Console;
 
+use Cubex\CubexAware;
+use Cubex\CubexAwareTrait;
 use Packaged\Context\ContextAware;
 use Packaged\Context\ContextAwareTrait;
 use Packaged\DocBlock\DocBlockParser;
@@ -23,9 +25,10 @@ use function strtolower;
 /**
  * Extended Command to support public properties for arguments
  */
-abstract class ConsoleCommand extends Command implements ContextAware
+abstract class ConsoleCommand extends Command implements ContextAware, CubexAware
 {
   use ContextAwareTrait;
+  use CubexAwareTrait;
 
   /**
    * @var InputInterface
