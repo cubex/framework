@@ -97,8 +97,7 @@ class Console extends Application implements ContextAware
   {
     if(strpos($name, '.') !== false)
     {
-      $parts = explode(' ', ucwords(str_replace('.', ' ', $name)));
-      $class = '\\' . implode('\\', $parts);
+      $class = implode('\\', explode(' ', ucwords(str_replace('.', ' ', $name))));
     }
     else
     {
