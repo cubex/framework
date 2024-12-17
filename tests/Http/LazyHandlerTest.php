@@ -5,10 +5,10 @@ namespace Cubex\Tests\Http;
 use Cubex\Routing\LazyHandler;
 use Packaged\Context\Context;
 use Packaged\Http\Request;
+use Packaged\Http\Response;
 use Packaged\Routing\Handler\FuncHandler;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Symfony\Component\HttpFoundation\Response;
 
 class LazyHandlerTest extends TestCase
 {
