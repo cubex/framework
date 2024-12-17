@@ -14,9 +14,9 @@ use Cubex\Tests\Supporting\Controller\TestIncompleteController;
 use Packaged\Context\Context;
 use Packaged\Http\Request;
 use Packaged\Http\Response;
+use Packaged\Http\Responses\RedirectResponse;
 use Packaged\Routing\ConditionHandler;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ControllerTest extends TestCase
 {

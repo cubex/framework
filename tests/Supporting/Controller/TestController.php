@@ -10,8 +10,8 @@ use Exception;
 use Packaged\Context\Context;
 use Packaged\Http\Response;
 use Packaged\Http\Responses\AccessDeniedResponse;
+use Packaged\Http\Responses\RedirectResponse;
 use Packaged\Routing\Handler\FuncHandler;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class TestController extends AuthedController
 {
