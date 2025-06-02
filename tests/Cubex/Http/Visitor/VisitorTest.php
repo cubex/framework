@@ -135,7 +135,7 @@ class VisitorTestInternal extends InternalCubexTestCase
       [
         '208.67.222.222',
         'US',
-        'San Francisco',
+        'San Jose',
         'CA',
         new ConfigSection(
           'http_visitor',

@@ -504,7 +504,7 @@ class Cubex extends Container
    */
   public function isEnv($env)
   {
-    return $this->_env == $env;
+    return $this->env() == $env;
   }
 
   /**
