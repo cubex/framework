@@ -7,6 +7,8 @@ class TemplatedViewModel extends ViewModel implements View
 {
   use TemplateLoaderTrait;
 
+  protected $_variants = [];
+
   public function setModel(Model $data)
   {
     // To not use external models
@@ -16,6 +18,23 @@ class TemplatedViewModel extends ViewModel implements View
   public function render(): string
   {
     return $this->_renderTemplate();
+  }
+
+  public function addVariant(string $variant, string $extension = 'phtml'): self
+  {
+    $this->_variants[] = join('.', [$variant, $extension]);
+    return $this;
+  }
+
+  public function clearVariants(): self
+  {
+    $this->_variants = [];
+    return $this;
+  }
+
+  protected function _attemptTemplateExtensions()
+  {
+    return array_filter(array_merge($this->_variants, ['phtml']));
   }
 
   public function createView(string $overrideViewClass = null): ?View
