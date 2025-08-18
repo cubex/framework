@@ -22,7 +22,7 @@ class TemplatedViewModel extends ViewModel implements View
 
   public function addVariant(string $variant, string $extension = 'phtml'): self
   {
-    $this->_variants[] = join('.', [$variant, $extension]);
+    array_unshift($this->_variants, join('.', [$variant, $extension]));
     return $this;
   }
 
@@ -30,6 +30,11 @@ class TemplatedViewModel extends ViewModel implements View
   {
     $this->_variants = [];
     return $this;
+  }
+
+  public function getVariants(): array
+  {
+    return $this->_variants;
   }
 
   protected function _attemptTemplateExtensions()
