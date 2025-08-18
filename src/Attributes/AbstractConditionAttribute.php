@@ -2,9 +2,6 @@
 
 namespace Cubex\Attributes;
 
-use Attribute;
-
-#[Attribute(\Attribute::IS_REPEATABLE)]
 abstract class AbstractConditionAttribute
 {
   protected string $_class = '';
