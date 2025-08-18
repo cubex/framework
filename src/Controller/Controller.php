@@ -4,6 +4,7 @@ namespace Cubex\Controller;
 use Cubex\Cubex;
 use Cubex\CubexAware;
 use Cubex\CubexAwareTrait;
+use Cubex\Routing\ConditionProcessor;
 use Cubex\Routing\RouteProcessor;
 use Cubex\ViewModel\View;
 use Cubex\ViewModel\ViewModel;
@@ -40,6 +41,11 @@ abstract class Controller extends RouteProcessor implements ContextAware, CubexA
       return $ctx->getCubex();
     }
     return null;
+  }
+
+  protected function _initialize()
+  {
+    $this->_cubex()->setReflectionObserver(new ConditionProcessor($this->getContext()));
   }
 
   /**
