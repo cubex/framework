@@ -4,7 +4,7 @@ namespace Cubex\Attributes;
 
 use Attribute;
 
-#[Attribute(\Attribute::IS_REPEATABLE)]
+#[Attribute(\Attribute::IS_REPEATABLE | \Attribute::TARGET_ALL)]
 class PreCondition extends AbstractConditionAttribute
 {
 }
