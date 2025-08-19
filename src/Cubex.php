@@ -63,6 +63,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $this->_eventChannel = new Channel('cubex');
     //Setup Context
     $this->share(ClassLoader::class, $loader);
+    $this->share(DependencyInjector::class, $this);
     $this->factory(Context::class, $this->_defaultContextFactory());
 
     if($global && self::$_cubex === null)
