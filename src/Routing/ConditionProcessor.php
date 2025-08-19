@@ -4,23 +4,22 @@ namespace Cubex\Routing;
 
 use Cubex\Attributes\PreCondition;
 use Cubex\Attributes\SkipCondition;
-use Packaged\Context\Context;
+use Cubex\Cubex;
+use Cubex\CubexAwareTrait;
 use Packaged\Context\ContextAwareTrait;
 use Packaged\DiContainer\AttributeWatcher;
-use Packaged\DiContainer\DependencyInjector;
 use Packaged\DiContainer\ReflectionInterrupt;
 use Packaged\DiContainer\ReflectionObserver;
 
 class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt, ReflectionObserver
 {
   use ContextAwareTrait;
+  use CubexAwareTrait;
 
-  protected ?DependencyInjector $_di = null;
-
-  public function __construct(Context $ctx, ?DependencyInjector $di = null)
+  public function __construct(Cubex $cubex)
   {
-    $this->setContext($ctx);
-    $this->_di = $di;
+    $this->setCubex($cubex);
+    $this->setContext($cubex->getContext());
     $this->clear();
   }
 
@@ -76,7 +75,7 @@ class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt
 
     foreach($this->_conditions as $condition)
     {
-      $inst = $condition->result($this->_di);
+      $inst = $condition->result($this->getCubex());
       $res = $inst->process($this->getContext());
       if($res !== null)
       {
