@@ -7,6 +7,7 @@ use Cubex\Attributes\SkipCondition;
 use Packaged\Context\Context;
 use Packaged\Context\ContextAwareTrait;
 use Packaged\DiContainer\AttributeWatcher;
+use Packaged\DiContainer\DependencyInjector;
 use Packaged\DiContainer\ReflectionInterrupt;
 use Packaged\DiContainer\ReflectionObserver;
 
@@ -14,9 +15,12 @@ class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt
 {
   use ContextAwareTrait;
 
-  public function __construct(Context $ctx)
+  protected ?DependencyInjector $_di = null;
+
+  public function __construct(Context $ctx, ?DependencyInjector $di = null)
   {
     $this->setContext($ctx);
+    $this->_di = $di;
     $this->clear();
   }
 
@@ -72,7 +76,7 @@ class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt
 
     foreach($this->_conditions as $condition)
     {
-      $inst = $condition->result();
+      $inst = $condition->result($this->_di);
       $res = $inst->process($this->getContext());
       if($res !== null)
       {

@@ -2,6 +2,8 @@
 
 namespace Cubex\Attributes;
 
+use Packaged\DiContainer\DependencyInjector;
+
 abstract class AbstractConditionAttribute
 {
   protected string $_class = '';
@@ -18,11 +20,19 @@ abstract class AbstractConditionAttribute
     return $this->_class;
   }
 
-  public function result(): ConditionResult
+  public function result(?DependencyInjector $di): ConditionResult
   {
     if(class_exists($this->_class))
     {
-      $obj = new $this->_class(...$this->_args);
+      if($di)
+      {
+        $obj = $di->resolve($this->_class, ...$this->_args);
+      }
+      else
+      {
+        $obj = new $this->_class(...$this->_args);
+      }
+      
       if($obj instanceof ConditionResult)
       {
         return $obj;
