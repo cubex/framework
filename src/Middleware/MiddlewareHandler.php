@@ -24,13 +24,13 @@ class MiddlewareHandler implements Handler
 
   public function add(MiddlewareInterface $middleware, int $addMode = self::APPEND)
   {
-    if ($addMode)
+    if ($addMode === self::PREPEND)
     {
-      $this->_middlewares[] = $middleware;
+      $this->_middlewares = [$middleware] + $this->_middlewares;
     }
     else
     {
-      $this->_middlewares = [$middleware] + $this->_middlewares;
+      $this->_middlewares[] = $middleware;
     }
 
     return $this;
