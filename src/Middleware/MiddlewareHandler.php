@@ -12,37 +12,26 @@ class MiddlewareHandler implements Handler
 
   /** @var \Cubex\Middleware\MiddlewareInterface[] */
   protected array $_middlewares = [];
-
   /** @var \Packaged\Routing\Handler\Handler */
   protected Handler $_handler;
-
-  /** @var int $_addMode */
-  protected int $_addMode;
 
   public function __construct(Handler $handler)
   {
     $this->_handler = $handler;
   }
 
-  public function prependMode(): self
+  public function prepend(MiddlewareInterface $middleware): self
   {
-    $this->_addMode = self::PREPEND;
-    return $this;
+    return $this->add($middleware, self::PREPEND);
   }
 
-  public function appendMode(): self
+  public function append(MiddlewareInterface $middleware): self
   {
-    $this->_addMode = self::APPEND;
-    return $this;
+    return $this->add($middleware, self::APPEND);
   }
 
   public function add(MiddlewareInterface $middleware, ?int $addMode = null)
   {
-    if (!isset($addMode))
-    {
-      $addMode = $this->_addMode;
-    }
-
     if ($addMode === self::PREPEND)
     {
       $this->_middlewares = [$middleware] + $this->_middlewares;
