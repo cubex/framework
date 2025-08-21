@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MiddlewareHandler implements Handler
 {
+  const PREPEND = 0;
+  const APPEND = 1;
+
   /** @var \Cubex\Middleware\MiddlewareInterface[] */
   protected array $_middlewares = [];
-  /**
-   * @var \Packaged\Routing\Handler\Handler
-   */
+  /** @var \Packaged\Routing\Handler\Handler */
   protected Handler $_handler;
 
   public function __construct(Handler $handler)
@@ -19,9 +20,27 @@ class MiddlewareHandler implements Handler
     $this->_handler = $handler;
   }
 
-  public function add(MiddlewareInterface $middleware)
+  public function prepend(MiddlewareInterface $middleware): self
   {
-    $this->_middlewares[] = $middleware;
+    return $this->add($middleware, self::PREPEND);
+  }
+
+  public function append(MiddlewareInterface $middleware): self
+  {
+    return $this->add($middleware, self::APPEND);
+  }
+
+  public function add(MiddlewareInterface $middleware, ?int $addMode = null)
+  {
+    if ($addMode === self::PREPEND)
+    {
+      $this->_middlewares = [$middleware] + $this->_middlewares;
+    }
+    else
+    {
+      $this->_middlewares[] = $middleware;
+    }
+
     return $this;
   }
 
