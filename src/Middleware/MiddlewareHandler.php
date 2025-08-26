@@ -30,15 +30,44 @@ class MiddlewareHandler implements Handler
     return $this->add($middleware, self::APPEND);
   }
 
-  public function add(MiddlewareInterface $middleware, ?int $addMode = null)
+  public function add(MiddlewareInterface $middleware, ?int $addMode = null): self
   {
     if ($addMode === self::PREPEND)
     {
-      $this->_middlewares = [$middleware] + $this->_middlewares;
+      array_unshift($this->_middlewares, $middleware);
     }
     else
     {
       $this->_middlewares[] = $middleware;
+    }
+
+    return $this;
+  }
+
+  public function remove(MiddlewareInterface|string $remove): self
+  {
+    foreach ($this->_middlewares as $key => $middleware)
+    {
+      if ($middleware instanceof $remove || $middleware::class === $remove)
+      {
+        unset($this->_middlewares[$key]);
+        break;
+      }
+    }
+
+    $this->_middlewares = array_values($this->_middlewares);
+    return $this;
+  }
+
+  public function replace(MiddlewareInterface|string $replace, MiddlewareInterface $with): self
+  {
+    foreach ($this->_middlewares as $key => $middleware)
+    {
+      if ($middleware instanceof $replace || $middleware::class === $replace)
+      {
+        $this->_middlewares[$key] = $with;
+        break;
+      }
     }
 
     return $this;
