@@ -103,4 +103,24 @@ class MiddlewareHandlerTest extends TestCase
     self::assertCount(0, $tester->getMiddlewares());
   }
 
+  public function testRemoveAndAdditionIndexesCorrectly()
+  {
+    $handler = new MiddlewareHandler(new FuncHandler(fn ($c) => new RedirectResponse('/success')));
+    $handler->add(new TestMiddleware());
+    $tester = MiddlewareHandlerTester::with($handler);
+    self::assertCount(1, $tester->getMiddlewares());
+    self::assertInstanceOf(TestMiddleware::class, $tester->getMiddlewares()[0]);
+
+    $handler->remove(TestMiddleware::class);
+    self::assertCount(0, $tester->getMiddlewares());
+
+    $handler->add(new TestMiddleware());
+    self::assertCount(1, $tester->getMiddlewares());
+    self::assertInstanceOf(TestMiddleware::class, $tester->getMiddlewares()[0]);
+
+    $handler->prepend(new SecondTestMiddleware());
+    self::assertCount(2, $tester->getMiddlewares());
+    self::assertInstanceOf(SecondTestMiddleware::class, $tester->getMiddlewares()[0]);
+  }
+
 }

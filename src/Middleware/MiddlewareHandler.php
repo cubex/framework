@@ -55,6 +55,7 @@ class MiddlewareHandler implements Handler
       }
     }
 
+    $this->_middlewares = array_values($this->_middlewares);
     return $this;
   }
 
