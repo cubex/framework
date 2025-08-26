@@ -58,7 +58,7 @@ class MiddlewareHandlerTest extends TestCase
     self::assertCount(1, $tester->getMiddlewares());
     self::assertInstanceOf(TestMiddleware::class, $tester->getMiddlewares()[0]);
 
-    $handler->append(new SecondTestMiddleware());
+    $handler->add(new SecondTestMiddleware());
     self::assertCount(2, $tester->getMiddlewares());
     self::assertInstanceOf(TestMiddleware::class, $tester->getMiddlewares()[0]);
     self::assertInstanceOf(SecondTestMiddleware::class, $tester->getMiddlewares()[1]);
@@ -66,7 +66,16 @@ class MiddlewareHandlerTest extends TestCase
 
   public function testAppend()
   {
-    $this->testAdd();
+    $handler = new MiddlewareHandler(new FuncHandler(fn ($c) => new RedirectResponse('/success')));
+    $handler->append(new TestMiddleware());
+    $tester = MiddlewareHandlerTester::with($handler);
+    self::assertCount(1, $tester->getMiddlewares());
+    self::assertInstanceOf(TestMiddleware::class, $tester->getMiddlewares()[0]);
+
+    $handler->append(new SecondTestMiddleware());
+    self::assertCount(2, $tester->getMiddlewares());
+    self::assertInstanceOf(TestMiddleware::class, $tester->getMiddlewares()[0]);
+    self::assertInstanceOf(SecondTestMiddleware::class, $tester->getMiddlewares()[1]);
   }
 
   public function testReplace()
