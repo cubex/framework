@@ -19,8 +19,7 @@ jobs:
           tools: composer, phpunit
       - run: composer install -n --prefer-dist
       - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml --coverage-clover=coverage.xml
-      - uses: johanvanhelden/gha-clover-test-coverage-check@v1
-        id: coverage
+      - uses: kcjpop/coverage-comments@v2.2
         with:
-          percentage: "70"
-          filename: "coverage.xml"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-file: "coverage.xml"
