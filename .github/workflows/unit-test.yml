@@ -19,8 +19,4 @@ jobs:
           tools: composer, phpunit
       - run: composer install -n --prefer-dist
       - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml --coverage-clover=coverage.xml
-      - name: PHPUnit Coverage Check
-        uses: ericsizemore/phpunit-coverage-check-action@2.0.0
-        with:
-          clover_file: "coverage.xml"
-          threshold: 70
+      - run: php vendor/bin/coverage-check clover.xml 70
