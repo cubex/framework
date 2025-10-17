@@ -16,3 +16,5 @@ jobs:
         with:
           php-version: ${{matrix.php}}
           tools: composer, phpunit
+      - run: composer install -n --prefer-dist
+      - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml --log-junit /tmp/test-results/phpunit/junit.xml
