@@ -395,6 +395,9 @@ class CubexTest extends TestCase
   public function testDir()
   {
     $cubex = $this->_cubex();
-    self::assertEquals(__DIR__ . '/.cubex/', Cubex::dir($cubex->getContext()));
+    self::assertEquals(
+      __DIR__ . DIRECTORY_SEPARATOR . '.cubex' . DIRECTORY_SEPARATOR,
+      Cubex::dir($cubex->getContext())
+    );
   }
 }
