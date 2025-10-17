@@ -12,9 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: php-actions/composer@v6
+      - uses: shivammathur/setup-php@v2
         with:
-          php_version: ${{matrix.php}}
-      - uses: php-actions/phpunit@v4
-        with:
-          php_version: ${{matrix.php}}
+          php-version: ${{matrix.php}}
+          tools: composer, phpunit
