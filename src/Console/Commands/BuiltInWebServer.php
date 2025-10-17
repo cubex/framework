@@ -61,6 +61,25 @@ class BuiltInWebServer extends ConsoleCommand
 
   protected $_executeMethod = 'passthru';
 
+  public function __construct($name = null)
+  {
+    parent::__construct($name);
+    $this->_executeMethod = function ($command, &$exitCode) {
+      if(System::commandExists('bash'))
+      {
+        // Use bash to execute if available,
+        // enables CTRL+C to also kill spawned process (cygwin issue)
+        $command = ['bash', '-c', $command];
+      }
+      $p = proc_open($command, [STDIN, STDOUT, STDERR], $pipes);
+      if(is_resource($p))
+      {
+        $exitCode = proc_close($p);
+      }
+      return $exitCode;
+    };
+  }
+
   protected function configure()
   {
     $this->setName('serve');
@@ -137,12 +156,9 @@ class BuiltInWebServer extends ConsoleCommand
   {
     $exitCode = 0;
     $method = $this->_executeMethod;
-    if(System::commandExists('bash'))
+    if(!is_callable($method))
     {
-      // Use bash to execute if available,
-      // enables CTRL+C to also kill spawned process (cygwin issue)
-      $command = addcslashes($command, "'");
-      $command = "bash -c '$command'";
+      throw new \Exception('method not callable');
     }
     $method($command, $exitCode);
     return $exitCode;
