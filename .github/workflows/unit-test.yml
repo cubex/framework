@@ -1,0 +1,18 @@
+name: unit-test.yml
+on: [ push ]
+
+jobs:
+  unit-test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        php: [ '8.0', '8.1', '8.2', '8.3', '8.4' ]
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: php-actions/composer@v6
+      - uses: php-actions/phpunit@v4
+        with:
+          php_version: ${{matrix.php}}
