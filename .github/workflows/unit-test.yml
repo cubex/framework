@@ -19,6 +19,8 @@ jobs:
           tools: composer, phpunit
       - run: composer install -n --prefer-dist
       - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml --coverage-clover=coverage.xml
-      - uses: lucassabreu/comment-coverage-clover@v0.15.4
+      - uses: johanvanhelden/gha-clover-test-coverage-check@v1
+        id: coverage
         with:
-          file: coverage.xml
+          percentage: "100"
+          filename: "coverage.xml"
