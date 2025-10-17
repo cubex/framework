@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: php-actions/composer@v6
+        with:
+          php_version: ${{matrix.php}}
       - uses: php-actions/phpunit@v4
         with:
           php_version: ${{matrix.php}}
