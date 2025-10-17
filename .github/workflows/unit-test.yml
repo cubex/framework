@@ -19,7 +19,5 @@ jobs:
           tools: composer, phpunit
       - run: composer install -n --prefer-dist
       - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml --coverage-clover=coverage.xml
-      - uses: kcjpop/coverage-comments@v2.2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          coverage-file: "coverage.xml"
+      - name: Codecov
+        uses: codecov/codecov-action@v1
