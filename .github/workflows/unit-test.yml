@@ -18,4 +18,4 @@ jobs:
           coverage: xdebug
           tools: composer, phpunit
       - run: composer install -n --prefer-dist
-      - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml
+      - run: php vendor/phpunit/phpunit/phpunit -c phpunit.xml --coverage-clover=coverage.xml
