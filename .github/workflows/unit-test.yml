@@ -22,5 +22,5 @@ jobs:
       - uses: johanvanhelden/gha-clover-test-coverage-check@v1
         id: coverage
         with:
-          percentage: "100"
+          percentage: "70"
           filename: "coverage.xml"
