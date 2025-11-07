@@ -6,7 +6,7 @@ use Cubex\Attributes\AttributeResult;
 use Cubex\Attributes\ReturnsAttributeResultInterface;
 use Packaged\DiContainer\DependencyInjector;
 
-abstract class AbstractConditionReturnsAttribute implements ReturnsAttributeResultInterface
+abstract class AbstractConditionAttribute implements ReturnsAttributeResultInterface
 {
   public function __construct(protected string $_class, protected array $_args = [])
   {

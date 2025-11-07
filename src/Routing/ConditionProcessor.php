@@ -2,7 +2,7 @@
 
 namespace Cubex\Routing;
 
-use Cubex\Attributes\Conditional\AbstractConditionReturnsAttribute;
+use Cubex\Attributes\Conditional\AbstractConditionAttribute;
 use Cubex\Attributes\Conditional\PreCondition;
 use Cubex\Attributes\Conditional\SkipCondition;
 use Cubex\Attributes\ReturnsAttributeResultInterface;
@@ -50,7 +50,7 @@ class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt
       }
       if($attribute->getName() === PreCondition::class)
       {
-        /** @var AbstractConditionReturnsAttribute $condition */
+        /** @var AbstractConditionAttribute $condition */
         $condition = $attribute->newInstance();
         $this->_conditions[$condition->getClass()] = $condition;
       }
