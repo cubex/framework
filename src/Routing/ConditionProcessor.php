@@ -2,8 +2,10 @@
 
 namespace Cubex\Routing;
 
-use Cubex\Attributes\PreCondition;
-use Cubex\Attributes\SkipCondition;
+use Cubex\Attributes\Conditional\AbstractConditionReturnsAttribute;
+use Cubex\Attributes\Conditional\PreCondition;
+use Cubex\Attributes\Conditional\SkipCondition;
+use Cubex\Attributes\ReturnsAttributeResultInterface;
 use Cubex\Cubex;
 use Cubex\CubexAwareTrait;
 use Packaged\Context\ContextAwareTrait;
@@ -24,7 +26,7 @@ class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt
   }
 
   /**
-   * @var \Cubex\Attributes\PreCondition[]
+   * @var ReturnsAttributeResultInterface[]
    */
   protected array $_conditions = [];
   protected bool $_processed = false;
@@ -48,7 +50,7 @@ class ConditionProcessor extends AttributeWatcher implements ReflectionInterrupt
       }
       if($attribute->getName() === PreCondition::class)
       {
-        /** @var \Cubex\Attributes\AbstractConditionAttribute $condition */
+        /** @var AbstractConditionReturnsAttribute $condition */
         $condition = $attribute->newInstance();
         $this->_conditions[$condition->getClass()] = $condition;
       }
