@@ -9,7 +9,7 @@ abstract class ConsoleEvent extends ContextEvent
 {
   private $_console;
 
-  public static function i(Context $ctx, Console $console = null)
+  public static function i(Context $ctx, ?Console $console = null)
   {
     $event = parent::i($ctx);
     $event->_console = $console;

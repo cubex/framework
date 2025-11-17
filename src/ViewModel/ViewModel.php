@@ -34,7 +34,7 @@ class ViewModel implements Model, ContextAware, CubexAware
     return $this;
   }
 
-  public function createView(string $overrideViewClass = null): ?View
+  public function createView(?string $overrideViewClass = null): ?View
   {
     if($overrideViewClass === null && !empty($this->_defaultView))
     {

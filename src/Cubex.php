@@ -57,7 +57,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    */
   private $_hasShutdown;
 
-  public function __construct($projectRoot, ClassLoader $loader = null, $global = true)
+  public function __construct($projectRoot, ?ClassLoader $loader = null, $global = true)
   {
     $this->_projectRoot = $projectRoot;
     $this->_eventChannel = new Channel('cubex');
@@ -72,7 +72,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     }
   }
 
-  public static function withCustomContext(string $ctxClass, $projectRoot, ClassLoader $loader = null, $global = true)
+  public static function withCustomContext(string $ctxClass, $projectRoot, ?ClassLoader $loader = null, $global = true)
   {
     $c = new static($projectRoot, $loader, $global);
     $c->_contextClass = $ctxClass;
@@ -213,7 +213,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    * @return int
    * @throws Exception
    */
-  public function cli(InputInterface $input = null, OutputInterface $output = null)
+  public function cli(?InputInterface $input = null, ?OutputInterface $output = null)
   {
     $input = $input ?? new ArgvInput();
     $output = $output ?? new ConsoleOutput();
@@ -422,7 +422,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
    * @return bool true if shutdown has processed, false if shutdown has already been called.
    * @throws Exception
    */
-  public function shutdown(bool $throwExceptions = null)
+  public function shutdown(?bool $throwExceptions = null)
   {
     if(!$this->_hasShutdown)
     {

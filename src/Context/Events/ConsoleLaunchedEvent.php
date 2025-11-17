@@ -10,7 +10,7 @@ class ConsoleLaunchedEvent extends AbstractEvent
   private $_input;
   private $_output;
 
-  public function __construct(InputInterface $input = null, OutputInterface $output = null)
+  public function __construct(?InputInterface $input = null, ?OutputInterface $output = null)
   {
     parent::__construct();
     $this->_input = $input;

@@ -25,7 +25,7 @@ class EphemeralCache
    *
    * @return mixed
    */
-  public function retrieve($key, callable $producer, int $ttl = null)
+  public function retrieve($key, callable $producer, ?int $ttl = null)
   {
     if(!$this->has($key))
     {
@@ -39,7 +39,7 @@ class EphemeralCache
     return isset($this->_cache[$key]) && ($this->_cache[$key]['t'] === null || $this->_cache[$key]['t'] >= time());
   }
 
-  public function set($key, $value, int $ttl = null)
+  public function set($key, $value, ?int $ttl = null)
   {
     $this->_cache[$key] = ['v' => $value, 't' => time() + $ttl];
     return $this;

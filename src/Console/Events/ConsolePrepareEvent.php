@@ -8,11 +8,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ConsolePrepareEvent extends ConsoleEvent
 {
-  private $_input;
-  private $_output;
+  private ?InputInterface $_input;
+  private ?OutputInterface $_output;
 
   public static function i(
-    Context $ctx, Console $console = null, InputInterface $input = null, OutputInterface $output = null
+    Context $ctx, ?Console $console = null, ?InputInterface $input = null, ?OutputInterface $output = null
   )
   {
     $event = parent::i($ctx, $console);

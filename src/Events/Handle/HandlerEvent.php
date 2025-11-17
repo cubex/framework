@@ -9,7 +9,7 @@ abstract class HandlerEvent extends ContextEvent
 {
   private $_handler;
 
-  public static function i(Context $context, Handler $handler = null)
+  public static function i(Context $context, ?Handler $handler = null)
   {
     $event = parent::i($context);
     $event->_handler = $handler;

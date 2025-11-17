@@ -9,7 +9,7 @@ abstract class ResponseEvent extends HandlerEvent
 {
   private $_response;
 
-  public static function i(Context $context, Handler $handler = null, Response $response = null)
+  public static function i(Context $context, ?Handler $handler = null, ?Response $response = null)
   {
     $event = parent::i($context, $handler);
     $event->_response = $response;

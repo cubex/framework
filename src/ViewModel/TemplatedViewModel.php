@@ -42,7 +42,7 @@ class TemplatedViewModel extends ViewModel implements View
     return array_filter(array_merge($this->_variants, ['phtml']));
   }
 
-  public function createView(string $overrideViewClass = null): ?View
+  public function createView(?string $overrideViewClass = null): ?View
   {
     if($overrideViewClass === null && empty($this->_defaultView))
     {
