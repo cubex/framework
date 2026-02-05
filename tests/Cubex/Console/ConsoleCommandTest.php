@@ -47,7 +47,7 @@ class ConsoleCommandTest extends CommandTestCase
   public function testOutput()
   {
     $command = new TestConsoleCommand();
-    $this->assertContains(
+    $this->assertStringContainsString(
       'First: Brooke
 Last: Bryan
 Middle(s): Anthony James',
@@ -65,7 +65,7 @@ Middle(s): Anthony James',
   public function testOutputProcess()
   {
     $command = new TestProcessConsoleCommand();
-    $this->assertContains(
+    $this->assertStringContainsString(
       'First: Brooke
 Last: Bryan
 Middle(s): Anthony James',

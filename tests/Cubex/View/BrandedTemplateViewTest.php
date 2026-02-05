@@ -43,31 +43,31 @@ class BrandedTemplateViewTest extends TestCase
   {
     $request = $this->createRequest('www.replace.com');
     $view = $this->prepareViewModel($request);
-    $this->assertContains('Replaced', $view->render());
+    $this->assertStringContainsString('Replaced', $view->render());
   }
 
   public function testBuildsRequestFromGlobals()
   {
     $view = $this->prepareViewModel();
-    $this->assertContains('Default branded page', $view->render());
+    $this->assertStringContainsString('Default branded page', $view->render());
   }
 
   public function testPrePost()
   {
     $request = $this->createRequest('www.custom.com');
     $view = $this->prepareViewModel($request);
-    $this->assertContains('Pre', $view->render());
-    $this->assertContains('Default branded page', $view->render());
-    $this->assertContains('Post', $view->render());
+    $this->assertStringContainsString('Pre', $view->render());
+    $this->assertStringContainsString('Default branded page', $view->render());
+    $this->assertStringContainsString('Post', $view->render());
   }
 
   public function testLanguage()
   {
     $request = $this->createRequest('www.custom.test', 'it');
     $view = $this->prepareViewModel($request);
-    $this->assertContains('Pre', $view->render());
-    $this->assertContains('Italian Version', $view->render());
-    $this->assertContains('Post', $view->render());
+    $this->assertStringContainsString('Pre', $view->render());
+    $this->assertStringContainsString('Italian Version', $view->render());
+    $this->assertStringContainsString('Post', $view->render());
   }
 
   public function testException()

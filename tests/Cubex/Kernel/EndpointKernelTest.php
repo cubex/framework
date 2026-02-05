@@ -23,14 +23,14 @@ class EndpointKernelTest extends InternalCubexTestCase
     $kernel = new MockEndpointKernel();
     $kernel->setCubex($this->getCubex());
     $result = $kernel->handle(Request::create('/error', 'GET', []));
-    $this->assertContains('json', $result->headers->get('content-type'));
+    $this->assertStringContainsString('json', $result->headers->get('content-type'));
     $content = $result->getContent();
     $this->assertJson($content);
-    $this->assertContains(
+    $this->assertStringContainsString(
       'status":{"code":500,"message":"Something Failed"}',
       $content
     );
-    $this->assertContains(
+    $this->assertStringContainsString(
       '"type":"\\\\Packaged\\\\Api\\\\Exceptions\\\\ApiException"',
       $content
     );
@@ -41,7 +41,7 @@ class EndpointKernelTest extends InternalCubexTestCase
     $kernel = new MockEndpointKernel();
     $kernel->setCubex($this->getCubex());
     $result = $kernel->handle(Request::create('/result', 'GET', []));
-    $this->assertContains('json', $result->headers->get('content-type'));
+    $this->assertStringContainsString('json', $result->headers->get('content-type'));
     $this->assertEquals(
       '{"status":{"code":200,"message":""},'
       . '"type":"\CubexTest\Cubex\Kernel\MockEndpointResult"'

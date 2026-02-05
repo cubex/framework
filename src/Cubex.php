@@ -178,7 +178,7 @@ class Cubex extends Container
 
       foreach($files as $fileName)
       {
-        $file = Path::build($this->getProjectRoot(), 'conf', $fileName);
+        $file = Path::system($this->getProjectRoot(), 'conf', $fileName);
         try
         {
           $config->loadFile($file, true);
@@ -330,13 +330,13 @@ class Cubex extends Container
     if($request->getRequestUri() === '/favicon.ico')
     {
       $favIconPaths = [];
-      $favIconPaths[] = Path::build($this->getProjectRoot(), 'favicon.ico');
-      $favIconPaths[] = Path::build(
+      $favIconPaths[] = Path::system($this->getProjectRoot(), 'favicon.ico');
+      $favIconPaths[] = Path::system(
         $this->getProjectRoot(),
         'assets',
         'favicon.ico'
       );
-      $favIconPaths[] = Path::build(dirname(__DIR__), 'favicon.ico');
+      $favIconPaths[] = Path::system(dirname(__DIR__), 'favicon.ico');
       $favPath = null;
 
       foreach($favIconPaths as $favPath)

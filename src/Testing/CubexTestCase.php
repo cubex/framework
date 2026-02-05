@@ -142,7 +142,7 @@ abstract class CubexTestCase extends TestCase
     {
       $response = $this->_lastResponse;
     }
-    $this->assertContains($expect, $response->getContent());
+    $this->assertStringContainsString($expect, $response->getContent());
   }
 
   /**
