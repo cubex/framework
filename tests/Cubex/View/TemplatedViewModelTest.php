@@ -14,7 +14,7 @@ class TemplatedViewModelTest extends TestCase
      */
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('test');
-    $this->assertContains('Test phtml file', $view->render());
+    $this->assertStringContainsString('Test phtml file', $view->render());
 
     $this->expectException('Exception', 'Excepted');
     $view->setTemplateFile('exceptional');

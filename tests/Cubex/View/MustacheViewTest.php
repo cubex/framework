@@ -11,7 +11,7 @@ class MustacheViewTest extends TestCase
     $view = new TestMustacheModel();
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('mustache');
-    $this->assertContains(
+    $this->assertStringContainsString(
       'Hello Test You have just won $10 ($12)!',
       $view->render()
     );

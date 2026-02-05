@@ -40,8 +40,8 @@ class LayoutTest extends TestCase
     $layout = new Layout(new CubexProject(), 'Default');
     $layout->insert('testing', new RenderableSection());
     $rendered = $layout->render();
-    $this->assertContains('Testing', $rendered);
-    $this->assertContains('<pre>section</pre>', $rendered);
+    $this->assertStringContainsString('Testing', $rendered);
+    $this->assertStringContainsString('<pre>section</pre>', $rendered);
   }
 
   public function testSetCallingClass()
@@ -50,8 +50,8 @@ class LayoutTest extends TestCase
     $layout->setCallingClass('namespaced\CubexProject');
     $layout->insert('testing', new RenderableSection());
     $rendered = $layout->render();
-    $this->assertContains('Testing', $rendered);
-    $this->assertContains('<pre>section</pre>', $rendered);
+    $this->assertStringContainsString('Testing', $rendered);
+    $this->assertStringContainsString('<pre>section</pre>', $rendered);
   }
 
   public function testData()

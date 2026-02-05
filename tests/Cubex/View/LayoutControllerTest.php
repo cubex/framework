@@ -27,7 +27,7 @@ class LayoutControllerTest extends TestCase
     $controller->setLayout($layout);
     $this->assertEquals($layout, $controller->layout());
     $layout->insert('testing', new Renderable($output));
-    $this->assertContains($output, (string)$controller);
+    $this->assertStringContainsString($output, (string)$controller);
   }
 
   public function testDisableLayout()
@@ -62,7 +62,7 @@ class LayoutControllerTest extends TestCase
       false
     );
 
-    $this->assertContains($expect, $response->getContent());
+    $this->assertStringContainsString($expect, $response->getContent());
   }
 
   /**

@@ -21,19 +21,19 @@ class ResponseTest extends TestCase
   {
     $response = new Response();
     $responseSend = $response->send();
-    $this->assertObjectHasAttribute('headers', $responseSend);
-    $this->assertObjectHasAttribute('content', $responseSend);
-    $this->assertObjectHasAttribute('version', $responseSend);
-    $this->assertObjectHasAttribute('statusCode', $responseSend);
-    $this->assertObjectHasAttribute('statusText', $responseSend);
-    $this->assertObjectHasAttribute('charset', $responseSend);
+    $this->assertTrue(property_exists($responseSend, 'headers'));
+    $this->assertTrue(property_exists($responseSend, 'content'));
+    $this->assertTrue(property_exists($responseSend, 'version'));
+    $this->assertTrue(property_exists($responseSend, 'statusCode'));
+    $this->assertTrue(property_exists($responseSend, 'statusText'));
+    $this->assertTrue(property_exists($responseSend, 'charset'));
   }
 
   public function testFromText()
   {
     $response = new Response();
     $response->fromText("Hello World");
-    $this->assertContains('Content-Type:  text/plain', (string)$response);
+    $this->assertStringContainsString('Content-Type:  text/plain', (string)$response);
   }
 
   public function testFromJson()
@@ -57,7 +57,7 @@ class ResponseTest extends TestCase
     $renderable = new RenderableClass();
     $response = new Response();
     $response->from($renderable);
-    $this->assertContains('rendered content', (string)$response);
+    $this->assertStringContainsString('rendered content', (string)$response);
   }
 
   public function testCubexHeaders()
@@ -68,18 +68,18 @@ class ResponseTest extends TestCase
     }
     $response = new Response();
     $response->setCubexHeaders();
-    $this->assertContains('X-Execution-Time', (string)$response);
+    $this->assertStringContainsString('X-Execution-Time', (string)$response);
 
     $response = new Response();
     $response->disableCubexHeaders();
     $response->setCubexHeaders();
-    $this->assertNotContains('X-Execution-Time', (string)$response);
+    $this->assertStringNotContainsString('X-Execution-Time', (string)$response);
 
     $response = new Response();
     $response->disableCubexHeaders();
     $response->enableCubexHeaders();
     $response->setCubexHeaders();
-    $this->assertContains('X-Execution-Time', (string)$response);
+    $this->assertStringContainsString('X-Execution-Time', (string)$response);
   }
 
   public function testCsvResponse()
@@ -92,19 +92,16 @@ class ResponseTest extends TestCase
     );
     $response->setFilename('test.csv');
     $raw = (string)$response->send();
-    $this->assertContains('a1,b1,c1', $raw);
+    $this->assertStringContainsString('a1,b1,c1', $raw);
   }
 
-  /**
-   * @expectedException \Exception
-   * @expectedExceptionMessage You must specify an array or object when using a
-   *                           csv response
-   */
   public function testInvalidCsvResponse()
   {
     $response = new CsvResponse();
     $raw = (string)$response->getContent();
     $this->assertEmpty($raw);
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage('You must specify an array or object when using a csv response');
     $response->setContent('this is a test');
   }
 }

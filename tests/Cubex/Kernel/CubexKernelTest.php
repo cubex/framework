@@ -197,7 +197,7 @@ class CubexKernelTest extends TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
-    $this->assertContains("Mocked Exception", $resp->getContent());
+    $this->assertStringContainsString("Mocked Exception", $resp->getContent());
   }
 
   public function testHandleInvalidResponse()
@@ -862,7 +862,7 @@ class CubexKernelTest extends TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains(
+    $this->assertStringContainsString(
       'Error 403 - Access Forbidden',
       $result->getContent()
     );
@@ -934,7 +934,7 @@ class CubexKernelTest extends TestCase
   public function testRouteData()
   {
     $kernel = new RouteDataTest();
-    $this->assertInternalType('array', $kernel->getRouteData());
+    $this->assertIsArray($kernel->getRouteData());
     $this->assertArrayHasKey('one', $kernel->getRouteData());
     $this->assertCount(2, $kernel->getRouteData());
     $this->assertNull($kernel->getRouteData('three'));

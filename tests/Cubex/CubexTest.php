@@ -73,15 +73,15 @@ class CubexTest extends TestCase
     $exception = new \Exception("Test Exception", 345);
     $resp = $cubex->exceptionResponse($exception);
     $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $resp);
-    $this->assertContains('An uncaught exception was thrown', (string)$resp);
-    $this->assertContains('Test Exception', (string)$resp);
-    $this->assertContains('345', (string)$resp);
+    $this->assertStringContainsString('An uncaught exception was thrown', (string)$resp);
+    $this->assertStringContainsString('Test Exception', (string)$resp);
+    $this->assertStringContainsString('345', (string)$resp);
 
     $exception = CubexException::debugException("msg", 123, 'solution');
     $resp = $cubex->exceptionResponse($exception);
-    $this->assertContains('msg', (string)$resp);
-    $this->assertContains('123', (string)$resp);
-    $this->assertContains('solution', (string)$resp);
+    $this->assertStringContainsString('msg', (string)$resp);
+    $this->assertStringContainsString('123', (string)$resp);
+    $this->assertStringContainsString('solution', (string)$resp);
   }
 
   public function testHandle()
@@ -113,8 +113,8 @@ class CubexTest extends TestCase
     $cubex = $this->sampleProjectCubex();
 
     $resp = $cubex->handle($request);
-    $this->assertContains('An uncaught exception was thrown', (string)$resp);
-    $this->assertContains('You must use a \Cubex\Http\Request', (string)$resp);
+    $this->assertStringContainsString('An uncaught exception was thrown', (string)$resp);
+    $this->assertStringContainsString('You must use a \Cubex\Http\Request', (string)$resp);
 
     $this->expectException(
       '\InvalidArgumentException',
@@ -128,8 +128,8 @@ class CubexTest extends TestCase
 
     $resp = $cubex->handle($request);
     $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $resp);
-    $this->assertContains('Uncaught Exception', (string)$resp);
-    $this->assertContains('You must use a \Cubex\Http\Request', (string)$resp);
+    $this->assertStringContainsString('Uncaught Exception', (string)$resp);
+    $this->assertStringContainsString('You must use a \Cubex\Http\Request', (string)$resp);
   }
 
   public function testTerminate()
@@ -241,12 +241,12 @@ class CubexTest extends TestCase
     {
       foreach($contains as $contain)
       {
-        $this->assertContains($contain, Cubex::exceptionAsString($e));
+        $this->assertStringContainsString($contain, Cubex::exceptionAsString($e));
       }
     }
     else
     {
-      $this->assertContains($contains, Cubex::exceptionAsString($e));
+      $this->assertStringContainsString($contains, Cubex::exceptionAsString($e));
     }
   }
 
