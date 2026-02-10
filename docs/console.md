@@ -12,15 +12,14 @@ Cubex integrates with Symfony Console to provide CLI command support. It adds au
 
 ```php
 <?php
-// bin/console
-$loader = require __DIR__ . '/../vendor/autoload.php';
-$cubex = new \Cubex\Cubex(__DIR__ . '/..', $loader);
-exit($cubex->cli());
+// cubex
+$loader = require_once('vendor/autoload.php');
+exit((new \Cubex\Cubex(__DIR__, $loader))->cli());
 ```
 
 ```mermaid
 sequenceDiagram
-    participant Entry as bin/console
+    participant Entry as cubex
     participant Cubex
     participant Console
     participant Config as INI Config
@@ -118,10 +117,10 @@ class GreetCommand extends ConsoleCommand
 ```
 
 ```bash
-php bin/console greet Alice
+php cubex greet Alice
 # Hello, Alice!
 
-php bin/console greet Alice --uppercase -greeting "Good morning"
+php cubex greet Alice --uppercase -greeting "Good morning"
 # GOOD MORNING, ALICE!
 ```
 
@@ -216,19 +215,19 @@ class MigrateCommand extends ConsoleCommand
 Cubex includes a `serve` command that starts PHP's built-in web server:
 
 ```bash
-php bin/console serve
+php cubex serve
 # Starts server at 127.0.0.1:8888
 
-php bin/console serve -p 3000
+php cubex serve -p 3000
 # Custom port
 
-php bin/console serve --host 0.0.0.0
+php cubex serve --host 0.0.0.0
 # Bind to all interfaces
 
-php bin/console serve -d
+php cubex serve -d
 # Enable xdebug
 
-php bin/console serve --useNextAvailablePort
+php cubex serve --useNextAvailablePort
 # Auto-increment port if 8888 is in use
 ```
 

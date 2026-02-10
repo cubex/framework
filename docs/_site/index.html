@@ -30,7 +30,7 @@
 
   subgraph CLI["CLI Command"]
     direction TB
-    CLIEntry["bin/console"] --&gt; CLIBoot["Bootstrap"]
+    CLIEntry["cubex"] --&gt; CLIBoot["Bootstrap"]
     CLIBoot --&gt; CLICtx["Context Init"]
     CLICtx --&gt; CLICli["Cubex::cli()"]
     CLICli --&gt; Console["Console"]

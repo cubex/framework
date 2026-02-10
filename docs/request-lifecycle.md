@@ -103,7 +103,7 @@ The CLI lifecycle is driven by `Cubex::cli()`:
 
 ```mermaid
 sequenceDiagram
-    participant Entry as bin/console
+    participant Entry as cubex
     participant Cubex
     participant Ctx as Context
     participant Channel as Event Channel

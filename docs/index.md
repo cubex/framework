@@ -85,7 +85,7 @@ flowchart TD
 
   subgraph CLI["CLI Command"]
     direction TB
-    CLIEntry["bin/console"] --> CLIBoot["Bootstrap"]
+    CLIEntry["cubex"] --> CLIBoot["Bootstrap"]
     CLIBoot --> CLICtx["Context Init"]
     CLICtx --> CLICli["Cubex::cli()"]
     CLICli --> Console["Console"]
