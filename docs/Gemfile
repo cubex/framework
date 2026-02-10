@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
-gem "jekyll", "~> 4.3"
-gem "just-the-docs"
-gem "webrick" # Required for Ruby 3+
+gem "jekyll", "~> 3.10.0"
+gem "github-pages", group: :jekyll_plugins
+gem "jekyll-remote-theme"
+
+gem "bigdecimal", "~> 4.0"
+gem 'webrick'
