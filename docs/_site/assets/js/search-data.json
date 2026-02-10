@@ -1,0 +1,485 @@
+{"0": {
+    "doc": "Condition Processor",
+    "title": "Condition Processor",
+    "content": "The Condition Processor provides declarative authorization and validation for controller methods using PHP 8 attributes. It integrates with the DI container’s resolveMethod() to evaluate conditions before a method executes. ",
+    "url": "/framework/condition-processor.html",
+    
+    "relUrl": "/condition-processor.html"
+  },"1": {
+    "doc": "Condition Processor",
+    "title": "Overview",
+    "content": "flowchart TD Resolve[\"resolveMethod()\"] --&gt; Scan[\"Scan attributes\"] Scan --&gt; Collect[\"Collect PreConditions&lt;br/&gt;remove SkipConditions\"] Collect --&gt; Check{\"Conditions&lt;br/&gt;remaining?\"} Check --&gt;|No| Execute[\"Execute method\"] Check --&gt;|Yes| Eval{\"process(ctx)&lt;br/&gt;returns null?\"} Eval --&gt;|All pass| Execute Eval --&gt;|Non-null| Interrupt[\"Return interrupt value\"] . ",
+    "url": "/framework/condition-processor.html#overview",
+    
+    "relUrl": "/condition-processor.html#overview"
+  },"2": {
+    "doc": "Condition Processor",
+    "title": "Attributes",
+    "content": "#[PreCondition] . Marks a method (or class) with a condition that must pass before execution: . use Cubex\\Attributes\\PreCondition; class AdminController extends Controller { #[PreCondition(RequiresAuth::class)] #[PreCondition(RequiresRole::class, ['admin'])] public function getUsers(): Response { return new JsonResponse($this-&gt;listUsers()); } } . The attribute accepts: . | $class — The fully qualified class name implementing ConditionResult | $args (optional) — Constructor arguments passed when instantiating the condition | . #[SkipCondition] . Exempts a method from a specific PreCondition. This is useful when a class-level condition should not apply to certain methods: . #[PreCondition(RequiresAuth::class)] class DashboardController extends Controller { public function getIndex(): Response { // RequiresAuth IS evaluated return new TextResponse('Dashboard'); } #[SkipCondition(RequiresAuth::class)] public function getHealthCheck(): Response { // RequiresAuth is SKIPPED return new TextResponse('OK'); } } . Both attributes are repeatable (IS_REPEATABLE) and can target any element (TARGET_ALL). ",
+    "url": "/framework/condition-processor.html#attributes",
+    
+    "relUrl": "/condition-processor.html#attributes"
+  },"3": {
+    "doc": "Condition Processor",
+    "title": "Implementing ConditionResult",
+    "content": "Create a condition by implementing the ConditionResult interface: . use Cubex\\Attributes\\ConditionResult; use Packaged\\Context\\Context; class RequiresAuth implements ConditionResult { public function process(Context $ctx): mixed { if ($ctx-&gt;request()-&gt;headers-&gt;has('Authorization')) { return null; // Allow execution to proceed } // Interrupt — this value becomes the method's return return new Response('Unauthorized', 401); } } . The process() method: . | Returns null to allow execution to continue | Returns any non-null value to interrupt execution — the returned value replaces the method’s normal return value | . Conditions with Arguments . Pass constructor arguments via the attribute: . class RequiresRole implements ConditionResult { public function __construct(private string $role) { } public function process(Context $ctx): mixed { $user = $ctx-&gt;meta()-&gt;get('user'); if ($user &amp;&amp; $user-&gt;hasRole($this-&gt;role)) { return null; } return new Response('Forbidden', 403); } } . #[PreCondition(RequiresRole::class, ['admin'])] public function getAdminPanel(): Response { // Only accessible to users with the 'admin' role } . ",
+    "url": "/framework/condition-processor.html#implementing-conditionresult",
+    
+    "relUrl": "/condition-processor.html#implementing-conditionresult"
+  },"4": {
+    "doc": "Condition Processor",
+    "title": "How It Works Internally",
+    "content": "The ConditionProcessor class integrates with packaged/di-container’s reflection system: . | ConditionProcessor extends AttributeWatcher and implements ReflectionInterrupt | When resolveMethod() is called on a controller method, the DI container’s reflection observers are notified | ConditionProcessor scans the method (and class) for #[PreCondition] and #[SkipCondition] attributes | Skip conditions are collected first — any PreCondition whose class appears in the skip list is removed | Each remaining condition is instantiated (via DI if available, for constructor injection) and process($context) is called | If any condition returns non-null, shouldInterruptMethod() returns true and the interrupt value is used as the method’s return value | . // This happens automatically inside Controller::_prepareHandler() // when Cubex DI is available: $conditionProcessor = new ConditionProcessor($cubex); $result = $di-&gt;resolveMethod($controller, $methodName, [], [$conditionProcessor]); . ",
+    "url": "/framework/condition-processor.html#how-it-works-internally",
+    
+    "relUrl": "/condition-processor.html#how-it-works-internally"
+  },"5": {
+    "doc": "Condition Processor",
+    "title": "Execution Flow",
+    "content": "sequenceDiagram participant DI as DI Container participant CP as ConditionProcessor participant Cond as ConditionResult participant Method as Controller Method Note over CP: Collect attributes,&lt;br/&gt;remove skipped conditions loop Each condition CP-&gt;&gt;Cond: process(context) alt pass (null) Note over CP: Continue else fail (non-null) CP--&gt;&gt;DI: interrupt with result Note over Method: Method NOT called end end Note over CP: All conditions passed DI-&gt;&gt;Method: invoke with injected params Method--&gt;&gt;DI: return value . ",
+    "url": "/framework/condition-processor.html#execution-flow",
+    
+    "relUrl": "/condition-processor.html#execution-flow"
+  },"6": {
+    "doc": "Condition Processor",
+    "title": "Multiple Conditions",
+    "content": "When multiple #[PreCondition] attributes are present, they are evaluated in order. The first condition to return a non-null value stops evaluation: . #[PreCondition(RequiresAuth::class)] // Checked first #[PreCondition(RequiresRole::class, ['editor'])] // Checked second #[PreCondition(RateLimiter::class)] // Checked third public function postArticle(): Response { // All three conditions must pass (return null) } . ",
+    "url": "/framework/condition-processor.html#multiple-conditions",
+    
+    "relUrl": "/condition-processor.html#multiple-conditions"
+  },"7": {
+    "doc": "Condition Processor",
+    "title": "Class-Level vs Method-Level",
+    "content": "Attributes on the class apply to all methods. Method-level attributes are additive. Use #[SkipCondition] to exempt specific methods: . #[PreCondition(RequiresAuth::class)] class SecureController extends Controller { // RequiresAuth applies to all methods #[PreCondition(RequiresRole::class, ['admin'])] public function getAdmin(): Response { // Both RequiresAuth AND RequiresRole apply } #[SkipCondition(RequiresAuth::class)] public function getPublic(): Response { // RequiresAuth is skipped, no conditions apply } } . ",
+    "url": "/framework/condition-processor.html#class-level-vs-method-level",
+    
+    "relUrl": "/condition-processor.html#class-level-vs-method-level"
+  },"8": {
+    "doc": "Console",
+    "title": "Console",
+    "content": "Cubex integrates with Symfony Console to provide CLI command support. It adds auto-configuration from INI files, DocBlock-driven argument/option definition, and DI integration. ",
+    "url": "/framework/console.html",
+    
+    "relUrl": "/console.html"
+  },"9": {
+    "doc": "Console",
+    "title": "CLI Entry Point",
+    "content": "&lt;?php // bin/console $loader = require __DIR__ . '/../vendor/autoload.php'; $cubex = new \\Cubex\\Cubex(__DIR__ . '/..', $loader); exit($cubex-&gt;cli()); . sequenceDiagram participant Entry as bin/console participant Cubex participant Console participant Config as INI Config participant Command rect rgb(240, 240, 255) Note right of Entry: Setup Entry-&gt;&gt;Cubex: cli() Cubex-&gt;&gt;Console: getConsole() Console-&gt;&gt;Config: read [console] section Config--&gt;&gt;Console: commands &amp; patterns Note over Console: Register commands + BuiltInWebServer end rect rgb(240, 255, 240) Note right of Entry: Execute Cubex-&gt;&gt;Console: run(input, output) Console-&gt;&gt;Command: find + execute() Command--&gt;&gt;Console: exit code Console--&gt;&gt;Cubex: exit code end . ",
+    "url": "/framework/console.html#cli-entry-point",
+    
+    "relUrl": "/console.html#cli-entry-point"
+  },"10": {
+    "doc": "Console",
+    "title": "Configuration",
+    "content": "Commands are configured via INI files in your conf/ directory under the [console] section: . ; conf/defaults.ini [console] commands[migrate] = \"App\\Commands\\MigrateCommand\" commands[seed] = \"App\\Commands\\SeedCommand\" patterns[] = \"App\\Commands\\%s\" patterns[] = \"App\\Console\\%s\" . Commands . The commands map registers named commands. Keys are command names, values are fully qualified class names: . commands[db:migrate] = \"App\\Commands\\Database\\MigrateCommand\" commands[cache:clear] = \"App\\Commands\\Cache\\ClearCommand\" . Patterns . Patterns enable auto-discovery of commands by name. When a command is not found by its registered name, the console tries each pattern with the class name derived from the command name. For example, with pattern App\\Commands\\%s, running my.command will try to resolve App\\Commands\\My\\Command. ",
+    "url": "/framework/console.html#configuration",
+    
+    "relUrl": "/console.html#configuration"
+  },"11": {
+    "doc": "Console",
+    "title": "ConsoleCommand",
+    "content": "ConsoleCommand extends Symfony’s Command with automatic argument/option configuration from method signatures and DocBlock annotations. Defining Commands . Create a command by extending ConsoleCommand and implementing one of three method signatures: . use Cubex\\Console\\ConsoleCommand; /** * @name greet * @description Greet a user by name */ class GreetCommand extends ConsoleCommand { /** * Short description for --uppercase option * @short u * @flag */ public bool $uppercase = false; public function executeCommand( InputInterface $input, OutputInterface $output, string $name, string $greeting = 'Hello' ): int { $message = \"{$greeting}, {$name}!\"; if ($this-&gt;uppercase) { $message = strtoupper($message); } $output-&gt;writeln($message); return 0; } } . php bin/console greet Alice # Hello, Alice! php bin/console greet Alice --uppercase -greeting \"Good morning\" # GOOD MORNING, ALICE! . Method Signatures . ConsoleCommand dispatches to the first available method: . | Method | Signature | Notes | . | executeCommand | (InputInterface, OutputInterface, ...args) | Full access to I/O; extra params become arguments | . | process | (...args) | Simplified; params become arguments | . | _execute | (InputInterface, OutputInterface) | Fallback; manually read input | . Parameters after the first two in executeCommand (or all parameters in process) are automatically registered as console arguments. Auto-Configured Arguments . Method parameters are converted to console arguments: . public function process(string $name, int $count = 1): int { // $name → required argument // $count → optional argument (default: 1) return 0; } . Auto-Configured Options from Properties . Public properties are converted to console options. DocBlock annotations control behavior: . | Annotation | Effect | Example | . | @short | Single-letter shortcut | @short v → -v | . | @description | Option description in help | @description Enable verbose | . | @flag | Boolean flag (no value) | @flag → --verbose | . | @valuerequired | Value is required | @valuerequired | . /** * The output format * @short f * @valuerequired */ public string $format = 'json'; /** * Run in dry-run mode * @short n * @flag */ public bool $dryRun = false; . DocBlock Command Metadata . Use DocBlock annotations on the class to set the command name and description: . /** * @name cache:clear * @description Clear the application cache */ class ClearCacheCommand extends ConsoleCommand { // ... } . If @name is not specified, the command name defaults to the lowercase class basename. Context and DI Access . ConsoleCommand implements both ContextAware and CubexAware, so you have full access to the framework: . class MigrateCommand extends ConsoleCommand { public function process(): int { $db = $this-&gt;getCubex()-&gt;retrieve(DbConnection::class); $config = $this-&gt;getContext()-&gt;config(); // ... return 0; } } . ",
+    "url": "/framework/console.html#consolecommand",
+    
+    "relUrl": "/console.html#consolecommand"
+  },"12": {
+    "doc": "Console",
+    "title": "Built-In Web Server",
+    "content": "Cubex includes a serve command that starts PHP’s built-in web server: . php bin/console serve # Starts server at 127.0.0.1:8888 php bin/console serve -p 3000 # Custom port php bin/console serve --host 0.0.0.0 # Bind to all interfaces php bin/console serve -d # Enable xdebug php bin/console serve --useNextAvailablePort # Auto-increment port if 8888 is in use . serve Options . | Option | Short | Description | . | --host |   | Server hostname (default: 127.0.0.1) | . | --port | -p | Server port (default: 8888) | . | --router |   | PHP router script (default: public/index.php) | . | --workers | -w | Number of PHP CLI server workers (default: 5) | . | --debug | -d | Enable xdebug | . | --debugIdeKey | -idekey | IDE key for xdebug (default: PHPSTORM) | . | --showCommand |   | Display the raw command being executed | . | --showfig |   | Show ASCII figlet banner (default: true) | . | --useNextAvailablePort |   | Auto-find next available port | . | --cubexLocalSubDomain | -c | Use {value}.cubex-local.com as host | . | --comment |   | Extra output text | . Server Configuration via INI . Host and port can also be configured in INI files: . ; conf/defaults.ini [serve] host = \"0.0.0.0\" port = 9000 . ",
+    "url": "/framework/console.html#built-in-web-server",
+    
+    "relUrl": "/console.html#built-in-web-server"
+  },"13": {
+    "doc": "Console",
+    "title": "Registering Commands Programmatically",
+    "content": "Use the ConsoleCreateEvent to add commands at runtime: . use Cubex\\Console\\Events\\ConsoleCreateEvent; $cubex-&gt;listen(ConsoleCreateEvent::class, function (ConsoleCreateEvent $e) { $e-&gt;getConsole()-&gt;add(new CustomCommand()); }); . ",
+    "url": "/framework/console.html#registering-commands-programmatically",
+    
+    "relUrl": "/console.html#registering-commands-programmatically"
+  },"14": {
+    "doc": "Controllers",
+    "title": "Controllers",
+    "content": "Controllers extend RouteProcessor and add HTTP verb-based method resolution, automatic response preparation, and integration with the DI container. ",
+    "url": "/framework/controllers.html",
+    
+    "relUrl": "/controllers.html"
+  },"15": {
+    "doc": "Controllers",
+    "title": "Controller Method Resolution",
+    "content": "When a route returns a string (e.g., \"login\"), the Controller resolves it to a method on the controller class by trying HTTP verb-prefixed method names: . flowchart LR Route[\"Route string&lt;br/&gt;e.g. 'login'\"] --&gt; IsXHR{\"AJAX?\"} IsXHR --&gt;|Yes| Ajax[\"ajaxLogin()\"] Ajax --&gt;|Not found| AjaxVerb[\"ajaxGetLogin()\"] AjaxVerb --&gt;|Not found| Verb IsXHR --&gt;|No| Verb[\"getLogin() /&lt;br/&gt;postLogin()\"] Verb --&gt;|Not found| Process[\"processLogin()\"] Process --&gt;|Not found| Error[\"No match\"] Ajax --&gt;|Found| Call[\"_prepareResponse()\"] AjaxVerb --&gt;|Found| Call Verb --&gt;|Found| Call Process --&gt;|Found| Call . The resolution order (from _getRouteMethods()) for a route string \"login\" is: . | Priority | XHR Request | Regular GET | Regular POST | . | 1 | ajaxLogin() | getLogin() | postLogin() | . | 2 | ajaxGetLogin() | processLogin() | processLogin() | . | 3 | getLogin() / postLogin() |   |   | . | 4 | processLogin() |   |   | . The process prefix acts as a catch-all that matches any HTTP verb. ",
+    "url": "/framework/controllers.html#controller-method-resolution",
+    
+    "relUrl": "/controllers.html#controller-method-resolution"
+  },"16": {
+    "doc": "Controllers",
+    "title": "Basic Controller",
+    "content": "use Cubex\\Controller\\Controller; use Packaged\\Http\\Response\\TextResponse; class UserController extends Controller { protected function _generateRoutes(): Generator { yield self::_route('/profile', 'profile'); yield self::_route('/settings', 'settings'); return 'index'; } public function getIndex(): TextResponse { return new TextResponse('User index'); } public function getProfile(): TextResponse { $userId = $this-&gt;routeData()-&gt;get('id'); return new TextResponse(\"Profile for {$userId}\"); } public function getSettings(): string { return 'Settings page'; } public function postSettings(): TextResponse { // Handle settings form submission return new TextResponse('Settings saved'); } } . ",
+    "url": "/framework/controllers.html#basic-controller",
+    
+    "relUrl": "/controllers.html#basic-controller"
+  },"17": {
+    "doc": "Controllers",
+    "title": "Response Preparation",
+    "content": "Controller::_prepareResponse() automatically converts return values into Response objects: . | Return Type | Conversion | . | Response | Returned as-is | . | ViewModel | Creates a View via createView(), renders it | . | Renderable | Calls render() to get string content | . | ISafeHtmlProducer | Produces safe HTML content | . | string / stringable | Wrapped in a CubexResponse | . | null | Falls back to output buffer content | . If the return value is ContextAware or CubexAware, the context and Cubex instance are set on it before processing. ",
+    "url": "/framework/controllers.html#response-preparation",
+    
+    "relUrl": "/controllers.html#response-preparation"
+  },"18": {
+    "doc": "Controllers",
+    "title": "Convenience Methods",
+    "content": "Controllers provide shortcuts for common context operations: . // Access the current request $request = $this-&gt;request(); // Access route data (captured path variables) $id = $this-&gt;routeData()-&gt;get('id'); . ",
+    "url": "/framework/controllers.html#convenience-methods",
+    
+    "relUrl": "/controllers.html#convenience-methods"
+  },"19": {
+    "doc": "Controllers",
+    "title": "DI-Aware Method Resolution",
+    "content": "When a Cubex instance is available, controller methods are resolved through the DI container using resolveMethod(). This enables: . | Constructor injection of method parameters | Attribute-based conditions via ConditionProcessor (see Condition Processor) | . class ApiController extends Controller { #[PreCondition(RequiresAuth::class)] public function getSecure(UserService $users): Response { // $users is resolved via DI // RequiresAuth condition is checked first return new TextResponse('Secure content'); } } . ",
+    "url": "/framework/controllers.html#di-aware-method-resolution",
+    
+    "relUrl": "/controllers.html#di-aware-method-resolution"
+  },"20": {
+    "doc": "Controllers",
+    "title": "SingleRouteController",
+    "content": "For controllers that handle a single endpoint with verb-based dispatch only (no sub-routes): . use Cubex\\Controller\\SingleRouteController; class HealthCheckController extends SingleRouteController { public function get(): TextResponse { return new TextResponse('OK'); } public function post(): TextResponse { return new TextResponse('Received'); } } . SingleRouteController returns an empty string from _generateRoutes(), which the controller resolves to get(), post(), ajax(), or process() depending on the HTTP verb. ",
+    "url": "/framework/controllers.html#singleroutecontroller",
+    
+    "relUrl": "/controllers.html#singleroutecontroller"
+  },"21": {
+    "doc": "Controllers",
+    "title": "AuthedController (Deprecated)",
+    "content": "AuthedController is deprecated. Use Middleware or Condition Processor attributes instead. AuthedController calls canProcess() before routing. If it returns false, the request is rejected with a 403 response: . use Cubex\\Controller\\AuthedController; class AdminController extends AuthedController { public function canProcess(&amp;$response): bool { return $this-&gt;getContext()-&gt;request()-&gt;has('admin_token'); } public function getIndex(): string { return 'Admin panel'; } } . ",
+    "url": "/framework/controllers.html#authedcontroller-deprecated",
+    
+    "relUrl": "/controllers.html#authedcontroller-deprecated"
+  },"22": {
+    "doc": "Dependency Injection",
+    "title": "Dependency Injection",
+    "content": "The Cubex class is the DI container for the framework. It extends DependencyInjector from packaged/di-container and provides sharing, factories, auto-resolution, and method injection. ",
+    "url": "/framework/dependency-injection.html",
+    
+    "relUrl": "/dependency-injection.html"
+  },"23": {
+    "doc": "Dependency Injection",
+    "title": "Container Basics",
+    "content": "The Cubex instance itself is the DI container — there is no separate container object: . $cubex = new Cubex(__DIR__, $loader); // Share a singleton $cubex-&gt;share(LoggerInterface::class, new FileLogger('/var/log/app.log')); // Register a factory $cubex-&gt;factory( DbConnection::class, fn() =&gt; new DbConnection($cubex-&gt;retrieve(Config::class)) ); // Retrieve an instance $logger = $cubex-&gt;retrieve(LoggerInterface::class); . ",
+    "url": "/framework/dependency-injection.html#container-basics",
+    
+    "relUrl": "/dependency-injection.html#container-basics"
+  },"24": {
+    "doc": "Dependency Injection",
+    "title": "Core Methods",
+    "content": "share($abstract, $concrete) . Registers a singleton binding. Subsequent calls to retrieve() return the same instance: . $cubex-&gt;share(CacheInterface::class, new RedisCache($config)); // Both calls return the same RedisCache instance $cache1 = $cubex-&gt;retrieve(CacheInterface::class); $cache2 = $cubex-&gt;retrieve(CacheInterface::class); // $cache1 === $cache2 . factory($abstract, callable $factory) . Registers a factory that is called each time retrieve() is invoked: . $cubex-&gt;factory( RequestContext::class, fn() =&gt; new RequestContext(time()) ); // Each call creates a new instance $ctx1 = $cubex-&gt;retrieve(RequestContext::class); $ctx2 = $cubex-&gt;retrieve(RequestContext::class); // $ctx1 !== $ctx2 . retrieve($abstract, $parameters = [], $shared = true, $attemptNewAbstract = true) . Resolves an abstract to a concrete instance. Resolution order: . | Check for a shared singleton | Check for a registered factory | If $attemptNewAbstract is true, attempt to build a new instance via constructor injection | . // Resolves registered binding $logger = $cubex-&gt;retrieve(LoggerInterface::class); // Auto-instantiation: if UserService has no binding, // Cubex tries to construct it, injecting dependencies $users = $cubex-&gt;retrieve(UserService::class); . resolve($class, $parameters = []) . Resolves a class with constructor injection. Dependencies are recursively resolved from the container: . class UserService { public function __construct( private DbConnection $db, private CacheInterface $cache ) {} } // Both DbConnection and CacheInterface are resolved from the container $service = $cubex-&gt;resolve(UserService::class); . resolveMethod($object, $method, $parameters = []) . Invokes a method on an object, injecting parameters from the container. This is used internally by Controller for DI-aware method dispatch: . class OrderController extends Controller { public function getOrder(OrderService $orders): Response { // $orders is injected by the DI container $id = $this-&gt;routeData()-&gt;get('id'); return new JsonResponse($orders-&gt;find($id)); } } . ",
+    "url": "/framework/dependency-injection.html#core-methods",
+    
+    "relUrl": "/dependency-injection.html#core-methods"
+  },"25": {
+    "doc": "Dependency Injection",
+    "title": "The CubexAware Pattern",
+    "content": "Components that need access to the DI container implement CubexAware: . use Cubex\\CubexAware; use Cubex\\CubexAwareTrait; class MyService implements CubexAware { use CubexAwareTrait; public function doWork(): void { $db = $this-&gt;getCubex()-&gt;retrieve(DbConnection::class); // ... } } . The framework automatically sets the Cubex instance on CubexAware objects during handler preparation and response processing. Interface Methods . | Method | Description | . | setCubex(Cubex $cubex) | Set the Cubex container reference | . | getCubex(): ?Cubex | Get the Cubex container | . | hasCubex(): bool | Check if a Cubex reference is available | . ",
+    "url": "/framework/dependency-injection.html#the-cubexaware-pattern",
+    
+    "relUrl": "/dependency-injection.html#the-cubexaware-pattern"
+  },"26": {
+    "doc": "Dependency Injection",
+    "title": "Auto-Wired Route Handlers",
+    "content": "When a route returns a class name string (e.g., DashboardController::class), the RouteProcessor resolves it through the DI container: . protected function _generateRoutes(): Generator { // DashboardController is resolved via $cubex-&gt;retrieve() // Its constructor dependencies are auto-injected yield self::_route('/dashboard', DashboardController::class); } . If the context does not have a Cubex reference, the class is instantiated directly with new. ",
+    "url": "/framework/dependency-injection.html#auto-wired-route-handlers",
+    
+    "relUrl": "/dependency-injection.html#auto-wired-route-handlers"
+  },"27": {
+    "doc": "Dependency Injection",
+    "title": "Built-In Bindings",
+    "content": "Cubex automatically registers these bindings during construction: . | Abstract | Concrete | Type | . | ClassLoader | Composer autoloader | Shared | . | DependencyInjector | The Cubex instance itself | Shared | . | Context | Factory from Request::createFromGlobals() | Factory | . ",
+    "url": "/framework/dependency-injection.html#built-in-bindings",
+    
+    "relUrl": "/dependency-injection.html#built-in-bindings"
+  },"28": {
+    "doc": "Dependency Injection",
+    "title": "Accessing the Container",
+    "content": "From any CubexAware component: . $cubex = $this-&gt;getCubex(); . From a Context (if it is a CubexAware Cubex context): . $cubex = Cubex::fromContext($context); . Or use the global singleton (if available): . $cubex = Cubex::instance(); . ",
+    "url": "/framework/dependency-injection.html#accessing-the-container",
+    
+    "relUrl": "/dependency-injection.html#accessing-the-container"
+  },"29": {
+    "doc": "Events",
+    "title": "Events",
+    "content": "Cubex uses an event system based on Channel from packaged/event. Events are fired at key points in the HTTP and CLI lifecycles, allowing you to hook into framework behavior without modifying core code. ",
+    "url": "/framework/events.html",
+    
+    "relUrl": "/events.html"
+  },"30": {
+    "doc": "Events",
+    "title": "Event Channels",
+    "content": "There are two event channels: . | Channel | Accessed Via | Purpose | . | Cubex channel | $cubex-&gt;listen() | Framework-level lifecycle events | . | Context channel | $context-&gt;events() | Context-specific events | . ",
+    "url": "/framework/events.html#event-channels",
+    
+    "relUrl": "/events.html#event-channels"
+  },"31": {
+    "doc": "Events",
+    "title": "Listening for Events",
+    "content": "On the Cubex Channel . use Cubex\\Events\\Handle\\ResponsePrepareEvent; $cubex-&gt;listen(ResponsePrepareEvent::class, function (ResponsePrepareEvent $event) { $response = $event-&gt;getResponse(); $response-&gt;headers-&gt;set('X-Powered-By', 'Cubex'); }); . On the Context Channel . use Cubex\\Context\\Events\\ConsoleLaunchedEvent; $context-&gt;events()-&gt;listen( ConsoleLaunchedEvent::class, function (ConsoleLaunchedEvent $event) { // Console is starting up } ); . ",
+    "url": "/framework/events.html#listening-for-events",
+    
+    "relUrl": "/events.html#listening-for-events"
+  },"32": {
+    "doc": "Events",
+    "title": "Event Hierarchy",
+    "content": "classDiagram class AbstractEvent { +getType() string } class ShutdownEvent class ContextEvent { &lt;&lt;abstract&gt;&gt; +getContext() Context } class PreExecuteEvent { +getHandler() } class HandlerEvent { &lt;&lt;abstract&gt;&gt; +getHandler() Handler } class ResponseEvent { &lt;&lt;abstract&gt;&gt; +getResponse() Response } class ResponsePrepareEvent class ResponsePreparedEvent class ResponsePreSendHeadersEvent class ResponsePreSendContentEvent class HandleCompleteEvent class ConsoleEvent { &lt;&lt;abstract&gt;&gt; +getConsole() Console } class ConsoleCreateEvent class ConsolePrepareEvent { +getInput() InputInterface +getOutput() OutputInterface } AbstractEvent &lt;|-- ShutdownEvent AbstractEvent &lt;|-- ContextEvent ContextEvent &lt;|-- PreExecuteEvent ContextEvent &lt;|-- HandlerEvent ContextEvent &lt;|-- ConsoleEvent HandlerEvent &lt;|-- ResponseEvent ResponseEvent &lt;|-- ResponsePrepareEvent ResponseEvent &lt;|-- ResponsePreparedEvent ResponseEvent &lt;|-- ResponsePreSendHeadersEvent ResponseEvent &lt;|-- ResponsePreSendContentEvent ResponseEvent &lt;|-- HandleCompleteEvent ConsoleEvent &lt;|-- ConsoleCreateEvent ConsoleEvent &lt;|-- ConsolePrepareEvent . ",
+    "url": "/framework/events.html#event-hierarchy",
+    
+    "relUrl": "/events.html#event-hierarchy"
+  },"33": {
+    "doc": "Events",
+    "title": "HTTP Lifecycle Events",
+    "content": "These events fire on the Cubex channel during Cubex::handle(): . | Event | When It Fires | Available Data | . | PreExecuteEvent | Before the handler’s handle() is called | Context, Handler | . | ResponsePrepareEvent | After handler returns, before cookies/prepare | Context, Handler, Response | . | ResponsePreparedEvent | After $response-&gt;prepare() is called | Context, Handler, Response | . | ResponsePreSendHeadersEvent | Before $response-&gt;sendHeaders() | Context, Handler, Response | . | ResponsePreSendContentEvent | Before $response-&gt;sendContent() | Context, Handler, Response | . | HandleCompleteEvent | After the full response has been sent | Context, Handler, Response | . | ShutdownEvent | During $cubex-&gt;shutdown() | — | . Event Flow . sequenceDiagram participant Cubex participant Channel as Cubex Channel participant Handler rect rgb(240, 240, 255) Cubex-&gt;&gt;Channel: PreExecuteEvent Cubex-&gt;&gt;Handler: handle(context) Handler--&gt;&gt;Cubex: Response end rect rgb(240, 255, 240) Cubex-&gt;&gt;Channel: ResponsePrepareEvent Note over Cubex: Apply cookies, prepare Cubex-&gt;&gt;Channel: ResponsePreparedEvent end rect rgb(255, 240, 240) Cubex-&gt;&gt;Channel: PreSendHeadersEvent Cubex-&gt;&gt;Channel: PreSendContentEvent Cubex-&gt;&gt;Channel: HandleCompleteEvent end Cubex-&gt;&gt;Channel: ShutdownEvent . PreExecuteEvent is also fired by RouteProcessor::_processHandler() when a sub-handler is executed during route resolution. ",
+    "url": "/framework/events.html#http-lifecycle-events",
+    
+    "relUrl": "/events.html#http-lifecycle-events"
+  },"34": {
+    "doc": "Events",
+    "title": "CLI Lifecycle Events",
+    "content": "CLI events fire on both channels: . | Event | Channel | When It Fires | Available Data | . | ConsoleLaunchedEvent | Context | At the start of Cubex::cli() | Input, Output | . | ConsoleCreatedEvent | Context | When the Console object is first created | Console | . | ConsoleCreateEvent | Cubex | Same time as ConsoleCreatedEvent | Context, Console | . | ConsolePrepareEvent | Cubex | Just before console-&gt;run() | Context, Console, Input, Output | . ",
+    "url": "/framework/events.html#cli-lifecycle-events",
+    
+    "relUrl": "/events.html#cli-lifecycle-events"
+  },"35": {
+    "doc": "Events",
+    "title": "Event Data Access",
+    "content": "All context events provide access to the context: . $cubex-&gt;listen(PreExecuteEvent::class, function (PreExecuteEvent $e) { $context = $e-&gt;getContext(); $handler = $e-&gt;getHandler(); }); . Response events add access to the handler and response: . $cubex-&gt;listen(ResponsePrepareEvent::class, function (ResponsePrepareEvent $e) { $context = $e-&gt;getContext(); $handler = $e-&gt;getHandler(); $response = $e-&gt;getResponse(); }); . Console events provide access to the console application: . $cubex-&gt;listen(ConsolePrepareEvent::class, function (ConsolePrepareEvent $e) { $console = $e-&gt;getConsole(); $input = $e-&gt;getInput(); $output = $e-&gt;getOutput(); }); . ",
+    "url": "/framework/events.html#event-data-access",
+    
+    "relUrl": "/events.html#event-data-access"
+  },"36": {
+    "doc": "Events",
+    "title": "Common Use Cases",
+    "content": "Adding Response Headers . $cubex-&gt;listen(ResponsePreparedEvent::class, function (ResponsePreparedEvent $e) { $e-&gt;getResponse()-&gt;headers-&gt;set('X-Request-Id', uniqid()); }); . Logging Request Duration . $cubex-&gt;listen(PreExecuteEvent::class, function (PreExecuteEvent $e) { $e-&gt;getContext()-&gt;meta()-&gt;set('request_start', microtime(true)); }); $cubex-&gt;listen(HandleCompleteEvent::class, function (HandleCompleteEvent $e) { $start = $e-&gt;getContext()-&gt;meta()-&gt;get('request_start'); $duration = microtime(true) - $start; Cubex::log()-&gt;info('Request completed', ['duration_ms' =&gt; $duration * 1000]); }); . Registering Console Commands Dynamically . $cubex-&gt;listen(ConsoleCreateEvent::class, function (ConsoleCreateEvent $e) { $e-&gt;getConsole()-&gt;add(new MigrateCommand()); $e-&gt;getConsole()-&gt;add(new SeedCommand()); }); . ",
+    "url": "/framework/events.html#common-use-cases",
+    
+    "relUrl": "/events.html#common-use-cases"
+  },"37": {
+    "doc": "Events",
+    "title": "Server Timing",
+    "content": "The Cubex\\Context\\Context class automatically adds Server-Timing headers to responses via a listener on ResponsePreSendHeadersEvent. Use the context’s timer API: . $timer = $context-&gt;newTimer('db-query', 'Database query'); // ... perform query ... $timer-&gt;stop(); // The Server-Timing header is added automatically before headers are sent . ",
+    "url": "/framework/events.html#server-timing",
+    
+    "relUrl": "/events.html#server-timing"
+  },"38": {
+    "doc": "Cubex Framework",
+    "title": "Cubex Framework",
+    "content": "Cubex is a PHP 8.2+ web application framework that provides routing, dependency injection, middleware, console commands, and a ViewModel layer. It is built on top of packaged/* libraries and Symfony components. ",
+    "url": "/framework/",
+    
+    "relUrl": "/"
+  },"39": {
+    "doc": "Cubex Framework",
+    "title": "Requirements",
+    "content": ". | PHP 8.2 or later | Composer | . ",
+    "url": "/framework/#requirements",
+    
+    "relUrl": "/#requirements"
+  },"40": {
+    "doc": "Cubex Framework",
+    "title": "Installation",
+    "content": "composer require cubex/framework . ",
+    "url": "/framework/#installation",
+    
+    "relUrl": "/#installation"
+  },"41": {
+    "doc": "Cubex Framework",
+    "title": "Quick Start",
+    "content": "Create a basic HTTP application with a router: . &lt;?php // public/index.php use Cubex\\Cubex; use Cubex\\Routing\\Router; use Packaged\\Http\\Response\\TextResponse; use Packaged\\Routing\\Handler\\FuncHandler; $loader = require __DIR__ . '/../vendor/autoload.php'; $cubex = new Cubex(__DIR__ . '/..', $loader); $router = Router::i() -&gt;onPath('/', new FuncHandler(fn() =&gt; new TextResponse('Hello, Cubex!'))) -&gt;onPath('/about', new FuncHandler(fn() =&gt; new TextResponse('About page'))); $response = $cubex-&gt;handle($router); $cubex-&gt;shutdown(); . ",
+    "url": "/framework/#quick-start",
+    
+    "relUrl": "/#quick-start"
+  },"42": {
+    "doc": "Cubex Framework",
+    "title": "Configuration",
+    "content": "Cubex loads INI configuration files from a conf/ directory relative to your project root. Files are loaded in cascade order: . | conf/defaults.ini | conf/defaults/config.ini | conf/{environment}.ini | conf/{environment}/config.ini | . The environment is set via the CUBEX_ENV environment variable. ",
+    "url": "/framework/#configuration",
+    
+    "relUrl": "/#configuration"
+  },"43": {
+    "doc": "Cubex Framework",
+    "title": "Core Concepts",
+    "content": "| Topic | Description | . | Request Lifecycle | How HTTP requests and CLI commands flow through the framework | . | Routing | Generator-based route matching with the Router fluent API | . | Controllers | HTTP verb method resolution and response preparation | . | Dependency Injection | The DI container, sharing, factories, and auto-resolution | . | Middleware | Onion-layer middleware chain for request/response processing | . | ViewModels | ViewModel/View separation, templating, and JSON rendering | . | Events | Framework lifecycle events and the Channel dispatcher | . | Console | Symfony Console integration with auto-configured commands | . | Condition Processor | PHP 8 attribute-based pre-conditions and skip-conditions | . ",
+    "url": "/framework/#core-concepts",
+    
+    "relUrl": "/#core-concepts"
+  },"44": {
+    "doc": "Cubex Framework",
+    "title": "Architecture Overview",
+    "content": "flowchart TD subgraph HTTP[\"HTTP Request\"] direction TB Entry[\"public/index.php\"] --&gt; CubexBoot[\"Bootstrap\"] CubexBoot --&gt; CtxInit[\"Context Init\"] CtxInit --&gt; Handle[\"Cubex::handle()\"] Handle --&gt; Router[\"Router / Controller\"] Router --&gt; MW[\"Middleware\"] MW --&gt; Handler[\"Handler\"] Handler --&gt; Response[\"Response\"] end subgraph CLI[\"CLI Command\"] direction TB CLIEntry[\"bin/console\"] --&gt; CLIBoot[\"Bootstrap\"] CLIBoot --&gt; CLICtx[\"Context Init\"] CLICtx --&gt; CLICli[\"Cubex::cli()\"] CLICli --&gt; Console[\"Console\"] Console --&gt; Command[\"ConsoleCommand\"] end subgraph Core[\"Core Services\"] DI[\"DI Container\"] ~~~ Config[\"INI Config\"] Context[\"Context\"] ~~~ Events[\"Event Channel\"] end HTTP -.-&gt; Core CLI -.-&gt; Core . ",
+    "url": "/framework/#architecture-overview",
+    
+    "relUrl": "/#architecture-overview"
+  },"45": {
+    "doc": "Middleware",
+    "title": "Middleware",
+    "content": "Cubex provides an onion-layer middleware system that wraps handlers. Each middleware can process the request before and after the inner handler executes. ",
+    "url": "/framework/middleware.html",
+    
+    "relUrl": "/middleware.html"
+  },"46": {
+    "doc": "Middleware",
+    "title": "Middleware Chain",
+    "content": "sequenceDiagram participant Client participant MH as MiddlewareHandler participant MW1 as Middleware 1 participant MW2 as Middleware 2 participant Handler as Inner Handler rect rgb(240, 240, 255) Note right of Client: Request Client-&gt;&gt;MH: handle(context) MH-&gt;&gt;MW1: handle(context) MW1-&gt;&gt;MW2: next(context) MW2-&gt;&gt;Handler: next(context) end rect rgb(240, 255, 240) Note right of Client: Response Handler--&gt;&gt;MW2: Response MW2--&gt;&gt;MW1: Response MW1--&gt;&gt;MH: Response MH--&gt;&gt;Client: Response end . Middleware executes in an onion pattern: . | The outermost middleware receives the request first | Each middleware can run logic before calling next() to pass to the next layer | The innermost layer is the actual handler | Responses bubble back through each middleware in reverse order | . ",
+    "url": "/framework/middleware.html#middleware-chain",
+    
+    "relUrl": "/middleware.html#middleware-chain"
+  },"47": {
+    "doc": "Middleware",
+    "title": "Implementing Middleware",
+    "content": "Extend the abstract Middleware base class: . use Cubex\\Middleware\\Middleware; use Packaged\\Context\\Context; use Symfony\\Component\\HttpFoundation\\Response; class TimingMiddleware extends Middleware { public function handle(Context $c): Response { $start = microtime(true); // Call the next handler in the chain $response = $this-&gt;next($c); $duration = microtime(true) - $start; $response-&gt;headers-&gt;set('X-Response-Time', round($duration * 1000) . 'ms'); return $response; } } . The key parts: . | Extend Middleware (or implement MiddlewareInterface directly) | Call $this-&gt;next($c) to pass control to the next middleware or the inner handler | You can modify the request (context) before calling next() and modify the response after | . ",
+    "url": "/framework/middleware.html#implementing-middleware",
+    
+    "relUrl": "/middleware.html#implementing-middleware"
+  },"48": {
+    "doc": "Middleware",
+    "title": "MiddlewareInterface",
+    "content": "For full control, implement the interface directly: . use Cubex\\Middleware\\MiddlewareInterface; use Packaged\\Context\\Context; use Packaged\\Routing\\Handler\\Handler; use Symfony\\Component\\HttpFoundation\\Response; class AuthMiddleware implements MiddlewareInterface { private Handler $_next; public function setNext(Handler $handler): Handler { $this-&gt;_next = $handler; return $this; } public function handle(Context $c): Response { if (!$c-&gt;request()-&gt;headers-&gt;has('Authorization')) { return new Response('Unauthorized', 401); } return $this-&gt;_next-&gt;handle($c); } } . ",
+    "url": "/framework/middleware.html#middlewareinterface",
+    
+    "relUrl": "/middleware.html#middlewareinterface"
+  },"49": {
+    "doc": "Middleware",
+    "title": "Using MiddlewareHandler",
+    "content": "MiddlewareHandler wraps a handler with a chain of middleware: . use Cubex\\Middleware\\MiddlewareHandler; $handler = new MiddlewareHandler($router); $handler-&gt;append(new TimingMiddleware()); $handler-&gt;append(new AuthMiddleware()); $handler-&gt;append(new CorsMiddleware()); $response = $cubex-&gt;handle($handler); . MiddlewareHandler Methods . | Method | Description | . | __construct(Handler $handler) | Create a middleware handler wrapping an inner handler | . | append(MiddlewareInterface $mw) | Add middleware to the end of the chain (outermost) | . | prepend(MiddlewareInterface $mw) | Add middleware to the front of the chain (innermost) | . | add(MiddlewareInterface $mw, ?int $mode) | Add with explicit mode (PREPEND or APPEND) | . | remove(MiddlewareInterface\\|string $mw) | Remove the first middleware matching the instance or class name | . | replace(MiddlewareInterface\\|string $old, MiddlewareInterface $new) | Replace the first matching middleware | . Execution Order . Middleware added with append() wraps further out, while prepend() wraps closer to the inner handler: . $handler = new MiddlewareHandler($router); $handler-&gt;append(new A()); // Outermost $handler-&gt;append(new B()); // Even more outer $handler-&gt;prepend(new C()); // Innermost (closest to router) // Execution order: B → A → C → Router → C → A → B . ",
+    "url": "/framework/middleware.html#using-middlewarehandler",
+    
+    "relUrl": "/middleware.html#using-middlewarehandler"
+  },"50": {
+    "doc": "Middleware",
+    "title": "Common Middleware Patterns",
+    "content": "Short-Circuit Middleware . Return a response directly without calling next() to stop the chain: . class MaintenanceMiddleware extends Middleware { public function handle(Context $c): Response { if ($this-&gt;isMaintenanceMode()) { return new Response('Service unavailable', 503); } return $this-&gt;next($c); } } . Request Modification . Modify the context before passing it along: . class JsonBodyMiddleware extends Middleware { public function handle(Context $c): Response { $request = $c-&gt;request(); if ($request-&gt;getContentTypeFormat() === 'json') { $data = json_decode($request-&gt;getContent(), true); $request-&gt;request-&gt;replace($data ?? []); } return $this-&gt;next($c); } } . Response Modification . Transform the response on the way back: . class CompressionMiddleware extends Middleware { public function handle(Context $c): Response { $response = $this-&gt;next($c); if (str_contains($c-&gt;request()-&gt;headers-&gt;get('Accept-Encoding', ''), 'gzip')) { $compressed = gzencode($response-&gt;getContent()); $response-&gt;setContent($compressed); $response-&gt;headers-&gt;set('Content-Encoding', 'gzip'); } return $response; } } . ",
+    "url": "/framework/middleware.html#common-middleware-patterns",
+    
+    "relUrl": "/middleware.html#common-middleware-patterns"
+  },"51": {
+    "doc": "Request Lifecycle",
+    "title": "Request Lifecycle",
+    "content": "Cubex handles both HTTP requests and CLI commands through distinct but related lifecycles. Both begin with bootstrapping a Cubex instance and creating a Context. ",
+    "url": "/framework/request-lifecycle.html",
+    
+    "relUrl": "/request-lifecycle.html"
+  },"52": {
+    "doc": "Request Lifecycle",
+    "title": "HTTP Lifecycle",
+    "content": "The HTTP lifecycle is driven by Cubex::handle(Handler $handler). Here is the full flow: . sequenceDiagram participant Entry as index.php participant Cubex participant Ctx as Context participant Channel as Event Channel participant Handler participant Response rect rgb(240, 240, 255) Note right of Entry: Setup Entry-&gt;&gt;Cubex: new Cubex($root, $loader) Entry-&gt;&gt;Cubex: handle($handler) Cubex-&gt;&gt;Ctx: getContext() Cubex-&gt;&gt;Ctx: initialize() Cubex-&gt;&gt;Handler: setContext($ctx) end rect rgb(240, 255, 240) Note right of Entry: Execute Cubex-&gt;&gt;Channel: PreExecuteEvent Cubex-&gt;&gt;Handler: handle($ctx) Handler--&gt;&gt;Cubex: Response end rect rgb(255, 240, 240) Note right of Entry: Send Response Cubex-&gt;&gt;Channel: ResponsePrepareEvent Cubex-&gt;&gt;Response: apply cookies, prepare() Cubex-&gt;&gt;Channel: ResponsePreparedEvent Cubex-&gt;&gt;Channel: PreSendHeadersEvent Cubex-&gt;&gt;Response: sendHeaders() Cubex-&gt;&gt;Channel: PreSendContentEvent Cubex-&gt;&gt;Response: sendContent() Cubex-&gt;&gt;Channel: HandleCompleteEvent end Entry-&gt;&gt;Cubex: shutdown() Cubex-&gt;&gt;Channel: ShutdownEvent . Bootstrap . $loader = require __DIR__ . '/../vendor/autoload.php'; $cubex = new Cubex(__DIR__ . '/..', $loader); . The constructor: . | Sets the project root path | Creates an event Channel named 'cubex' | Shares the ClassLoader and DependencyInjector (itself) in the DI container | Registers a Context factory that creates contexts from Request::createFromGlobals() | . Context Preparation . When handle() is called, it retrieves the shared Context from the DI container. The context is prepared with: . | Environment from the CUBEX_ENV environment variable | Project root path | Configuration loaded from INI files in cascade order | Cubex reference set on the context (if CubexAware) | . Handler Execution . The handler (typically a Router, Application, or Controller) receives the context and produces a Response. If the handler is ContextAware, its context is set before execution. Response Processing . After the handler returns a response, Cubex: . | Fires ResponsePrepareEvent (listeners can modify the response) | Applies cookies from the context’s cookie jar | Calls $response-&gt;prepare($request) to finalize headers | Fires ResponsePreparedEvent | Sends headers, flushes, then sends content | Calls fastcgi_finish_request() if running under PHP-FPM | Fires HandleCompleteEvent | . Exception Handling . By default, Cubex catches exceptions in production environments and re-throws them in local and dev environments. This behavior is controlled by setThrowEnvironments(): . $cubex-&gt;setThrowEnvironments([Context::ENV_LOCAL, Context::ENV_DEV]); . ",
+    "url": "/framework/request-lifecycle.html#http-lifecycle",
+    
+    "relUrl": "/request-lifecycle.html#http-lifecycle"
+  },"53": {
+    "doc": "Request Lifecycle",
+    "title": "CLI Lifecycle",
+    "content": "The CLI lifecycle is driven by Cubex::cli(): . sequenceDiagram participant Entry as bin/console participant Cubex participant Ctx as Context participant Channel as Event Channel participant Console participant Command rect rgb(240, 240, 255) Note right of Entry: Bootstrap Entry-&gt;&gt;Cubex: new Cubex($root, $loader) Entry-&gt;&gt;Cubex: cli($input, $output) Cubex-&gt;&gt;Ctx: getContext() end rect rgb(240, 255, 240) Note right of Entry: Console Setup Cubex-&gt;&gt;Ctx: trigger(ConsoleLaunchedEvent) Cubex-&gt;&gt;Console: create Console Cubex-&gt;&gt;Ctx: trigger(ConsoleCreatedEvent) Cubex-&gt;&gt;Channel: ConsoleCreateEvent Note over Console: Registers commands from config end rect rgb(255, 240, 240) Note right of Entry: Execute Cubex-&gt;&gt;Channel: ConsolePrepareEvent Cubex-&gt;&gt;Console: run($input, $output) Console-&gt;&gt;Command: execute() Command--&gt;&gt;Console: exit code Console--&gt;&gt;Cubex: exit code end . CLI Bootstrap . $loader = require __DIR__ . '/../vendor/autoload.php'; $cubex = new Cubex(__DIR__ . '/..', $loader); exit($cubex-&gt;cli()); . Cubex::cli() creates default ArgvInput and ConsoleOutput if none are provided, then: . | Fires ConsoleLaunchedEvent on the context event channel | Creates the Console application (lazy, cached) | Fires ConsoleCreatedEvent (context channel) and ConsoleCreateEvent (cubex channel) | Fires ConsolePrepareEvent on the cubex channel | Runs the console application | Returns the exit code (capped at 255) | . Shutdown . Call $cubex-&gt;shutdown() after handling completes. This fires the ShutdownEvent exactly once (guarded against double-shutdown). If shutdown is not called explicitly, the destructor will attempt it and log a warning. ",
+    "url": "/framework/request-lifecycle.html#cli-lifecycle",
+    
+    "relUrl": "/request-lifecycle.html#cli-lifecycle"
+  },"54": {
+    "doc": "Routing",
+    "title": "Routing",
+    "content": "Cubex uses a generator-based routing system built on packaged/routing. Routes are defined by yielding conditions from _generateRoutes(), and the framework traverses them to find a matching handler. ",
+    "url": "/framework/routing.html",
+    
+    "relUrl": "/routing.html"
+  },"55": {
+    "doc": "Routing",
+    "title": "How Route Resolution Works",
+    "content": "flowchart TD Start[\"handle()\"] --&gt; GetHandler[\"_getHandler(context)\"] GetHandler --&gt; GenRoutes[\"_generateRoutes()\"] GenRoutes --&gt; Check{\"Next condition?\"} Check --&gt;|Yes| Eval{\"Matches?\"} Check --&gt;|No| Default[\"Default handler\"] Eval --&gt;|No| Check Eval --&gt;|Yes| IsRoute{\"Traversable?\"} IsRoute --&gt;|Yes| Traverse[\"Traverse sub-handler\"] --&gt; Check IsRoute --&gt;|No| Handler[\"Matched handler\"] Handler --&gt; Prepare[\"_prepareHandler()\"] Default --&gt; Prepare Prepare --&gt; Process[\"_processHandler()\"] Process --&gt; PrepResp[\"_prepareResponse()\"] . The RouteSelector base class (from packaged/routing) calls _generateRoutes() and iterates through the yielded ConditionHandler pairs. For each: . | The condition is evaluated against the current context | If the handler is a Route (traversable), it recurses into the sub-handler | Otherwise, the matched handler is returned | . The result passes through _prepareHandler() (string-to-class resolution, redirect handling) and then _processHandler() (execution). ",
+    "url": "/framework/routing.html#how-route-resolution-works",
+    
+    "relUrl": "/routing.html#how-route-resolution-works"
+  },"56": {
+    "doc": "Routing",
+    "title": "The Router Class",
+    "content": "Router provides a fluent API for defining routes without subclassing: . use Cubex\\Routing\\Router; use Packaged\\Http\\Response\\TextResponse; use Packaged\\Routing\\Handler\\FuncHandler; $router = Router::i() -&gt;onPath('/hello', new FuncHandler( fn() =&gt; new TextResponse('Hello, World!') )) -&gt;onPathFunc('/greet/{name}', function ($ctx) { $name = $ctx-&gt;routeData()-&gt;get('name'); return new TextResponse(\"Hello, {$name}!\"); }) -&gt;setDefaultHandler(new FuncHandler( fn() =&gt; new TextResponse('Not Found', 404) )); . Router Methods . | Method | Description | . | Router::i() | Static factory for a new Router instance | . | onPath($path, $handler) | Add a route matching the given path pattern | . | onPathFunc($path, callable $func) | Add a route with a callable (wrapped in FuncHandler) | . | setDefaultHandler(Handler $handler) | Set the fallback handler when no route matches | . | addCondition(ConditionHandler $cond) | Add a custom condition/handler pair | . | getHandler(Context $ctx) | Resolve the matching handler for a context | . Path Patterns . Path matching uses RequestCondition from packaged/routing. Patterns support: . | Syntax | Description | Example | . | /literal | Exact path segment | /users | . | /{name} | Named path variable | /users/{id} | . | /{name@constraint} | Constrained variable | /{id@num} | . | Prefix matching | Routes match path prefixes by default | /api matches /api/users | . Route data (captured variables) is available via $context-&gt;routeData(). ",
+    "url": "/framework/routing.html#the-router-class",
+    
+    "relUrl": "/routing.html#the-router-class"
+  },"57": {
+    "doc": "Routing",
+    "title": "Generator-Based Routes",
+    "content": "For custom route processors, override _generateRoutes() to yield route conditions: . use Cubex\\Routing\\RouteProcessor; use Packaged\\Routing\\ConditionHandler; use Packaged\\Routing\\Handler\\FuncHandler; use Packaged\\Routing\\RequestCondition; class MyRouter extends RouteProcessor { protected function _generateRoutes(): Generator { yield self::_route('/dashboard', DashboardController::class); yield self::_route('/api', ApiRouter::class); yield self::_route('/health', new FuncHandler( fn() =&gt; new TextResponse('OK') )); // Default handler returned (not yielded) return new FuncHandler(fn() =&gt; new TextResponse('Not Found', 404)); } } . The _route() helper (from RouteSelector) creates ConditionHandler pairs from a path and handler. ",
+    "url": "/framework/routing.html#generator-based-routes",
+    
+    "relUrl": "/routing.html#generator-based-routes"
+  },"58": {
+    "doc": "Routing",
+    "title": "Redirect Shorthand",
+    "content": "String handlers beginning with @ are treated as redirects: . @301!/new-url → 301 redirect to /new-url @302!/other → 302 redirect to /other . This is handled in RouteProcessor::_prepareHandler(). ",
+    "url": "/framework/routing.html#redirect-shorthand",
+    
+    "relUrl": "/routing.html#redirect-shorthand"
+  },"59": {
+    "doc": "Routing",
+    "title": "Handler Resolution Chain",
+    "content": "When _prepareHandler() processes a handler, it follows this chain: . | String containing \\: Treated as a class name — resolved via DI container (if Cubex is available) or instantiated directly | String starting with @: Parsed as a redirect (@{code}!{url}) | Callable: Invoked directly, result processed recursively | Handler instance: handle() is called with the context | String (in Controller): Resolved to controller methods via HTTP verb prefixes (see Controllers) | . ",
+    "url": "/framework/routing.html#handler-resolution-chain",
+    
+    "relUrl": "/routing.html#handler-resolution-chain"
+  },"60": {
+    "doc": "Routing",
+    "title": "Nested Routing",
+    "content": "Routes can be nested by returning other RouteProcessor instances (routers, applications, or controllers) as handlers: . protected function _generateRoutes(): Generator { // ApiRouter is itself a RouteProcessor with its own _generateRoutes() yield self::_route('/api', ApiRouter::class); yield self::_route('/admin', AdminController::class); } . The path is consumed segment by segment as the route traverses into nested handlers. ",
+    "url": "/framework/routing.html#nested-routing",
+    
+    "relUrl": "/routing.html#nested-routing"
+  },"61": {
+    "doc": "ViewModels",
+    "title": "ViewModels",
+    "content": "Cubex separates data (Models/ViewModels) from presentation (Views). This pattern keeps business logic out of templates and makes models independently testable and JSON-serializable. ",
+    "url": "/framework/viewmodels.html",
+    
+    "relUrl": "/viewmodels.html"
+  },"62": {
+    "doc": "ViewModels",
+    "title": "Class Hierarchy",
+    "content": "classDiagram class Model { &lt;&lt;interface&gt;&gt; +jsonSerialize() mixed } class View { &lt;&lt;interface&gt;&gt; +setModel(Model data) +render() string } class ViewModel { +setView(string viewClass) self +createView() View +lock() self } class AbstractView { &lt;&lt;abstract&gt;&gt; +setModel(Model data) +render() string } class TemplatedViewModel { +render() string +addVariant(string variant) self } class JsonView { +setFlags(int flags) self +render() string } class ArrayModel { +set(array data) self +addItem(value, key) self } Model &lt;|.. ViewModel View &lt;|.. AbstractView ViewModel &lt;|-- TemplatedViewModel View &lt;|.. TemplatedViewModel AbstractView &lt;|-- JsonView ViewModel &lt;|-- ArrayModel . ",
+    "url": "/framework/viewmodels.html#class-hierarchy",
+    
+    "relUrl": "/viewmodels.html#class-hierarchy"
+  },"63": {
+    "doc": "ViewModels",
+    "title": "ViewModel",
+    "content": "The primary data container. Holds data as public properties, supports JSON serialization, and can create a corresponding View: . use Cubex\\ViewModel\\ViewModel; class UserProfileModel extends ViewModel { protected string $_defaultView = UserProfileView::class; public string $name; public string $email; public int $age; } . Creating and Using . $model = new UserProfileModel(); $model-&gt;name = 'Alice'; $model-&gt;email = 'alice@example.com'; $model-&gt;age = 30; // Create the associated view and render $view = $model-&gt;createView(); $html = $view-&gt;render(); // Or serialize to JSON $json = json_encode($model); // {\"name\":\"Alice\",\"email\":\"alice@example.com\",\"age\":30} . Locking (Immutability) . Call lock() to freeze the model’s state. After locking, property values are captured and the model becomes read-only: . $model-&gt;lock(); // Properties are still readable echo $model-&gt;name; // \"Alice\" // But setting throws an exception $model-&gt;name = 'Bob'; // Throws: \"Cannot set property 'name' ... is immutable\" . Locked models serialize from their frozen snapshot rather than live properties. Custom View Override . Override the view class at creation time: . $view = $model-&gt;createView(MobileUserProfileView::class); . ",
+    "url": "/framework/viewmodels.html#viewmodel",
+    
+    "relUrl": "/viewmodels.html#viewmodel"
+  },"64": {
+    "doc": "ViewModels",
+    "title": "View",
+    "content": "Views receive a model and render it to a string. Implement the View interface: . use Cubex\\ViewModel\\View; use Cubex\\ViewModel\\Model; class UserProfileView implements View { private Model $_model; public function setModel(Model $data): void { $this-&gt;_model = $data; } public function render(): string { return \"&lt;div class='profile'&gt;\" . \"&lt;h1&gt;{$this-&gt;_model-&gt;name}&lt;/h1&gt;\" . \"&lt;p&gt;{$this-&gt;_model-&gt;email}&lt;/p&gt;\" . \"&lt;/div&gt;\"; } } . AbstractView . A convenient base class that stores the model and provides a _render() hook: . use Cubex\\ViewModel\\AbstractView; class UserCardView extends AbstractView { protected function _render(): ?ISafeHtmlProducer { // Access the model via $this-&gt;_model return new SafeHtml(\"&lt;div&gt;{$this-&gt;_model-&gt;name}&lt;/div&gt;\"); } } . ",
+    "url": "/framework/viewmodels.html#view",
+    
+    "relUrl": "/viewmodels.html#view"
+  },"65": {
+    "doc": "ViewModels",
+    "title": "TemplatedViewModel",
+    "content": "Combines ViewModel and View into a single class. Renders using .phtml template files located alongside the class file: . use Cubex\\ViewModel\\TemplatedViewModel; class DashboardPage extends TemplatedViewModel { public int $userCount; public int $orderCount; public array $recentOrders; } . With a template at DashboardPage.phtml in the same directory: . &lt;!-- DashboardPage.phtml --&gt; &lt;div class=\"dashboard\"&gt; &lt;h1&gt;Dashboard&lt;/h1&gt; &lt;p&gt;Users: &lt;?= $this-&gt;userCount ?&gt;&lt;/p&gt; &lt;p&gt;Orders: &lt;?= $this-&gt;orderCount ?&gt;&lt;/p&gt; &lt;ul&gt; &lt;?php foreach($this-&gt;recentOrders as $order): ?&gt; &lt;li&gt;&lt;?= $order['id'] ?&gt;: &lt;?= $order['total'] ?&gt;&lt;/li&gt; &lt;?php endforeach; ?&gt; &lt;/ul&gt; &lt;/div&gt; . Template Variants . Add variant templates that take priority over the default. Useful for device-specific or A/B test rendering: . $page = new DashboardPage(); $page-&gt;addVariant('mobile'); // Looks for DashboardPage.mobile.phtml first, // falls back to DashboardPage.phtml echo $page-&gt;render(); . Self-Rendering . TemplatedViewModel acts as its own view. Calling createView() without an override returns $this: . $page = new DashboardPage(); $view = $page-&gt;createView(); // Returns $page itself echo $view-&gt;render(); // Renders the template . ",
+    "url": "/framework/viewmodels.html#templatedviewmodel",
+    
+    "relUrl": "/viewmodels.html#templatedviewmodel"
+  },"66": {
+    "doc": "ViewModels",
+    "title": "JsonView",
+    "content": "Renders any Model as JSON: . use Cubex\\ViewModel\\JsonView; $model = new UserProfileModel(); $model-&gt;name = 'Alice'; $model-&gt;email = 'alice@example.com'; $view = new JsonView(); $view-&gt;setModel($model); $view-&gt;setFlags(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); echo $view-&gt;render(); . ",
+    "url": "/framework/viewmodels.html#jsonview",
+    
+    "relUrl": "/viewmodels.html#jsonview"
+  },"67": {
+    "doc": "ViewModels",
+    "title": "ArrayModel",
+    "content": "A ViewModel backed by a simple array instead of typed properties: . use Cubex\\ViewModel\\ArrayModel; $model = new ArrayModel(); $model-&gt;addItem('Alice', 'name'); $model-&gt;addItem('alice@example.com', 'email'); $model-&gt;set(['tags' =&gt; ['admin', 'user']]); echo json_encode($model); // {\"name\":\"Alice\",\"email\":\"alice@example.com\",\"tags\":[\"admin\",\"user\"]} . ",
+    "url": "/framework/viewmodels.html#arraymodel",
+    
+    "relUrl": "/viewmodels.html#arraymodel"
+  },"68": {
+    "doc": "ViewModels",
+    "title": "ViewModel Flow in Controllers",
+    "content": "When a controller method returns a ViewModel, the framework handles view creation and rendering automatically: . flowchart LR Controller[\"Controller returns&lt;br/&gt;ViewModel\"] --&gt; SetCtx[\"Set context/cubex\"] SetCtx --&gt; CreateView[\"createView()\"] CreateView --&gt; SetModel[\"setModel()\"] SetModel --&gt; Render[\"render()\"] Render --&gt; Response[\"CubexResponse\"] . class ProfileController extends Controller { public function getIndex(): UserProfileModel { $model = new UserProfileModel(); $model-&gt;name = 'Alice'; $model-&gt;email = 'alice@example.com'; // Controller::_prepareResponse() handles the rest return $model; } } . ",
+    "url": "/framework/viewmodels.html#viewmodel-flow-in-controllers",
+    
+    "relUrl": "/viewmodels.html#viewmodel-flow-in-controllers"
+  }
+}

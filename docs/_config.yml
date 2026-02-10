@@ -1,0 +1,28 @@
+title: Cubex Framework
+description: Documentation for the Cubex PHP 8.2+ web application framework
+theme: just-the-docs
+
+url: https://cubex.github.io
+baseurl: /framework
+
+aux_links:
+  "GitHub":
+    - "https://github.com/cubex/framework"
+  "Packagist":
+    - "https://packagist.org/packages/cubex/framework"
+
+nav_sort: order
+
+mermaid:
+  version: "11.4.1"
+
+callouts:
+  note:
+    title: Note
+    color: blue
+  warning:
+    title: Warning
+    color: red
+  tip:
+    title: Tip
+    color: green
