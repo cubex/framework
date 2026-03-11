@@ -12,6 +12,7 @@ use Cubex\Events\PreExecuteEvent;
 use Cubex\Events\ShutdownEvent;
 use Cubex\Logger\ErrorLogLogger;
 use Cubex\Routing\Router;
+use Cubex\Tests\Logger\MockLogger;
 use Cubex\Tests\Supporting\Console\TestExceptionCommand;
 use Cubex\Tests\Supporting\Http\TestResponse;
 use Exception;
@@ -23,7 +24,6 @@ use Packaged\Routing\ConditionHandler;
 use Packaged\Routing\Handler\FuncHandler;
 use Packaged\Routing\Handler\Handler;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\Test\TestLogger;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -98,7 +98,7 @@ class CubexTest extends TestCase
   public function testHandleCompleteException()
   {
     $cubex = $this->_cubex();
-    $logger = new TestLogger();
+    $logger = new MockLogger();
     $cubex->setLogger($logger);
     $router = new Router();
     $router->onPath(
@@ -244,7 +244,7 @@ class CubexTest extends TestCase
   public function testLog()
   {
     $cubex = new Cubex(__DIR__, null, true);
-    $logger = new TestLogger();
+    $logger = new MockLogger();
     $cubex->setLogger($logger);
     Cubex::log()->error("TEST");
     self::assertTrue($logger->hasError("TEST"));
