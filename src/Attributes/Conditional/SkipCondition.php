@@ -1,6 +1,6 @@
 <?php
 
-namespace Cubex\Attributes;
+namespace Cubex\Attributes\Conditional;
 
 use Attribute;
 

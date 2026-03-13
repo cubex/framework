@@ -1,18 +1,15 @@
 <?php
 
-namespace Cubex\Attributes;
+namespace Cubex\Attributes\Conditional;
 
+use Cubex\Attributes\AttributeResult;
+use Cubex\Attributes\ReturnsAttributeResultInterface;
 use Packaged\DiContainer\DependencyInjector;
 
-abstract class AbstractConditionAttribute
+abstract class AbstractConditionAttribute implements ReturnsAttributeResultInterface
 {
-  protected string $_class = '';
-  protected array $_args = [];
-
-  public function __construct(string $class, array $args = [])
+  public function __construct(protected string $_class, protected array $_args = [])
   {
-    $this->_class = $class;
-    $this->_args = $args;
   }
 
   public function getClass(): string
@@ -20,7 +17,7 @@ abstract class AbstractConditionAttribute
     return $this->_class;
   }
 
-  public function result(?DependencyInjector $di): ConditionResult
+  public function result(?DependencyInjector $di): AttributeResult
   {
     $obj = null;
 
@@ -33,7 +30,7 @@ abstract class AbstractConditionAttribute
       $obj = new $this->_class(...$this->_args);
     }
 
-    if($obj instanceof ConditionResult)
+    if($obj instanceof AttributeResult)
     {
       return $obj;
     }
