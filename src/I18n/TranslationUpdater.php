@@ -22,7 +22,7 @@ class TranslationUpdater implements CubexAware
   protected $_file;
   protected $_lang;
 
-  public function __construct(Cubex $cubex, MessageCatalog $catalog, $file, $lang, TranslationLogger $translationLogger = null)
+  public function __construct(Cubex $cubex, MessageCatalog $catalog, $file, $lang, ?TranslationLogger $translationLogger = null)
   {
     $this->_catalog = $catalog;
     $this->_file = $file;

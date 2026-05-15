@@ -17,7 +17,7 @@ class ArrayModel extends ViewModel
     return $this;
   }
 
-  public function addItem($value, string $key = null)
+  public function addItem($value, ?string $key = null)
   {
     if($key === null)
     {
