@@ -130,4 +130,82 @@ class EncrypterTest extends TestCase
     $this->expectException('\RuntimeException');
     new Encrypter([$current, self::OLDER], 'AES-256-CBC');
   }
+
+  public function testDefaultCipherUnchanged()
+  {
+    $encrypter = new Encrypter([self::CURRENT, self::OLDER]);
+    $payload = $encrypter->encrypt('value');
+    $this->assertEquals(
+      'value',
+      (new IlluminateEncrypter(self::CURRENT, 'AES-128-CBC'))->decrypt($payload)
+    );
+  }
+
+  public function testCipherPerKey()
+  {
+    $current = str_repeat('a', 32);
+    $encrypter = new Encrypter(
+      [$current, self::OLDER],
+      ['AES-256-CBC', 'AES-128-CBC']
+    );
+    $this->assertEquals(
+      'new',
+      (new IlluminateEncrypter($current, 'AES-256-CBC'))->decrypt($encrypter->encrypt('new'))
+    );
+    $this->assertEquals(
+      'old',
+      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
+    );
+  }
+
+  public function testCipherListStaysAlignedWithEmptyKeys()
+  {
+    $current = str_repeat('a', 32);
+    $encrypter = new Encrypter(
+      [$current, '', self::OLDER],
+      ['AES-256-CBC', 'AES-256-CBC', 'AES-128-CBC']
+    );
+    $this->assertEquals(
+      'old',
+      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
+    );
+  }
+
+  public function testEmptyCipherIsDefault()
+  {
+    $encrypter = new Encrypter([self::CURRENT, self::OLDER], ['', null]);
+    $this->assertEquals(
+      'old',
+      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
+    );
+    $this->assertEquals(self::CURRENT, (new Encrypter(self::CURRENT, ''))->getKey());
+  }
+
+  public function testMismatchedCipherListThrows()
+  {
+    $this->expectException('\RuntimeException');
+    $this->expectExceptionMessage('one entry per encryption key');
+    new Encrypter([self::CURRENT, self::OLDER], ['AES-128-CBC']);
+  }
+
+  public function testCipherListWithStringKeyThrows()
+  {
+    $this->expectException('\RuntimeException');
+    $this->expectExceptionMessage('requires a list of encryption keys');
+    new Encrypter(self::CURRENT, ['AES-128-CBC']);
+  }
+
+  public function testUnsupportedCipherThrows()
+  {
+    $this->expectException('\RuntimeException');
+    $this->expectExceptionMessage('supported ciphers');
+    new Encrypter([self::CURRENT, self::OLDER], ['AES-128-CBC', 'DES']);
+  }
+
+  public function testWrongKeyLengthForCipherThrows()
+  {
+    $this->expectException('\RuntimeException');
+    $this->expectExceptionMessage('correct key lengths');
+    new Encrypter([self::CURRENT, self::OLDER], ['AES-256-CBC', 'AES-128-CBC']);
+  }
 }

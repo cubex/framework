@@ -12,10 +12,13 @@ class EncryptionService extends AbstractServiceProvider
    * Register the service
    *
    * [security] encryption_key is either a single key, or a list of keys for
-   * rotation, see Encrypter:
+   * rotation. encryption_cipher is optional (default AES-128-CBC), either one
+   * cipher for every key or a list aligned with encryption_key. See Encrypter.
    *
    *   encryption_key[] = <current key>
    *   encryption_key[] = <previous key>
+   *   encryption_cipher[] = AES-256-CBC
+   *   encryption_cipher[] = AES-128-CBC
    *
    * @param array $parameters
    *
@@ -27,12 +30,17 @@ class EncryptionService extends AbstractServiceProvider
       'encrypter',
       function (Cubex $cubex)
       {
-        $key = $cubex->getConfiguration()->getItem(
+        $config = $cubex->getConfiguration();
+        $key = $config->getItem('security', 'encryption_key', self::DEFAULT_KEY);
+        $cipher = $config->getItem(
           'security',
-          'encryption_key',
-          self::DEFAULT_KEY
+          'encryption_cipher',
+          Encrypter::DEFAULT_CIPHER
         );
-        return new Encrypter($key === [] ? self::DEFAULT_KEY : $key);
+        return new Encrypter(
+          $key === [] ? self::DEFAULT_KEY : $key,
+          $cipher === [] ? Encrypter::DEFAULT_CIPHER : $cipher
+        );
       },
       true
     );
