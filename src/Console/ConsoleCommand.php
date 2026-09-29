@@ -214,9 +214,9 @@ abstract class ConsoleCommand extends Command implements ContextAware, CubexAwar
    * @param InputInterface  $input
    * @param OutputInterface $output
    *
-   * @return int|mixed|null
+   * @return int
    */
-  protected function execute(InputInterface $input, OutputInterface $output)
+  protected function execute(InputInterface $input, OutputInterface $output): int
   {
     $this->_input = $input;
     $this->_output = $output;
@@ -241,7 +241,7 @@ abstract class ConsoleCommand extends Command implements ContextAware, CubexAwar
     return $this->_execute($input, $output) ?? 0;
   }
 
-  protected function _execute(InputInterface $input, OutputInterface $output)
+  protected function _execute(InputInterface $input, OutputInterface $output): int
   {
     throw new \RuntimeException(
       "Your command must contain one of the following methods:\n"

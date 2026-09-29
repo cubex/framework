@@ -36,7 +36,7 @@ class Console extends Application implements ContextAware
    * @return integer 0 if everything went fine, or an error code
    * @throws \Throwable
    */
-  public function doRun(InputInterface $input, OutputInterface $output)
+  public function doRun(InputInterface $input, OutputInterface $output): int
   {
     $this->configure($this->getContext()->config());
     return parent::doRun($input, $output);
@@ -145,7 +145,7 @@ class Console extends Application implements ContextAware
    * @return Command
    * @throws \Throwable
    */
-  public function find($name)
+  public function find($name): Command
   {
     try
     {
@@ -163,11 +163,7 @@ class Console extends Application implements ContextAware
     }
   }
 
-  /**
-   * @return array|Command[]
-   * @throws \ReflectionException
-   */
-  protected function getDefaultCommands()
+  protected function getDefaultCommands(): array
   {
     $commands = parent::getDefaultCommands();
     $commands[] = $this->_prepareCommand(new BuiltInWebServer());

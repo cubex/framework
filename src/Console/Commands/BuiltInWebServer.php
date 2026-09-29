@@ -92,9 +92,9 @@ class BuiltInWebServer extends ConsoleCommand
    * @param InputInterface  $input
    * @param OutputInterface $output
    *
-   * @return int|mixed|null
+   * @return int
    */
-  protected function execute(InputInterface $input, OutputInterface $output)
+  protected function execute(InputInterface $input, OutputInterface $output): int
   {
     if(empty($this->host))
     {
