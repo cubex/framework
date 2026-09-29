@@ -17,10 +17,11 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{matrix.php}}
+          extensions: sodium
           coverage: xdebug
           tools: composer, phpunit
       - run: composer install -n --prefer-dist
