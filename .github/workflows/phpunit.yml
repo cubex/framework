@@ -23,8 +23,9 @@ jobs:
           extensions: bcmath
           coverage: xdebug
 
+      # The 2.x dev dependencies (PHPUnit, Guzzle 6) carry security advisories that Composer blocks by default
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: composer install --no-interaction --prefer-dist --no-progress --no-blocking
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit --coverage-text=coverage.txt

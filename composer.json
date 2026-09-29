@@ -15,10 +15,7 @@
     }
   ],
   "config": {
-    "allow-plugins": false,
-    "audit": {
-      "block-insecure": false
-    }
+    "allow-plugins": false
   },
   "require": {
     "php": "~7.4",
