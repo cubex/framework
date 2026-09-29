@@ -36,7 +36,9 @@
     "psr/log": "~1.1||^2.0||^3.0"
   },
   "suggest": {
-    "ext-xdebug": "*"
+    "ext-xdebug": "*",
+    "ext-sodium": "Required to use Cubex\\Encryption",
+    "paragonie/sodium_compat": "Pure-PHP fallback when ext-sodium is unavailable"
   },
   "require-dev": {
     "phpunit/phpunit": "^9",

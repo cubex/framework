@@ -8,6 +8,8 @@ use Cubex\Console\Events\ConsolePrepareEvent;
 use Cubex\Context\Context as CubexContext;
 use Cubex\Context\Events\ConsoleCreatedEvent;
 use Cubex\Context\Events\ConsoleLaunchedEvent;
+use Cubex\Encryption\Encrypter;
+use Cubex\Encryption\EncrypterInterface;
 use Cubex\Events\Handle\HandleCompleteEvent;
 use Cubex\Events\Handle\ResponsePreparedEvent;
 use Cubex\Events\Handle\ResponsePrepareEvent;
@@ -65,6 +67,7 @@ class Cubex extends DependencyInjector implements LoggerAwareInterface
     $this->share(ClassLoader::class, $loader);
     $this->share(DependencyInjector::class, $this);
     $this->factory(Context::class, $this->_defaultContextFactory());
+    $this->factory(EncrypterInterface::class, fn() => Encrypter::fromConfig($this->getContext()->config()));
 
     if($global && self::$_cubex === null)
     {
