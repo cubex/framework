@@ -1,0 +1,22 @@
+<?php
+namespace Cubex\Encryption;
+
+interface EncrypterInterface
+{
+  /**
+   * @param string $plaintext
+   *
+   * @return string an authenticated, URL-safe payload
+   */
+  public function encrypt(string $plaintext): string;
+
+  /**
+   * @param string $payload
+   *
+   * @return string
+   *
+   * @throws DecryptException when the payload is malformed, tampered with, or
+   *                          was not encrypted with a configured key
+   */
+  public function decrypt(string $payload): string;
+}
