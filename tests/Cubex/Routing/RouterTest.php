@@ -44,10 +44,8 @@ class RouterTestInternal extends InternalCubexTestCase
 
   public function testProcessNoSubjectException()
   {
-    $this->expectException(
-      "RuntimeException",
-      "No routable subject has been defined"
-    );
+    $this->expectException("RuntimeException");
+    $this->expectExceptionMessage("No routable subject has been defined");
     $router = new Router();
     $router->process("/hello");
   }
@@ -59,10 +57,8 @@ class RouterTestInternal extends InternalCubexTestCase
   {
     if($expectException)
     {
-      $this->expectException(
-        "Exception",
-        "Unable to locate a suitable route"
-      );
+      $this->expectException("Exception");
+      $this->expectExceptionMessage("Unable to locate a suitable route");
     }
     $router = new Router();
     $router->setCubex($this->newCubexInstace());

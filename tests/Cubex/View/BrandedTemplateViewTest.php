@@ -72,7 +72,8 @@ class BrandedTemplateViewTest extends TestCase
 
   public function testException()
   {
-    $this->expectException('Exception', 'Broken Language');
+    $this->expectException('Exception');
+    $this->expectExceptionMessage('Broken Language');
     $request = $this->createRequest('www.custom.test', 'fr');
     $view = $this->prepareViewModel($request);
     $view->render();

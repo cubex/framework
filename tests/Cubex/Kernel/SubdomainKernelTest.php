@@ -51,7 +51,8 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
 
     if(!$catch)
     {
-      $this->expectException('Exception', $expect);
+      $this->expectException('Exception');
+      $this->expectExceptionMessage($expect);
     }
 
     $response = $class->handle(

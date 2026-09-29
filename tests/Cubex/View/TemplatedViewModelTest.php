@@ -16,7 +16,8 @@ class TemplatedViewModelTest extends TestCase
     $view->setTemplateFile('test');
     $this->assertStringContainsString('Test phtml file', $view->render());
 
-    $this->expectException('Exception', 'Excepted');
+    $this->expectException('Exception');
+    $this->expectExceptionMessage('Excepted');
     $view->setTemplateFile('exceptional');
     $view->render();
   }
@@ -30,10 +31,8 @@ class TemplatedViewModelTest extends TestCase
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('invalid');
     $tpl = $view->getTemplatePath('.phtml');
-    $this->expectException(
-      'Exception',
-      'The template file \'' . $tpl . '\' does not exist'
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage('The template file \'' . $tpl . '\' does not exist');
     $view->render();
   }
 }

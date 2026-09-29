@@ -23,10 +23,8 @@ class MustacheViewTest extends TestCase
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('invalid');
     $tpl = $view->getTemplatePath('.phtml');
-    $this->expectException(
-      'Exception',
-      'The template file \'' . $tpl . '\' does not exist'
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage('The template file \'' . $tpl . '\' does not exist');
     $view->render();
   }
 }

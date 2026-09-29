@@ -27,10 +27,8 @@ class LayoutTest extends TestCase
 
   public function testInvalidSectionGet()
   {
-    $this->expectException(
-      'Exception',
-      "missing has not yet been bound to this layout"
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage("missing has not yet been bound to this layout");
     $layout = new Layout(new CubexProject(), 'Default');
     $layout->get('missing');
   }

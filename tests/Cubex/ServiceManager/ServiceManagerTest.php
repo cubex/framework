@@ -31,10 +31,8 @@ class ServiceManagerTest extends TestCase
       $tester
     );
 
-    $this->expectException(
-      '\RuntimeException',
-      "The service 'smtester' has already been registered."
-    );
+    $this->expectException('\RuntimeException');
+    $this->expectExceptionMessage("The service 'smtester' has already been registered.");
     $manager->addService(
       "smtester",
       'CubexTest\Cubex\ServiceManager\TestService',
@@ -104,7 +102,8 @@ class ServiceManagerTest extends TestCase
     {
       $manager->destroyService($service);
     }
-    $this->expectException($eType, $eMsg);
+    $this->expectException($eType);
+    $this->expectExceptionMessage($eMsg);
     $cubex->make($service);
   }
 

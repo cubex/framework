@@ -61,14 +61,16 @@ class AuthServiceTest extends TestCase
 
   public function testInvalidLoginException()
   {
-    $this->expectException('\RuntimeException', "Unable to login 'user'");
+    $this->expectException('\RuntimeException');
+    $this->expectExceptionMessage("Unable to login 'user'");
     $auth = $this->getAuthService();
     $auth->login('user', 'password');
   }
 
   public function testForgottenPasswordException()
   {
-    $this->expectException('\Exception', "User not found");
+    $this->expectException('\Exception');
+    $this->expectExceptionMessage("User not found");
     $auth = $this->getAuthService();
     $auth->forgottenPassword('user');
   }
