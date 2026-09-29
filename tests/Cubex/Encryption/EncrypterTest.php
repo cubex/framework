@@ -52,7 +52,7 @@ class EncrypterTest extends TestCase
     $plaintext = serialize('a typical cookie value of some length');
     $ours = strlen((new Encrypter(self::OLDER))->encrypt($plaintext));
     $illuminate = strlen((new IlluminateEncrypter(self::OLDER))->encrypt($plaintext, false));
-    // 57 plaintext bytes: 108 vs 272
+    // 45 plaintext bytes: 115 vs 244
     $this->assertLessThan($illuminate / 2, $ours);
   }
 
