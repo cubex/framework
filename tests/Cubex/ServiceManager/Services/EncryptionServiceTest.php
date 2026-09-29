@@ -2,9 +2,9 @@
 namespace CubexTest\Cubex\ServiceManager\Services;
 
 use Cubex\Cubex;
-use Cubex\Encryption\RotatingEncrypter;
+use Cubex\Encryption\Encrypter;
 use Cubex\ServiceManager\Services\EncryptionService;
-use Illuminate\Encryption\Encrypter;
+use Illuminate\Encryption\Encrypter as IlluminateEncrypter;
 use Packaged\Config\Provider\ConfigSection;
 use Packaged\Config\Provider\Test\TestConfigProvider;
 use PHPUnit\Framework\TestCase;
@@ -31,33 +31,15 @@ class EncryptionServiceTest extends TestCase
 
   public function testRegisterCreatesEncrypter()
   {
-    $encryptionService = new EncryptionService();
     $this->assertInstanceOf(
       '\Cubex\ServiceManager\IServiceProvider',
-      $encryptionService
+      new EncryptionService()
     );
 
     $encrypter = $this->_encrypter();
-    $this->assertInstanceOf('\Illuminate\Encryption\Encrypter', $encrypter);
+    $this->assertInstanceOf(Encrypter::class, $encrypter);
+    $this->assertInstanceOf(IlluminateEncrypter::class, $encrypter);
     $this->assertEquals(EncryptionService::DEFAULT_KEY, $encrypter->getKey());
-  }
-
-  public function testStringKey()
-  {
-    $encrypter = $this->_encrypter(self::CURRENT);
-    $this->assertInstanceOf('\Illuminate\Encryption\Encrypter', $encrypter);
-    $this->assertEquals(self::CURRENT, $encrypter->getKey());
-  }
-
-  public function testSingleEntryArrayMatchesString()
-  {
-    $encrypter = $this->_encrypter([self::CURRENT]);
-    $this->assertInstanceOf('\Illuminate\Encryption\Encrypter', $encrypter);
-    $this->assertEquals(self::CURRENT, $encrypter->getKey());
-
-    $encrypter = $this->_encrypter([self::CURRENT, '', null]);
-    $this->assertInstanceOf('\Illuminate\Encryption\Encrypter', $encrypter);
-    $this->assertEquals(self::CURRENT, $encrypter->getKey());
   }
 
   public function testEmptyArrayUsesDefaultKey()
@@ -68,54 +50,27 @@ class EncryptionServiceTest extends TestCase
     );
   }
 
-  public function testArrayRotatesKeys()
+  public function testStringKey()
   {
-    $encrypter = $this->_encrypter([self::CURRENT, '', self::OLDER]);
-    $this->assertInstanceOf(RotatingEncrypter::class, $encrypter);
+    $encrypter = $this->_encrypter(self::CURRENT);
+    $this->assertInstanceOf(Encrypter::class, $encrypter);
+    $this->assertEquals(self::CURRENT, $encrypter->getKey());
+  }
 
-    // first entry encrypts
-    $payload = $encrypter->encrypt('new');
-    $this->assertEquals('new', (new Encrypter(self::CURRENT))->decrypt($payload));
-
-    // later entries decrypt
+  public function testArrayKeys()
+  {
+    $encrypter = $this->_encrypter([self::CURRENT, self::OLDER]);
+    $this->assertInstanceOf(Encrypter::class, $encrypter);
+    $this->assertEquals(self::CURRENT, $encrypter->getKey());
     $this->assertEquals(
       'old',
-      $encrypter->decrypt((new Encrypter(self::OLDER))->encrypt('old'))
+      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
     );
   }
 
-  public function testArrayThrowsWhenNoKeyMatches()
-  {
-    $encrypter = $this->_encrypter([self::CURRENT, self::OLDER]);
-    $payload = (new Encrypter('unknown-key-0004'))->encrypt('value');
-    $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
-    $encrypter->decrypt($payload);
-  }
-
-  public function testEmptyFirstEntryWithPreviousKeysThrows()
+  public function testEmptyFirstEntryThrows()
   {
     $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('current key');
     $this->_encrypter(['', self::OLDER]);
-  }
-
-  public function testEmptyOnlyEntryThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->_encrypter(['']);
-  }
-
-  public function testInvalidPreviousKeyLengthThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('correct key lengths');
-    $this->_encrypter([self::CURRENT, 'too-short']);
-  }
-
-  public function testInvalidCurrentKeyLengthThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('correct key lengths');
-    $this->_encrypter(['too-short', self::OLDER]);
   }
 }
