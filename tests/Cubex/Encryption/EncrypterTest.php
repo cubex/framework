@@ -10,33 +10,120 @@ class EncrypterTest extends TestCase
   const CURRENT = 'current-key-0001';
   const OLDER = 'older-key-000002';
   const OLDEST = 'oldest-key-00003';
+  const KEY_256 = 'current-256-bit-key-000000000001';
 
   protected function _rotating()
   {
     return new Encrypter([self::CURRENT, self::OLDER, self::OLDEST]);
   }
 
-  public function testIsIlluminateEncrypter()
+  public function keyProvider()
   {
-    $this->assertInstanceOf(IlluminateEncrypter::class, new Encrypter(self::CURRENT));
-    $this->assertInstanceOf(IlluminateEncrypter::class, $this->_rotating());
+    return [
+      'AES-128-CBC' => [self::CURRENT, 'AES-128-CBC'],
+      'AES-256-CBC' => [self::KEY_256, 'AES-256-CBC'],
+    ];
+  }
+
+  public function testImplementsContract()
+  {
+    $this->assertInstanceOf(
+      '\Illuminate\Contracts\Encryption\Encrypter',
+      new Encrypter(self::CURRENT)
+    );
+  }
+
+  public function testCipherFollowsKeyLength()
+  {
+    $this->assertEquals('AES-128-CBC', Encrypter::cipherForKey(self::CURRENT));
+    $this->assertEquals('AES-256-CBC', Encrypter::cipherForKey(self::KEY_256));
+    $this->assertNull(Encrypter::cipherForKey('too-short'));
+  }
+
+  /**
+   * @dataProvider keyProvider
+   */
+  public function testIlluminatePayloadDecrypts($key, $cipher)
+  {
+    $illuminate = new IlluminateEncrypter($key, $cipher);
+    $ours = new Encrypter($key);
+    $value = ['a' => 1, 'b' => 'two'];
+    $this->assertEquals($value, $ours->decrypt($illuminate->encrypt($value)));
+    $this->assertEquals('raw', $ours->decrypt($illuminate->encrypt('raw', false), false));
+    $this->assertEquals('raw', $ours->decryptString($illuminate->encryptString('raw')));
+  }
+
+  /**
+   * @dataProvider keyProvider
+   */
+  public function testIlluminateDecryptsOurPayload($key, $cipher)
+  {
+    $illuminate = new IlluminateEncrypter($key, $cipher);
+    $ours = new Encrypter($key);
+    $value = ['a' => 1, 'b' => 'two'];
+    $this->assertEquals($value, $illuminate->decrypt($ours->encrypt($value)));
+    $this->assertEquals('raw', $illuminate->decrypt($ours->encrypt('raw', false), false));
+    $this->assertEquals('raw', $illuminate->decryptString($ours->encryptString('raw')));
+  }
+
+  public function testPayloadFormat()
+  {
+    $payload = json_decode(base64_decode((new Encrypter(self::CURRENT))->encrypt('v')), true);
+    $this->assertEquals(['iv', 'value', 'mac'], array_keys($payload));
+    $this->assertEquals(16, strlen(base64_decode($payload['iv'], true)));
+    $this->assertEquals(
+      hash_hmac('sha256', $payload['iv'] . $payload['value'], self::CURRENT),
+      $payload['mac']
+    );
+  }
+
+  public function testTamperedMacThrows()
+  {
+    $payload = json_decode(base64_decode((new Encrypter(self::CURRENT))->encrypt('v')), true);
+    $payload['mac'] = hash_hmac('sha256', 'forged', self::CURRENT);
+    $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
+    $this->expectExceptionMessage('MAC is invalid');
+    (new Encrypter(self::CURRENT))->decrypt(base64_encode(json_encode($payload)));
+  }
+
+  public function testTamperedValueThrows()
+  {
+    $payload = json_decode(base64_decode((new Encrypter(self::CURRENT))->encrypt('v')), true);
+    $payload['value'] = base64_encode('forged');
+    $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
+    (new Encrypter(self::CURRENT))->decrypt(base64_encode(json_encode($payload)));
+  }
+
+  public function invalidPayloadProvider()
+  {
+    return [
+      'not base64 json' => ['not a payload'],
+      'missing mac'     => [base64_encode(json_encode(['iv' => base64_encode(str_repeat('a', 16)), 'value' => 'x']))],
+      'short iv'        => [base64_encode(json_encode(['iv' => base64_encode('a'), 'value' => 'x', 'mac' => 'y']))],
+      'array value'     => [base64_encode(json_encode(['iv' => base64_encode(str_repeat('a', 16)), 'value' => [], 'mac' => 'y']))],
+    ];
+  }
+
+  /**
+   * @dataProvider invalidPayloadProvider
+   */
+  public function testInvalidPayloadThrows($payload)
+  {
+    $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
+    $this->expectExceptionMessage('payload is invalid');
+    $this->_rotating()->decrypt($payload);
   }
 
   public function testStringKeyUnchanged()
   {
     $encrypter = new Encrypter(self::CURRENT);
     $this->assertEquals(self::CURRENT, $encrypter->getKey());
-    $payload = $encrypter->encrypt('value');
-    $this->assertEquals('value', (new IlluminateEncrypter(self::CURRENT))->decrypt($payload));
-    $this->assertEquals(
-      'value',
-      $encrypter->decrypt((new IlluminateEncrypter(self::CURRENT))->encrypt('value'))
-    );
+    $this->assertEquals('value', $encrypter->decrypt($encrypter->encrypt('value')));
   }
 
   public function testStringKeyNoMatchThrows()
   {
-    $payload = (new IlluminateEncrypter(self::OLDER))->encrypt('value');
+    $payload = (new Encrypter(self::OLDER))->encrypt('value');
     $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
     (new Encrypter(self::CURRENT))->decrypt($payload);
   }
@@ -47,8 +134,8 @@ class EncrypterTest extends TestCase
     $this->assertEquals(self::CURRENT, $encrypter->getKey());
     $payload = $encrypter->encrypt('value');
     $this->assertEquals('value', (new IlluminateEncrypter(self::CURRENT))->decrypt($payload));
-    $this->assertEquals('value', $encrypter->decrypt($payload));
-    $this->assertEquals('raw', $encrypter->decryptString($encrypter->encryptString('raw')));
+    $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
+    (new IlluminateEncrypter(self::OLDER))->decrypt($payload);
   }
 
   public function testFallbackKeysDecrypt()
@@ -64,10 +151,24 @@ class EncrypterTest extends TestCase
     );
   }
 
-  public function testNoKeyMatchesThrows()
+  public function testMixedCipherRotation()
   {
-    $payload = (new IlluminateEncrypter('unknown-key-0004'))->encrypt('value');
+    $encrypter = new Encrypter([self::KEY_256, self::OLDER]);
+    $this->assertEquals(
+      'new',
+      (new IlluminateEncrypter(self::KEY_256, 'AES-256-CBC'))->decrypt($encrypter->encrypt('new'))
+    );
+    $this->assertEquals(
+      'old',
+      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER, 'AES-128-CBC'))->encrypt('old'))
+    );
+  }
+
+  public function testNoKeyMatchesThrowsFirstFailure()
+  {
+    $payload = (new Encrypter('unknown-key-0004'))->encrypt('value');
     $this->expectException('\Illuminate\Contracts\Encryption\DecryptException');
+    $this->expectExceptionMessage('MAC is invalid');
     $this->_rotating()->decrypt($payload);
   }
 
@@ -104,108 +205,29 @@ class EncrypterTest extends TestCase
     new Encrypter(['', '']);
   }
 
-  public function testInvalidFallbackKeyLengthThrows()
+  public function testEmptyStringKeyThrows()
   {
     $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('correct key lengths');
-    new Encrypter([self::CURRENT, 'too-short']);
+    $this->expectExceptionMessage('16 bytes');
+    new Encrypter('');
   }
 
-  public function testInvalidCurrentKeyLengthThrows()
+  public function badKeyProvider()
+  {
+    return [
+      'short current'  => [['too-short', self::OLDER]],
+      'short fallback' => [[self::CURRENT, 'too-short']],
+      '24 byte key'    => [str_repeat('a', 24)],
+    ];
+  }
+
+  /**
+   * @dataProvider badKeyProvider
+   */
+  public function testBadKeyLengthThrows($key)
   {
     $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('correct key lengths');
-    new Encrypter(['too-short', self::OLDER]);
-  }
-
-  public function testCipherAppliesToAllKeys()
-  {
-    $current = str_repeat('a', 32);
-    $older = str_repeat('b', 32);
-    $encrypter = new Encrypter([$current, $older], 'AES-256-CBC');
-    $this->assertEquals(
-      'older',
-      $encrypter->decrypt((new IlluminateEncrypter($older, 'AES-256-CBC'))->encrypt('older'))
-    );
-    $this->expectException('\RuntimeException');
-    new Encrypter([$current, self::OLDER], 'AES-256-CBC');
-  }
-
-  public function testDefaultCipherUnchanged()
-  {
-    $encrypter = new Encrypter([self::CURRENT, self::OLDER]);
-    $payload = $encrypter->encrypt('value');
-    $this->assertEquals(
-      'value',
-      (new IlluminateEncrypter(self::CURRENT, 'AES-128-CBC'))->decrypt($payload)
-    );
-  }
-
-  public function testCipherPerKey()
-  {
-    $current = str_repeat('a', 32);
-    $encrypter = new Encrypter(
-      [$current, self::OLDER],
-      ['AES-256-CBC', 'AES-128-CBC']
-    );
-    $this->assertEquals(
-      'new',
-      (new IlluminateEncrypter($current, 'AES-256-CBC'))->decrypt($encrypter->encrypt('new'))
-    );
-    $this->assertEquals(
-      'old',
-      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
-    );
-  }
-
-  public function testCipherListStaysAlignedWithEmptyKeys()
-  {
-    $current = str_repeat('a', 32);
-    $encrypter = new Encrypter(
-      [$current, '', self::OLDER],
-      ['AES-256-CBC', 'AES-256-CBC', 'AES-128-CBC']
-    );
-    $this->assertEquals(
-      'old',
-      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
-    );
-  }
-
-  public function testEmptyCipherIsDefault()
-  {
-    $encrypter = new Encrypter([self::CURRENT, self::OLDER], ['', null]);
-    $this->assertEquals(
-      'old',
-      $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
-    );
-    $this->assertEquals(self::CURRENT, (new Encrypter(self::CURRENT, ''))->getKey());
-  }
-
-  public function testMismatchedCipherListThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('one entry per encryption key');
-    new Encrypter([self::CURRENT, self::OLDER], ['AES-128-CBC']);
-  }
-
-  public function testCipherListWithStringKeyThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('requires a list of encryption keys');
-    new Encrypter(self::CURRENT, ['AES-128-CBC']);
-  }
-
-  public function testUnsupportedCipherThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('supported ciphers');
-    new Encrypter([self::CURRENT, self::OLDER], ['AES-128-CBC', 'DES']);
-  }
-
-  public function testWrongKeyLengthForCipherThrows()
-  {
-    $this->expectException('\RuntimeException');
-    $this->expectExceptionMessage('correct key lengths');
-    new Encrypter([self::CURRENT, self::OLDER], ['AES-256-CBC', 'AES-128-CBC']);
+    $this->expectExceptionMessage('16 bytes');
+    new Encrypter($key);
   }
 }

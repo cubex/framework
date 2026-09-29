@@ -137,7 +137,7 @@ class ServiceManagerTest extends TestCase
     $manager->setCubex($cubex);
     $manager->boot();
     $encrypter = $cubex->make('encrypter');
-    $this->assertInstanceOf('\Illuminate\Encryption\Encrypter', $encrypter);
+    $this->assertInstanceOf('\Illuminate\Contracts\Encryption\Encrypter', $encrypter);
   }
 }
 

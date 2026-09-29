@@ -23,7 +23,7 @@
     "illuminate/container": "~5.4",
     "illuminate/support": "~5.4",
     "illuminate/cookie": "~5.4",
-    "illuminate/encryption": "~5.4",
+    "illuminate/contracts": "~5.4",
     "monolog/monolog": "~1.10",
     "packaged/figlet": "~0",
     "packaged/config": "~1.0",
@@ -42,7 +42,8 @@
     "mockery/mockery": "~0.9",
     "guzzlehttp/guzzle": "~6.3",
     "geoip2/geoip2": "~2.1",
-    "phpunit/phpunit": "~6.3"
+    "phpunit/phpunit": "~6.3",
+    "illuminate/encryption": "~5.4"
   },
   "autoload": {
     "psr-4": {

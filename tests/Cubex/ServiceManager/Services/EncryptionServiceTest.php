@@ -14,16 +14,12 @@ class EncryptionServiceTest extends TestCase
   const CURRENT = 'current-key-0001';
   const OLDER = 'older-key-000002';
 
-  protected function _encrypter($key = null, $cipher = null)
+  protected function _encrypter($key = null)
   {
     $config = new TestConfigProvider();
     if($key !== null)
     {
       $config->addItem('security', 'encryption_key', $key);
-    }
-    if($cipher !== null)
-    {
-      $config->addItem('security', 'encryption_cipher', $cipher);
     }
     $cubex = new Cubex();
     $cubex->configure($config);
@@ -42,7 +38,7 @@ class EncryptionServiceTest extends TestCase
 
     $encrypter = $this->_encrypter();
     $this->assertInstanceOf(Encrypter::class, $encrypter);
-    $this->assertInstanceOf(IlluminateEncrypter::class, $encrypter);
+    $this->assertInstanceOf('\Illuminate\Contracts\Encryption\Encrypter', $encrypter);
     $this->assertEquals(EncryptionService::DEFAULT_KEY, $encrypter->getKey());
   }
 
@@ -78,23 +74,16 @@ class EncryptionServiceTest extends TestCase
     $this->_encrypter(['', self::OLDER]);
   }
 
-  public function testStringCipher()
+  public function test256BitKeys()
   {
     $key = str_repeat('a', 32);
-    $encrypter = $this->_encrypter($key, 'AES-256-CBC');
+    $encrypter = $this->_encrypter($key);
     $this->assertEquals(
       'value',
       (new IlluminateEncrypter($key, 'AES-256-CBC'))->decrypt($encrypter->encrypt('value'))
     );
-  }
 
-  public function testArrayCipher()
-  {
-    $key = str_repeat('a', 32);
-    $encrypter = $this->_encrypter(
-      [$key, self::OLDER],
-      ['AES-256-CBC', 'AES-128-CBC']
-    );
+    $encrypter = $this->_encrypter([$key, self::OLDER]);
     $this->assertEquals(
       'new',
       (new IlluminateEncrypter($key, 'AES-256-CBC'))->decrypt($encrypter->encrypt('new'))
@@ -102,15 +91,6 @@ class EncryptionServiceTest extends TestCase
     $this->assertEquals(
       'old',
       $encrypter->decrypt((new IlluminateEncrypter(self::OLDER))->encrypt('old'))
-    );
-  }
-
-  public function testEmptyCipherListUsesDefault()
-  {
-    $encrypter = $this->_encrypter(self::CURRENT, []);
-    $this->assertEquals(
-      'value',
-      (new IlluminateEncrypter(self::CURRENT))->decrypt($encrypter->encrypt('value'))
     );
   }
 }
