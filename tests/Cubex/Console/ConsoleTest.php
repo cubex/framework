@@ -50,9 +50,9 @@ class ConsoleTest extends TestCase
     $console->doRun($input, $output);
     $buffered = $output->fetch();
 
-    $this->assertContains('phpserver', $buffered);
-    $this->assertContains('Namer', $buffered);
-    $this->assertContains(
+    $this->assertStringContainsString('phpserver', $buffered);
+    $this->assertStringContainsString('Namer', $buffered);
+    $this->assertStringContainsString(
       'Command [broken] does not reference a valid class',
       $buffered
     );

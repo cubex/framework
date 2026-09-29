@@ -20,11 +20,11 @@ class BuiltInWebServerTest extends CommandTestCase
     $bufferOut = $this->getCommandOutput($command, $options);
     if($negate)
     {
-      $this->assertNotContains($passthru, $bufferOut);
+      $this->assertStringNotContainsString($passthru, $bufferOut);
     }
     else
     {
-      $this->assertContains($passthru, $bufferOut);
+      $this->assertStringContainsString($passthru, $bufferOut);
     }
   }
 

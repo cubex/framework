@@ -57,20 +57,16 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
 
   public function testNoConfig()
   {
-    $this->expectException(
-      "Exception",
-      "You must configure the MaxMindVisitor class"
-    );
+    $this->expectException("Exception");
+    $this->expectExceptionMessage("You must configure the MaxMindVisitor class");
     $visitor = new MaxmindVisitor();
     $visitor->getCountry();
   }
 
   public function testNoLicence()
   {
-    $this->expectException(
-      "Exception",
-      "No maxmind licence key specified"
-    );
+    $this->expectException("Exception");
+    $this->expectExceptionMessage("No maxmind licence key specified");
     $visitor = new MaxmindVisitor();
     $visitor->configure(
       new ConfigSection(
@@ -86,10 +82,8 @@ class MaxmindVisitorTestInternal extends InternalCubexTestCase
 
   public function testNoUserId()
   {
-    $this->expectException(
-      "Exception",
-      "No maxmind user id specified"
-    );
+    $this->expectException("Exception");
+    $this->expectExceptionMessage("No maxmind user id specified");
     $visitor = new MaxmindVisitor();
     $visitor->configure(
       new ConfigSection(

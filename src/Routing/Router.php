@@ -90,7 +90,7 @@ class Router implements IRouter
           {
             return $this->createRoute(
               $subMatch->getValue(),
-              Path::buildUnix($matchedPath, $subMatch->getMatchedPath())
+              Path::url($matchedPath, $subMatch->getMatchedPath())
             );
           }
           return null;

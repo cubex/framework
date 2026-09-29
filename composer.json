@@ -18,7 +18,7 @@
     "allow-plugins": false
   },
   "require": {
-    "php": ">=7.0",
+    "php": "~7.4",
     "psr/log": "~1.0",
     "illuminate/container": "~5.4",
     "illuminate/support": "~5.4",
@@ -27,7 +27,7 @@
     "monolog/monolog": "~1.10",
     "packaged/figlet": "~0",
     "packaged/config": "~1.0",
-    "packaged/helpers": "~1.0",
+    "packaged/helpers": "^1.17.1|~2.0",
     "packaged/api": "~1.0",
     "symfony/http-foundation": "~3.2",
     "symfony/http-kernel": "~3.2",
@@ -42,11 +42,16 @@
     "mockery/mockery": "~0.9",
     "guzzlehttp/guzzle": "~6.3",
     "geoip2/geoip2": "~2.1",
-    "phpunit/phpunit": "~6.3"
+    "phpunit/phpunit": "~9"
   },
   "autoload": {
     "psr-4": {
       "Cubex\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CubexTest\\": "tests/"
     }
   }
 }

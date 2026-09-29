@@ -122,11 +122,9 @@ class CubexKernelTest extends TestCase
 
   public function test404Handle()
   {
-    $this->expectException(
-      'Exception',
-      "The processed route did not yield a valid response",
-      404
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage("The processed route did not yield a valid response");
+    $this->expectExceptionCode(404);
 
     $request = Request::createFromGlobals();
     $kernel = new ResultNotFoundTest();
@@ -197,7 +195,7 @@ class CubexKernelTest extends TestCase
       '\Symfony\Component\HttpFoundation\Response',
       $resp
     );
-    $this->assertContains("Mocked Exception", $resp->getContent());
+    $this->assertStringContainsString("Mocked Exception", $resp->getContent());
   }
 
   public function testHandleInvalidResponse()
@@ -213,7 +211,8 @@ class CubexKernelTest extends TestCase
 
   public function testThrowsExceptionWithNoRouter()
   {
-    $this->expectException("RuntimeException", "No IRouter located");
+    $this->expectException("RuntimeException");
+    $this->expectExceptionMessage("No IRouter located");
     $request = Request::createFromGlobals();
     $kernel = $this->getKernel();
     $kernel->getCubex()->instance('\Cubex\Routing\IRouter', new \stdClass());
@@ -464,7 +463,8 @@ class CubexKernelTest extends TestCase
 
     if(!$catch)
     {
-      $this->expectException('Exception', $exception);
+      $this->expectException('Exception');
+      $this->expectExceptionMessage($exception);
     }
 
     $result = $kernel->executeRoute($route, $request, $type, $catch);
@@ -862,7 +862,7 @@ class CubexKernelTest extends TestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains(
+    $this->assertStringContainsString(
       'Error 403 - Access Forbidden',
       $result->getContent()
     );
@@ -934,7 +934,7 @@ class CubexKernelTest extends TestCase
   public function testRouteData()
   {
     $kernel = new RouteDataTest();
-    $this->assertInternalType('array', $kernel->getRouteData());
+    $this->assertIsArray($kernel->getRouteData());
     $this->assertArrayHasKey('one', $kernel->getRouteData());
     $this->assertCount(2, $kernel->getRouteData());
     $this->assertNull($kernel->getRouteData('three'));

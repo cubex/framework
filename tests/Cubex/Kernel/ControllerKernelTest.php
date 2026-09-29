@@ -9,6 +9,6 @@ class ControllerKernelTest extends TestCase
   public function testSubRoutesRetunsArray()
   {
     $kernel = new ControllerKernel();
-    $this->assertInternalType('array', $kernel->subRouteTo());
+    $this->assertIsArray($kernel->subRouteTo());
   }
 }

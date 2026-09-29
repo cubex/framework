@@ -47,7 +47,7 @@ class ConsoleCommandTest extends CommandTestCase
   public function testOutput()
   {
     $command = new TestConsoleCommand();
-    $this->assertContains(
+    $this->assertStringContainsString(
       'First: Brooke
 Last: Bryan
 Middle(s): Anthony James',
@@ -65,7 +65,7 @@ Middle(s): Anthony James',
   public function testOutputProcess()
   {
     $command = new TestProcessConsoleCommand();
-    $this->assertContains(
+    $this->assertStringContainsString(
       'First: Brooke
 Last: Bryan
 Middle(s): Anthony James',
@@ -90,10 +90,8 @@ Middle(s): Anthony James',
   public function testSetCubex()
   {
     $command = new TestProcessConsoleCommand();
-    $this->expectException(
-      'Exception',
-      'Cubex is controlled by the application'
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage('Cubex is controlled by the application');
     $command->setCubex(new \Cubex\Cubex());
   }
 }

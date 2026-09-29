@@ -132,14 +132,14 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
       $this->_templateDir = dirname($this->_templateDir);
     }
 
-    $this->_templateDir = Path::build(
+    $this->_templateDir = Path::system(
       $this->_templateDir,
       $this->_templateDirName
     );
 
     if($this->_templateFile === null)
     {
-      $this->_templateFile = Path::buildCustom(
+      $this->_templateFile = Path::custom(
         DIRECTORY_SEPARATOR,
         array_reverse($nesting)
       );
@@ -155,7 +155,7 @@ abstract class ViewModel implements RenderableInterface, ICubexAware
    */
   public function getTemplatePath($extension = '.phtml')
   {
-    return Path::build(
+    return Path::system(
         $this->getTemplateDir(),
         $this->getTemplateFile()
       ) . $extension;

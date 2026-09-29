@@ -23,7 +23,7 @@ class ViewModelTest extends TestCase
     $this->assertEquals('randomFile', $view->getTemplateFile());
 
     $this->assertEquals(
-      Path::build('randomDir', 'randomFile.phtml'),
+      Path::system('randomDir', 'randomFile.phtml'),
       $view->getTemplatePath('.phtml')
     );
   }
@@ -59,7 +59,7 @@ class ViewModelTest extends TestCase
     $exception = 'Render Exception';
     $viewModel = new RenderableViewModel($exception);
     $expect = '<h1>An uncaught exception was thrown</h1>';
-    $this->assertContains($expect, (string)$viewModel);
+    $this->assertStringContainsString($expect, (string)$viewModel);
   }
 }
 

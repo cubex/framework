@@ -253,7 +253,7 @@ abstract class CubexKernel
       try
       {
         $route = $router->process(
-          Path::buildUnix($this->_pathProcessed, $path)
+          Path::url($this->_pathProcessed, $path)
         );
         $this->_pathProcessed = null;
       }
@@ -296,7 +296,7 @@ abstract class CubexKernel
       foreach($subRoutes as $subRoute)
       {
         //Half sprintf style, but changed to str_replace for multiple instances
-        $attempt = Path::buildWindows(
+        $attempt = Path::windows(
           $namespace,
           str_replace('%s', $classPath, $subRoute)
         );
@@ -351,7 +351,7 @@ abstract class CubexKernel
       if(stripos($value, '\\') !== false && preg_match($match, $value))
       {
         $class = $value;
-        $nsClass = Path::buildWindows(Objects::getNamespace($this), $value);
+        $nsClass = Path::windows(Objects::getNamespace($this), $value);
 
         try
         {
@@ -409,7 +409,7 @@ abstract class CubexKernel
 
     if($value instanceof CubexKernel)
     {
-      $value->_pathProcessed = Path::buildUnix(
+      $value->_pathProcessed = Path::url(
         $this->_pathProcessed,
         $route->getMatchedPath()
       );

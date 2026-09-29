@@ -19,10 +19,8 @@ class IPAuthProviderTest extends TestCase
   public function testForgottenPassword()
   {
     $auth = new IPAuthProvider();
-    $this->expectException(
-      '\Exception',
-      'Forgotten Password is not available'
-    );
+    $this->expectException('\Exception');
+    $this->expectExceptionMessage('Forgotten Password is not available');
     $auth->forgottenPassword('user');
   }
 
@@ -45,7 +43,8 @@ class IPAuthProviderTest extends TestCase
   {
     if($exception !== null)
     {
-      $this->expectException('\Exception', $exception);
+      $this->expectException('\Exception');
+      $this->expectExceptionMessage($exception);
     }
 
     $cnf = [];

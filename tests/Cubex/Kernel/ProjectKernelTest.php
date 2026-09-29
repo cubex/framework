@@ -9,6 +9,6 @@ class ProjectKernelTest extends TestCase
   public function testSubRoutesRetunsArray()
   {
     $kernel = new ProjectKernel();
-    $this->assertInternalType('array', $kernel->subRouteTo());
+    $this->assertIsArray($kernel->subRouteTo());
   }
 }

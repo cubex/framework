@@ -51,7 +51,8 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
 
     if(!$catch)
     {
-      $this->expectException('Exception', $expect);
+      $this->expectException('Exception');
+      $this->expectExceptionMessage($expect);
     }
 
     $response = $class->handle(
@@ -62,7 +63,7 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
 
     if(is_scalar($expect))
     {
-      $this->assertContains($expect, $response->getContent());
+      $this->assertStringContainsString($expect, $response->getContent());
     }
     else
     {
@@ -99,7 +100,7 @@ class SubdomainKernelTestInternal extends InternalCubexTestCase
       HttpKernelInterface::MASTER_REQUEST,
       false
     );
-    $this->assertContains('Please Login', (string)$result);
+    $this->assertStringContainsString('Please Login', (string)$result);
   }
 }
 

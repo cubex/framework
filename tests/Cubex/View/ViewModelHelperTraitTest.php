@@ -32,7 +32,8 @@ class ViewModelHelperTraitTest extends TestCase
 
   public function testMagicException()
   {
-    $this->expectException('\Exception', 'Unsupported method random');
+    $this->expectException('\Exception');
+    $this->expectExceptionMessage('Unsupported method random');
     $class = new TestableViewModelHelperTrait();
     $class->random();
   }

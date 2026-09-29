@@ -27,10 +27,8 @@ class LayoutTest extends TestCase
 
   public function testInvalidSectionGet()
   {
-    $this->expectException(
-      'Exception',
-      "missing has not yet been bound to this layout"
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage("missing has not yet been bound to this layout");
     $layout = new Layout(new CubexProject(), 'Default');
     $layout->get('missing');
   }
@@ -40,8 +38,8 @@ class LayoutTest extends TestCase
     $layout = new Layout(new CubexProject(), 'Default');
     $layout->insert('testing', new RenderableSection());
     $rendered = $layout->render();
-    $this->assertContains('Testing', $rendered);
-    $this->assertContains('<pre>section</pre>', $rendered);
+    $this->assertStringContainsString('Testing', $rendered);
+    $this->assertStringContainsString('<pre>section</pre>', $rendered);
   }
 
   public function testSetCallingClass()
@@ -50,8 +48,8 @@ class LayoutTest extends TestCase
     $layout->setCallingClass('namespaced\CubexProject');
     $layout->insert('testing', new RenderableSection());
     $rendered = $layout->render();
-    $this->assertContains('Testing', $rendered);
-    $this->assertContains('<pre>section</pre>', $rendered);
+    $this->assertStringContainsString('Testing', $rendered);
+    $this->assertStringContainsString('<pre>section</pre>', $rendered);
   }
 
   public function testData()

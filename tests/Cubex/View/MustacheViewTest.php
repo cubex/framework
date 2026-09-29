@@ -11,7 +11,7 @@ class MustacheViewTest extends TestCase
     $view = new TestMustacheModel();
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('mustache');
-    $this->assertContains(
+    $this->assertStringContainsString(
       'Hello Test You have just won $10 ($12)!',
       $view->render()
     );
@@ -23,10 +23,8 @@ class MustacheViewTest extends TestCase
     $view->setTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'res');
     $view->setTemplateFile('invalid');
     $tpl = $view->getTemplatePath('.phtml');
-    $this->expectException(
-      'Exception',
-      'The template file \'' . $tpl . '\' does not exist'
-    );
+    $this->expectException('Exception');
+    $this->expectExceptionMessage('The template file \'' . $tpl . '\' does not exist');
     $view->render();
   }
 }
